@@ -154,8 +154,8 @@ public class Paint
 	private boolean imageIn (int x, int y, Image img)
 	{
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
-		       y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			   !isTrans(img.getImg().getRGB(x, y));
+			y >= img.getY() && y < img.getY() + img.getImgHeight() &&
+			!isTrans(img.getImg().getRGB(x, y));
 	}
 
 	public static boolean isTrans(int rgb)
@@ -193,9 +193,9 @@ public class Paint
 			Point p = file.remove();
 
 			if ( p.x() >= 0 && p.x() < bi.getWidth  () && p.y() >= 0 && p.y() < bi.getHeight () &&
-			    //  colorOrig == ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF)
+				//  colorOrig == ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF)
 				sameColor(colorOrig, ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF), distance)
-			   )
+			)
 			{
 				bi.setRGB ( p.x(), p.y(), argb );
 				
@@ -306,8 +306,8 @@ public class Paint
 			for (int y = yCenter - radius; y < yCenter + radius; y++) 
 			{
 				if (x > 0 && x < this.width && y > 0 && y < this.height && 
-				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
-				   )
+					radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
+				)
 				{
 					Image img = this.getClickedImage(x, y);
 					if (img != null) {
@@ -408,11 +408,11 @@ public class Paint
 					Color colBD = new Color(img.getRGB(x2, y2));
 	
 					int r = (int) (wHG * colHG.getRed()   + wBG * colBG.getRed()   +
-								   wHD * colHD.getRed()   + wBD * colBD.getRed());
+								wHD * colHD.getRed()   + wBD * colBD.getRed());
 					int g = (int) (wHG * colHG.getGreen() + wBG * colBG.getGreen() +
-								   wHD * colHD.getGreen() + wBD * colBD.getGreen());
+								wHD * colHD.getGreen() + wBD * colBD.getGreen());
 					int b = (int) (wHG * colHG.getBlue()  + wBG * colBG.getBlue()  +
-								   wHD * colHD.getBlue()  + wBD * colBD.getBlue());
+								wHD * colHD.getBlue()  + wBD * colBD.getBlue());
 	
 					rotatedImg.setRGB(rX, rY, new Color(r, g, b).getRGB());
 				}
@@ -488,23 +488,21 @@ public class Paint
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipHorizontal(int xCenter, int yCenter, int radius) 
-	{
-		for (int x = xCenter - radius; x < xCenter + radius; x++) {
-			for (int y = yCenter - radius; y < yCenter + radius; y++) 
-			{
-				if (x > 0 && x < this.width && y > 0 && y < this.height && 
-				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
-				   )
-				{
-					Image img = this.getClickedImage(x, y);
+	public void flipHorizontal(int xCenter, int yCenter, int radius) {
+		for (int x = xCenter - radius; x < xCenter; x++) {
+			for (int y = yCenter - radius; y <= yCenter + radius; y++) {
+				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
+					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) {
+					
+					Image img = getClickedImage(x, y);
 					if (img != null) {
 						BufferedImage bi = img.getImg();
-	
-						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
-						Color newColor = new Color(nouvVal);
-						bi.setRGB(x, y, newColor.getRGB()); 
+						int mirrorX = xCenter + (xCenter - x);
+						if (mirrorX >= 0 && mirrorX < this.width) {
+							int temp = bi.getRGB(x, y);
+							bi.setRGB(x, y, bi.getRGB(mirrorX, y));
+							bi.setRGB(mirrorX, y, temp);
+						}
 					}
 				}
 			}
@@ -537,7 +535,7 @@ public class Paint
 	}
 	
 	/**
-	 * Flip horizontal d'une zone rectanculaire.
+	 * Flip vertical d'une zone rectanculaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
@@ -563,7 +561,39 @@ public class Paint
 		}
 	}
 	
+	/**
+	 * Flip vertical d'une zone circulaire. 
+	 * @param xCenter
+	 * @param yCenter
+	 * @param radius
+	 */
+	public void flipVertical(int xCenter, int yCenter, int radius) 
+	{
+		for (int x = xCenter - radius; x <= xCenter + radius; x++) 
+		{
+			for (int y = yCenter - radius; y < yCenter; y++) 
+			{
+				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
+					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
+				{
+					Image img = getClickedImage(x, y);
 
+					if (img != null) 
+					{
+						BufferedImage bi = img.getImg();
+						int mirrorY = yCenter + (yCenter - y);
+						if (mirrorY >= 0 && mirrorY < this.height) 
+						{
+							int temp = bi.getRGB(x, y);
+							bi.setRGB(x, y, bi.getRGB(x, mirrorY));
+							bi.setRGB(x, mirrorY, temp);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 
 
 
@@ -590,7 +620,8 @@ public class Paint
 			// p.setLuminosite(150,150, 50, -100);
 			// p.retourner(img, 30);
 
-			p.flipVertical(0, 100, img.getImgWidth() / 2, 300);
+			p.flipHorizontal(150, 100, 50);
+			p.flipVertical(150, 100, 50);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
