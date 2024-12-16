@@ -1,20 +1,30 @@
-package paint.metier;
+package metier;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import javax.imageio.ImageIO;
+
+// import paint.Controlleur;
+
+record Point(int x,int y){}
+
 
 public class Paint 
 {
+
 	/* --------------------------------------------------- */
 	/*                    VARIABLE STATIC                  */
 	/* --------------------------------------------------- */
 
 	/** Largeur par défauts. */
-	public static final int DEFAULT_WIDTH  = 500;
+	public static final int DEFAULT_WIDTH  = 300;
 	/** Hauteyr par défauts. */
-	public static final int DEFAULT_HEIGHT = 500;
+	public static final int DEFAULT_HEIGHT = 300;
 
 
 	
@@ -31,7 +41,7 @@ public class Paint
 	private int height;
 	
 	/** Controller. */
-	private Controlleur ctrl;
+	// private Controlleur ctrl;
 	
 
 
@@ -44,13 +54,14 @@ public class Paint
 	 * Constructeur par défauts (sans rien).
 	 * @param ctrl
 	 */
-	public Paint(Controlleur ctrl)
+	public Paint()//Controlleur ctrl)
 	{
-		this.ctrl = ctrl;
+		// this.ctrl = ctrl;
 		this.lstImages = new ArrayList<>();
-
+		
 		this.width  = Paint.DEFAULT_WIDTH ;
 		this.height = Paint.DEFAULT_HEIGHT;
+		new Image(0, 0, new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB));
 	}
 	
 
@@ -86,12 +97,11 @@ public class Paint
 
 			BufferedImage imgEntre = img.getImg();
 
-			for (int x = 0; x < imgEntre.getWidth(); x++)
+			for (int x = 0; x < imgEntre.getWidth() && x < this.width; x++)
 			{
-				for (int y = 0; y < imgEntre.getHeight(); y++)
+				for (int y = 0; y < imgEntre.getHeight() && y < this.height; y++)
 				{
 					int coul = (imgEntre.getRGB(x, y));
-
 					// Not transparent, x and y in zone
 					if((coul>>24) != 0x00 && x + xStart <= this.width && y + yStart <= this.height)
 						imgSortie.setRGB(x + xStart, y + yStart, coul);
@@ -110,7 +120,7 @@ public class Paint
 	 */
 	public Image getClickedImage(int x, int y)
 	{
-		for (int i = this.lstImages.size(); i >= 0; i--)
+		for (int i = this.lstImages.size() - 1; i >= 0; i--)
 			if (imageIn(x, y, this.lstImages.get(i))) 
 				return this.lstImages.get(i);
 
@@ -138,9 +148,14 @@ public class Paint
 	 */
 	private boolean imageIn (int x, int y, Image img)
 	{
-		return x > img.getX() && x < img.getX() + img.getImgWidth () && 
-		       y > img.getY() && y < img.getY() + img.getImgHeight() &&
-			   img.getImg().getRGB(x, y) >>24 != 0x00;
+		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
+		       y >= img.getY() && y < img.getY() + img.getImgHeight() &&
+			   !isTrans(img.getImg().getRGB(x, y));
+	}
+
+	public static boolean isTrans(int rgb)
+	{
+		return ((rgb >>24 )& 0xff) == 0;
 	}
 
 
@@ -152,46 +167,66 @@ public class Paint
 
 
 	/**
-	 * Méthode de bucket a appellé.
+	 * Méthode de bucket à appeler.
 	 * @param x
 	 * @param y
 	 * @param argb
 	 */
-	public void bucket (int x, int y, int argb)
+	public void bucket(int x, int y, int argb, int distance) 
 	{
-		BufferedImage ensImage = this.getImage();
+		BufferedImage bi = this.getImage();
+		
+		Queue<Point> file = new LinkedList<Point>();
+		int colorOrig;
 
-		this.bucketRecursive(x, y, argb, ensImage.getRGB(x, y), ensImage);
-	}
+		colorOrig = bi.getRGB( x, y ) & 0xFFFFFF;
 
-	/**
-	 * Méthode récursive 
-	 * @param x
-	 * @param y
-	 * @param argbChange
-	 * @param argComp
-	 * @param img
-	 */
-	private void bucketRecursive (int x, int y, int argbChange, int argComp, BufferedImage img)
-	{
-		if (img.getRGB(x, y) == argComp)
+		file.add ( new Point ( x, y ) );
+
+		while ( ! file.isEmpty() )
 		{
-			// Changer le pixel sur la première image qu'on trouvera 
-			BufferedImage imgChange = this.getClickedImage(x,y).getImg();
-			
-			if(imgChange != null)
+			Point p = file.remove();
+
+			if ( p.x() >= 0 && p.x() < bi.getWidth  () && p.y() >= 0 && p.y() < bi.getHeight () &&
+			    //  colorOrig == ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF)
+				sameColor(colorOrig, ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF), distance)
+			   )
 			{
-				imgChange.setRGB(x, y, argbChange);
+				bi.setRGB ( p.x(), p.y(), argb );
 				
-				// Verifier si on doit le faire aussi autour
-				if ( x + 1 < width && y - 1 < height && img.getRGB(x + 1, y - 1) == argComp) bucketRecursive(x + 1, y - 1, argbChange, argComp, imgChange);
-				if ( x + 1 < width && y + 1 < height && img.getRGB(x + 1, y + 1) == argComp) bucketRecursive(x + 1, y + 1, argbChange, argComp, imgChange);
-				if ( x - 1 < width && y - 1 < height && img.getRGB(x - 1, y - 1) == argComp) bucketRecursive(x - 1, y - 1, argbChange, argComp, imgChange);
-				if ( x - 1 < width && y + 1 < height && img.getRGB(x - 1, y + 1) == argComp) bucketRecursive(x - 1, y + 1, argbChange, argComp, imgChange);
+				if (this.getClickedImage(p.x(), p.y()) != null)
+					this.getClickedImage(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
+
+				file.add ( new Point ( p.x()+1, p.y()   ) );
+				file.add ( new Point ( p.x()-1, p.y()   ) );
+				file.add ( new Point ( p.x()  , p.y()-1 ) );
+				file.add ( new Point ( p.x()  , p.y()+1 ) );
 			}
 		}
 	}
+
 	
+	public static boolean sameColor (int c1, int c2, int dist)
+	{
+		int b1 = c1%256;
+		c1     = c1/256;
+		int g1 = c1%256;
+		c1     = c1/256;
+		int r1 = c1%256;
+
+		int b2 = c2%256;
+		c2     = c2/256;
+		int g2 = c2%256;
+		c2     = c2/256;
+		int r2 = c2%256;
+
+
+		int distance = (int) (Math.sqrt(Math.pow(r1 - r2, 2.0) + Math.pow(g1 - g2, 2.0) + Math.pow(b1 - b2, 2.0)));
+
+		return distance < dist;
+	}
+
+
 
 
 
@@ -286,7 +321,21 @@ public class Paint
 	/*                                           METHODE LUMINOSITE                                        */
 	/* --------------------------------------------------------------------------------------------------- */
 
-	
+
+	public static void main(String[] args) {
+		Paint p = new Paint();
+
+		try {
+			
+			p.addImage(new Image(0,0, ImageIO.read(new File("src/metier/trans.png"))));
+			p.bucket(0, 0, Color.RED.getRGB(), 80);
+
+			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 
 }

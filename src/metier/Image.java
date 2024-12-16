@@ -1,4 +1,4 @@
-package paint.metier;
+package metier;
 
 import java.awt.image.BufferedImage;
 
@@ -8,6 +8,13 @@ public class Image
 	private int y;
 
 	private BufferedImage img;
+
+	public Image (int x, int y, BufferedImage img)
+	{
+		this.x   = x;
+		this.y   = y;
+		this.img = img;
+	}
 
 	public int getX        () { return this.x;  }
 	public int getY        () { return this.y;  }
