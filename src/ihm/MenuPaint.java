@@ -110,7 +110,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private void createImage()
 	{
 		// Creation d'une nouvelle image
-		BufferedImage bi = new BufferedImage(FrameApp.width, FrameApp.height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bi = new BufferedImage(FrameApp.DEFAULT_WIDTH, FrameApp.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = bi.createGraphics();
 
 		// Remplissage  de l'image
