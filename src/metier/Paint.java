@@ -293,17 +293,22 @@ public class Paint
 		}
 	}
 
+	/**
+	 * Changer la luminosité d'une zone circulaire.
+	 * @param xCenter
+	 * @param yCenter
+	 * @param radius
+	 * @param var
+	 */
+	public void setLuminosite(int xCenter, int yCenter, int radius, int var) {
 
-	public void setLuminosite(int xStart, int yStart, int xFin, int yFin, int radius, int var) {
-		// Calcul du centre du cercle
-		int x0 = (xStart + xFin) / 2;
-		int y0 = (yStart + yFin) / 2;
-	
-		for (int x = xStart; x < xFin; x++) {
-			for (int y = yStart; y < yFin; y++) {
-				int distancesquared = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-
-				if (distancesquared <= radius * radius) {
+		for (int x = xCenter - radius; x < xCenter + radius; x++) {
+			for (int y = yCenter - radius; y < yCenter + radius; y++) 
+			{
+				if (x > 0 && x < this.width && y > 0 && y < this.height && 
+				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
+				   )
+				{
 					Image img = this.getClickedImage(x, y);
 					if (img != null) {
 						BufferedImage bi = img.getImg();
@@ -362,8 +367,10 @@ public class Paint
 			
 			// p.bucket(0, 0, Color.RED.getRGB(), 80);
 
-			// p.setLuminosite(img, -200);
-			p.setLuminosite(0,0,100,100, 50, -100);
+			// // p.setLuminosite(img, -200);
+			// p.setLuminosite(0,0,100,100, 50, -100);
+			// p.setLuminosite(200,200,100,100, 50, -100);
+			p.setLuminosite(150,150, 50, -100);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
