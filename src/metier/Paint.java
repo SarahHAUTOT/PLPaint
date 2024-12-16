@@ -348,7 +348,224 @@ public class Paint
 
 		return r * 256 * 256 + g * 256 + b;
 	}
+
+
+
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                            METHODE ROTATIONS                                        */
+	/* --------------------------------------------------------------------------------------------------- */
+
 	
+	public void retourner(Image image, int angle) 
+	{
+		BufferedImage img = image.getImg();
+
+		double angleRad = Math.toRadians(angle);
+		double sin = Math.sin(angleRad);
+		double cos = Math.cos(angleRad);
+	
+		int nH = (int) Math.floor(img.getWidth() * Math.abs(sin) + img.getHeight() * Math.abs(cos));
+		int nW = (int) Math.floor(img.getWidth() * Math.abs(cos) + img.getHeight() * Math.abs(sin));
+	
+		BufferedImage rotatedImg = new BufferedImage(nW, nH, BufferedImage.TYPE_INT_ARGB);
+	
+		int xO = width / 2;
+		int yO = height / 2;
+	
+		for (int rX = 0; rX < nW; rX++) 
+		{
+			for (int rY = 0; rY < nH; rY++) 
+			{
+				double x = (rX - xO) * cos + (rY - yO) * sin + xO;
+				double y = -(rX - xO) * sin + (rY - yO) * cos + yO;
+	
+				if (x >= 0 && x < nW && y >= 0 && y < nH) 
+				{
+					int x1 = (int) Math.floor(x);
+					int x2 = x1 + 1;
+					int y1 = (int) Math.floor(y);
+					int y2 = y1 + 1;
+	
+					double dx = x - x1;
+					double dy = y - y1;
+	
+					double wHG = (1 - dx) * (1 - dy);
+					double wBG = dx * (1 - dy);      
+					double wHD = (1 - dx) * dy;      
+					double wBD = dx * dy;            
+	
+					x1 = Math.max(0, Math.min(x1, width - 1));
+					x2 = Math.max(0, Math.min(x2, width - 1));
+					y1 = Math.max(0, Math.min(y1, height - 1));
+					y2 = Math.max(0, Math.min(y2, height - 1));
+	
+					Color colHG = new Color(img.getRGB(x1, y1));
+					Color colBG = new Color(img.getRGB(x2, y1));
+					Color colHD = new Color(img.getRGB(x1, y2));
+					Color colBD = new Color(img.getRGB(x2, y2));
+	
+					int r = (int) (wHG * colHG.getRed()   + wBG * colBG.getRed()   +
+								   wHD * colHD.getRed()   + wBD * colBD.getRed());
+					int g = (int) (wHG * colHG.getGreen() + wBG * colBG.getGreen() +
+								   wHD * colHD.getGreen() + wBD * colBD.getGreen());
+					int b = (int) (wHG * colHG.getBlue()  + wBG * colBG.getBlue()  +
+								   wHD * colHD.getBlue()  + wBD * colBD.getBlue());
+	
+					rotatedImg.setRGB(rX, rY, new Color(r, g, b).getRGB());
+				}
+			}
+		}
+	
+		image.setImg(rotatedImg);
+	}
+
+
+
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                            METHODE INVERSER                                         */
+	/* --------------------------------------------------------------------------------------------------- */
+	
+	/**
+	 * Flip horizontal d'une image.
+	 * @param img
+	 */
+	public void flipHorizontal(Image img) 
+	{
+		BufferedImage bi = img.getImg();
+
+		int width  = img.getImgWidth();
+		int height = img.getImgHeight();
+	
+		for (int x = 0; x < width / 2; x++) 
+		{
+			for (int y = 0; y < height; y++) 
+			{
+				int temp = bi.getRGB(x, y);
+	
+				bi.setRGB(x, y, bi.getRGB(width - x - 1, y));
+				bi.setRGB(width - x - 1, y, temp);
+			}
+		}
+	}
+	
+	/**
+	 * Flip horizontal d'une zone rectanculaire.
+	 * @param xStart
+	 * @param yStart
+	 * @param xEnd
+	 * @param yEnd
+	 */
+	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
+	{
+		for (int x = xStart; x < xEnd / 2; x++) 
+		{
+			for (int y = yStart; y < yEnd; y++) 
+			{
+				Image img = getClickedImage(x, y);
+
+				if (img != null)
+				{
+					BufferedImage bi = img.getImg();
+					int temp = bi.getRGB(x, y);
+		
+					bi.setRGB(x, y, bi.getRGB(xEnd - x - 1, y));
+					bi.setRGB(xEnd - x - 1, y, temp);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Flip horizontal d'une zone circulaire.
+	 * @param xStart
+	 * @param yStart
+	 * @param xEnd
+	 * @param yEnd
+	 */
+	public void flipHorizontal(int xCenter, int yCenter, int radius) 
+	{
+		for (int x = xCenter - radius; x < xCenter + radius; x++) {
+			for (int y = yCenter - radius; y < yCenter + radius; y++) 
+			{
+				if (x > 0 && x < this.width && y > 0 && y < this.height && 
+				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
+				   )
+				{
+					Image img = this.getClickedImage(x, y);
+					if (img != null) {
+						BufferedImage bi = img.getImg();
+	
+						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
+						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
+						Color newColor = new Color(nouvVal);
+						bi.setRGB(x, y, newColor.getRGB()); 
+					}
+				}
+			}
+		}
+	}
+
+
+
+	/**
+	 * Flip vertical d'une image.
+	 * @param img
+	 */
+	public void flipVertical(Image img) 
+	{
+		BufferedImage bi = img.getImg();
+
+		int width  = img.getImgWidth();
+		int height = img.getImgHeight();
+	
+		for (int x = 0; x < width; x++) 
+		{
+			for (int y = 0; y < height / 2; y++) 
+			{
+				int temp = bi.getRGB(x, y);
+	
+				bi.setRGB(x, y, bi.getRGB(x, height - y - 1));
+				bi.setRGB(x, height - y - 1, temp);
+			}
+		}
+	}
+	
+	/**
+	 * Flip horizontal d'une zone rectanculaire.
+	 * @param xStart
+	 * @param yStart
+	 * @param xEnd
+	 * @param yEnd
+	 */
+	public void flipVertical(int xStart, int yStart, int xEnd, int yEnd) 
+	{
+		for (int x = xStart; x < xEnd; x++) 
+		{
+			for (int y = yStart; y < yEnd / 2; y++) 
+			{
+				Image img = getClickedImage(x, y);
+
+				if (img != null)
+				{
+					BufferedImage bi = img.getImg();
+					int temp = bi.getRGB(x, y);
+		
+					bi.setRGB(x, y, bi.getRGB(x, yEnd - y - 1));
+					bi.setRGB(x, yEnd - y - 1, temp);
+				}
+			}
+		}
+	}
+	
+
+
+
 
 
 
@@ -370,7 +587,10 @@ public class Paint
 			// // p.setLuminosite(img, -200);
 			// p.setLuminosite(0,0,100,100, 50, -100);
 			// p.setLuminosite(200,200,100,100, 50, -100);
-			p.setLuminosite(150,150, 50, -100);
+			// p.setLuminosite(150,150, 50, -100);
+			// p.retourner(img, 30);
+
+			p.flipVertical(0, 100, img.getImgWidth() / 2, 300);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
