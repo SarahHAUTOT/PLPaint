@@ -11,7 +11,7 @@ public class PanelImage extends JPanel implements MouseListener
 {
 	private FrameApp      frame;
 	private BufferedImage fullImage;
-
+	
 	public PanelImage(FrameApp frame)
 	{
 		/* Création des composants */
@@ -48,7 +48,10 @@ public class PanelImage extends JPanel implements MouseListener
 	/* --------------------------------------------------------------------------------- */
 
 	@Override
-	public void mouseClicked(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e)
+	{
+
+	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {}

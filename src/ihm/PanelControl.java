@@ -1,6 +1,5 @@
 package ihm;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -13,7 +12,7 @@ import javax.swing.JPanel;
 public class PanelControl extends JPanel implements ActionListener
 {
 	private FrameApp frame;
-	private char lastAction;
+	private int      action;
 
 	private JButton eyedropper;
 	private JButton bucket;
@@ -33,7 +32,8 @@ public class PanelControl extends JPanel implements ActionListener
 	public PanelControl(FrameApp frame)
 	{
 		/* Création des composants */
-		this.frame = frame;
+		this.frame  = frame;
+		this.action = 0;
 		try
 		{
 			this.eyedropper = new JButton(new ImageIcon("./src/ihm/icons/eyedropper.png"));
@@ -47,7 +47,7 @@ public class PanelControl extends JPanel implements ActionListener
 	
 			this.selectionRectangle = new JButton(new ImageIcon("./src/ihm/icons/square-dotted.png"));
 			this.selectionCircle    = new JButton(new ImageIcon("./src/ihm/icons/circle-dotted.png"));
-	
+
 			this.removeBg  = new JButton(new ImageIcon("./src/ihm/icons/rm-bg.png"));
 			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
 			
@@ -83,12 +83,16 @@ public class PanelControl extends JPanel implements ActionListener
 		/* Positionnement des composants */
 		panelGrid.add(eyedropper);
 		panelGrid.add(bucket);
+
 		panelGrid.add(darken);
 		panelGrid.add(brighten);
+
 		panelGrid.add(rotation);
 		panelGrid.add(turn);
+
 		panelGrid.add(selectionRectangle);
 		panelGrid.add(selectionCircle);
+
 		panelGrid.add(removeBg);
 		panelGrid.add(writeText);
 
@@ -111,6 +115,8 @@ public class PanelControl extends JPanel implements ActionListener
 		this.writeText.addActionListener(this);
 	}
 
+	public int getAction() { return this.action; }
+
 	/* --------------------------------------------------------------------------------- */
 	/*                              METHODE ECOUTEUR BOUTON                              */
 	/* --------------------------------------------------------------------------------- */
@@ -119,39 +125,33 @@ public class PanelControl extends JPanel implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		if (this.eyedropper == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_EYEDROPPER;
 
 		if (this.bucket == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_BUCKET;
 
 		if (this.darken == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_DARKEN;
 
 		if (this.brighten == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_BRIGHTEN;
 
 		if (this.rotation == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_ROTATION;
 
 		if (this.turn == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_TURN_AROUND;
 
 		if (this.selectionRectangle == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_SELECT_RECTANGLE;
 
 		if (this.selectionCircle == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_SELECT_CIRCLE;
 
 		if (this.removeBg == e.getSource())
-			// this.frame.methode();
+			this.action = FrameApp.ACTION_REMOVE_BG;
 
-		if (this.writeText == e.getSource()) {}
-			// this.frame.methode();
+		if (this.writeText == e.getSource())
+			this.action = FrameApp.ACTION_WRITE_TEXT;
 	}
-
-	
-	/* --------------------------------------------------------------------------------- */
-	/*                              METHODE DE LA FRAME                                  */
-	/* --------------------------------------------------------------------------------- */
-
 }
