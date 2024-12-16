@@ -80,8 +80,12 @@ public class Paint
 			
 			int h = img.getImg().getHeight(); 
 			int w = img.getImg().getWidth(); 
-			if ( h > this.height ) this.height = h;
-			if ( w > this.width  ) this.width  = w;
+
+			if ( h > this.height) this.height = h;
+			if ( w > this.width ) this.width  = w;
+
+			System.out.println(h + " " + this.height);
+			System.out.println(w + " " + this.width );
 		}
 	}
 
@@ -89,32 +93,37 @@ public class Paint
 	 * Retourne une image qui est l'image combiné des autres
 	 * @return
 	 */
-	public BufferedImage getImage()
+	public BufferedImage getImage() 
 	{
 		BufferedImage imgSortie = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-
-		// Parcourir chacune des pixels des images
+	
 		for (Image img : this.lstImages) 
 		{
 			int xStart = img.getX();
 			int yStart = img.getY();
-
+	
 			BufferedImage imgEntre = img.getImg();
-
-			for (int x = 0; x < imgEntre.getWidth() && x < this.width; x++)
+	
+			for (int x = 0; x < imgEntre.getWidth(); x++) 
 			{
-				for (int y = 0; y < imgEntre.getHeight() && y < this.height; y++)
+				for (int y = 0; y < imgEntre.getHeight(); y++) 
 				{
-					int coul = (imgEntre.getRGB(x, y));
-					// Not transparent, x and y in zone
-					if((coul>>24) != 0x00 && x + xStart <= this.width && y + yStart <= this.height)
-						imgSortie.setRGB(x + xStart, y + yStart, coul);
+					int coul = imgEntre.getRGB(x, y);
+	
+					if ((coul >> 24) != 0x00) {
+						int xDest = x + xStart;
+						int yDest = y + yStart;
+	
+						if (xDest >= 0 && xDest < this.width && yDest >= 0 && yDest < this.height) 
+							imgSortie.setRGB(xDest, yDest, coul);
+					}
 				}
 			}
 		}
-
+	
 		return imgSortie;
 	}
+	
 
 	/**
 	 * Récupérer l'image (celle-tous devant) ou elle a était cliqué.
@@ -358,69 +367,63 @@ public class Paint
 	/* --------------------------------------------------------------------------------------------------- */
 
 	
-	public void retourner(Image image, int angle) 
-	{
+	public void retourner(Image image, int angle) {
 		BufferedImage img = image.getImg();
-
+	
+		// Calcul de l'angle en radians
 		double angleRad = Math.toRadians(angle);
-		double sin = Math.sin(angleRad);
-		double cos = Math.cos(angleRad);
+		double sin = Math.abs(Math.sin(angleRad));
+		double cos = Math.abs(Math.cos(angleRad));
 	
-		int nH = (int) Math.floor(img.getWidth() * Math.abs(sin) + img.getHeight() * Math.abs(cos));
-		int nW = (int) Math.floor(img.getWidth() * Math.abs(cos) + img.getHeight() * Math.abs(sin));
+		// Dimensions de la nouvelle image après rotation
+		int oldWidth = img.getWidth();
+		int oldHeight = img.getHeight();
+		int newWidth = (int) Math.ceil(oldWidth * cos + oldHeight * sin);
+		int newHeight = (int) Math.ceil(oldWidth * sin + oldHeight * cos);
 	
-		BufferedImage rotatedImg = new BufferedImage(nW, nH, BufferedImage.TYPE_INT_ARGB);
+		// Création de la nouvelle image
+		BufferedImage rotatedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 	
-		int xO = width / 2;
-		int yO = height / 2;
+		// Calcul des décalages pour recentrer l'image
+		int xCenterOld = oldWidth / 2;
+		int yCenterOld = oldHeight / 2;
+		int xCenterNew = newWidth / 2;
+		int yCenterNew = newHeight / 2;
 	
-		for (int rX = 0; rX < nW; rX++) 
-		{
-			for (int rY = 0; rY < nH; rY++) 
-			{
-				double x = (rX - xO) * cos + (rY - yO) * sin + xO;
-				double y = -(rX - xO) * sin + (rY - yO) * cos + yO;
+		// Parcours des pixels de la nouvelle image
+		for (int rX = 0; rX < newWidth; rX++) {
+			for (int rY = 0; rY < newHeight; rY++) {
+				// Calcul des coordonnées inverses dans l'image d'origine
+				double x = (rX - xCenterNew) * Math.cos(-angleRad) - (rY - yCenterNew) * Math.sin(-angleRad) + xCenterOld;
+				double y = (rX - xCenterNew) * Math.sin(-angleRad) + (rY - yCenterNew) * Math.cos(-angleRad) + yCenterOld;
 	
-				if (x >= 0 && x < nW && y >= 0 && y < nH) 
-				{
-					int x1 = (int) Math.floor(x);
-					int x2 = x1 + 1;
-					int y1 = (int) Math.floor(y);
-					int y2 = y1 + 1;
+				// Vérification si les coordonnées sont valides
+				if (x >= 0 && x < oldWidth && y >= 0 && y < oldHeight) {
+					// Récupération de la couleur du pixel d'origine
+					int srcX = (int) Math.floor(x);
+					int srcY = (int) Math.floor(y);
 	
-					double dx = x - x1;
-					double dy = y - y1;
+					// Sécurité pour éviter les débordements
+					srcX = Math.min(srcX, oldWidth - 1);
+					srcY = Math.min(srcY, oldHeight - 1);
 	
-					double wHG = (1 - dx) * (1 - dy);
-					double wBG = dx * (1 - dy);      
-					double wHD = (1 - dx) * dy;      
-					double wBD = dx * dy;            
-	
-					x1 = Math.max(0, Math.min(x1, width - 1));
-					x2 = Math.max(0, Math.min(x2, width - 1));
-					y1 = Math.max(0, Math.min(y1, height - 1));
-					y2 = Math.max(0, Math.min(y2, height - 1));
-	
-					Color colHG = new Color(img.getRGB(x1, y1));
-					Color colBG = new Color(img.getRGB(x2, y1));
-					Color colHD = new Color(img.getRGB(x1, y2));
-					Color colBD = new Color(img.getRGB(x2, y2));
-	
-					int r = (int) (wHG * colHG.getRed()   + wBG * colBG.getRed()   +
-								wHD * colHD.getRed()   + wBD * colBD.getRed());
-					int g = (int) (wHG * colHG.getGreen() + wBG * colBG.getGreen() +
-								wHD * colHD.getGreen() + wBD * colBD.getGreen());
-					int b = (int) (wHG * colHG.getBlue()  + wBG * colBG.getBlue()  +
-								wHD * colHD.getBlue()  + wBD * colBD.getBlue());
-	
-					rotatedImg.setRGB(rX, rY, new Color(r, g, b).getRGB());
+					// Application directe sans interpolation
+					rotatedImg.setRGB(rX, rY, img.getRGB(srcX, srcY));
 				}
 			}
 		}
 	
+		// Mise à jour de l'image avec la version tournée
+		image.setX(image.getX() + (xCenterOld - xCenterNew));
+		image.setY(image.getY() + (yCenterOld - yCenterNew));
 		image.setImg(rotatedImg);
 	}
+	
+			
 
+
+
+		
 
 
 
@@ -614,13 +617,16 @@ public class Paint
 			// p.bucket(0, 0, Color.RED.getRGB(), 80);
 
 			// // p.setLuminosite(img, -200);
-			// p.setLuminosite(0,0,100,100, 50, -100);
-			// p.setLuminosite(200,200,100,100, 50, -100);
+			// p.setLuminosite(0,0,100,100, -100);
+			// p.setLuminosite(100,100,200,200, 180);
 			// p.setLuminosite(150,150, 50, -100);
+			p.retourner(img, 30);
+			p.retourner(img, -30);
+			// p.retourner(img, 30);
 			// p.retourner(img, 30);
 
-			p.flipHorizontal(150, 100, 50);
-			p.flipVertical(150, 100, 50);
+			// p.flipHorizontal(150, 100, 50);
+			// p.flipVertical(150, 100, 50);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
