@@ -11,8 +11,6 @@ import javax.imageio.ImageIO;
 
 // import paint.Controlleur;
 
-record Point(int x,int y){}
-
 
 public class Paint 
 {
@@ -78,7 +76,14 @@ public class Paint
 	public void addImage(Image img)
 	{
 		if (img != null)
+		{
 			this.lstImages.add(img);
+			
+			int h = img.getImg().getHeight(); 
+			int w = img.getImg().getWidth(); 
+			if ( h > this.height ) this.height = h;
+			if ( w > this.width  ) this.width  = w;
+		}
 	}
 
 	/**
@@ -247,10 +252,11 @@ public class Paint
 		for (int x = 0; x < bi.getWidth(); x++) {
 			for (int y = 0; y < bi.getHeight(); y++) {
 
-				if (bi.getRGB(x, y) >>24 != 0x00)
+				int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
+
+				if (!Paint.isTrans(bi.getRGB(x, y)))
 				{
-					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-					int nouvVal = Paint.contraste(new Color(pixelColor), var);
+					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
 					Color newColor = new Color(nouvVal);
 					bi.setRGB(x, y, newColor.getRGB());
 				}
@@ -270,13 +276,16 @@ public class Paint
 	public void setLuminosite (int xSart, int yStart, int xFin, int yFin, int var)
 	{
 		for (int x = xSart; x < xFin; x++) {
-			for (int y = yStart; y < yFin; y++) {
-				BufferedImage bi = this.getClickedImage(x, y).getImg();
+			for (int y = yStart; y < yFin; y++) 
+			{
+				Image img = this.getClickedImage(x, y);
 
-				if (bi != null)
+				if (img != null)
 				{
+					BufferedImage bi = img.getImg();
+
 					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-					int nouvVal = Paint.contraste(new Color(pixelColor), var);
+					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
 					Color newColor = new Color(nouvVal);
 					bi.setRGB(x, y, newColor.getRGB());
 				}
@@ -284,31 +293,53 @@ public class Paint
 		}
 	}
 
+
+	public void setLuminosite(int xStart, int yStart, int xFin, int yFin, int radius, int var) {
+		// Calcul du centre du cercle
+		int x0 = (xStart + xFin) / 2;
+		int y0 = (yStart + yFin) / 2;
+	
+		for (int x = xStart; x < xFin; x++) {
+			for (int y = yStart; y < yFin; y++) {
+				int distancesquared = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+
+				if (distancesquared <= radius * radius) {
+					Image img = this.getClickedImage(x, y);
+					if (img != null) {
+						BufferedImage bi = img.getImg();
+	
+						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
+						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
+						Color newColor = new Color(nouvVal);
+						bi.setRGB(x, y, newColor.getRGB()); 
+					}
+				}
+			}
+		}
+	}
+	
+
 	/**
 	 * Calcule d'une couleur pour envoyer la couleur contrasté.
 	 * @param coul
 	 * @param var
 	 * @return
 	 */
-	public static int contraste (Color coul, int var)
+	public static int luminosite (Color coul, int var)
 	{
-		int r = coul.getRed  ();
-		int b = coul.getBlue ();
-		int g = coul.getGreen();
-
-
-		//Calcul
-		r = (int) (r + var / 100.0 * (r - 127));
-		g = (int) (g + var / 100.0 * (g - 127));
-		b = (int) (b + var / 100.0 * (b - 127));
+		
+		int r = coul.getRed  () + var;
+		int b = coul.getBlue () + var;
+		int g = coul.getGreen() + var;
 
 		if (r > 255) r = 255;
 		if (b > 255) b = 255;
 		if (g > 255) g = 255;
 
 		if (r < 0) r = 0;
-		if (b < 0) b = 0;
 		if (g < 0) g = 0;
+		if (b < 0) b = 0;
+
 
 		return r * 256 * 256 + g * 256 + b;
 	}
@@ -318,7 +349,7 @@ public class Paint
 
 
 	/* --------------------------------------------------------------------------------------------------- */
-	/*                                           METHODE LUMINOSITE                                        */
+	/*                                              MAIN DE TEST                                           */
 	/* --------------------------------------------------------------------------------------------------- */
 
 
@@ -326,9 +357,13 @@ public class Paint
 		Paint p = new Paint();
 
 		try {
+			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
+			p.addImage(img);
 			
-			p.addImage(new Image(0,0, ImageIO.read(new File("src/metier/trans.png"))));
-			p.bucket(0, 0, Color.RED.getRGB(), 80);
+			// p.bucket(0, 0, Color.RED.getRGB(), 80);
+
+			// p.setLuminosite(img, -200);
+			p.setLuminosite(0,0,100,100, 50, -100);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
