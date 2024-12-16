@@ -1,6 +1,8 @@
 package metier;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -83,11 +85,30 @@ public class Paint
 
 			if ( h > this.height) this.height = h;
 			if ( w > this.width ) this.width  = w;
-
-			System.out.println(h + " " + this.height);
-			System.out.println(w + " " + this.width );
 		}
 	}
+
+	/**
+	 * Retire une image dans la liste.
+	 * @param img
+	 */
+	public void removeImage(Image img)
+	{
+		this.lstImages.remove(img);
+
+		// Max height
+		if (img.getImgHeight() >= this.height)
+			for (Image image : lstImages)
+				if (!image.equals(img) && image.getImgHeight() >= this.height)
+					this.height = img.getImgHeight();	
+
+		// Max width
+		if (img.getImgWidth() >= this.width)
+			for (Image image : lstImages)
+				if (!image.equals(img) && image.getImgWidth() >= this.width)
+					this.width = img.getImgWidth();				
+	}
+
 
 	/**
 	 * Retourne une image qui est l'image combiné des autres
@@ -366,54 +387,51 @@ public class Paint
 	/*                                            METHODE ROTATIONS                                        */
 	/* --------------------------------------------------------------------------------------------------- */
 
-	
-	public void retourner(Image image, int angle) {
+	/**
+	 * Rotation d'un éléments.
+	 * @param image
+	 * @param angle
+	 */
+	public void retourner(Image image, int angle) 
+	{
 		BufferedImage img = image.getImg();
 	
-		// Calcul de l'angle en radians
 		double angleRad = Math.toRadians(angle);
 		double sin = Math.abs(Math.sin(angleRad));
 		double cos = Math.abs(Math.cos(angleRad));
 	
-		// Dimensions de la nouvelle image après rotation
 		int oldWidth = img.getWidth();
 		int oldHeight = img.getHeight();
 		int newWidth = (int) Math.ceil(oldWidth * cos + oldHeight * sin);
 		int newHeight = (int) Math.ceil(oldWidth * sin + oldHeight * cos);
 	
-		// Création de la nouvelle image
 		BufferedImage rotatedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 	
-		// Calcul des décalages pour recentrer l'image
 		int xCenterOld = oldWidth / 2;
 		int yCenterOld = oldHeight / 2;
 		int xCenterNew = newWidth / 2;
 		int yCenterNew = newHeight / 2;
 	
-		// Parcours des pixels de la nouvelle image
-		for (int rX = 0; rX < newWidth; rX++) {
-			for (int rY = 0; rY < newHeight; rY++) {
-				// Calcul des coordonnées inverses dans l'image d'origine
+		for (int rX = 0; rX < newWidth; rX++) 
+		{
+			for (int rY = 0; rY < newHeight; rY++) 
+			{
 				double x = (rX - xCenterNew) * Math.cos(-angleRad) - (rY - yCenterNew) * Math.sin(-angleRad) + xCenterOld;
 				double y = (rX - xCenterNew) * Math.sin(-angleRad) + (rY - yCenterNew) * Math.cos(-angleRad) + yCenterOld;
 	
-				// Vérification si les coordonnées sont valides
-				if (x >= 0 && x < oldWidth && y >= 0 && y < oldHeight) {
-					// Récupération de la couleur du pixel d'origine
+				if (x >= 0 && x < oldWidth && y >= 0 && y < oldHeight) 
+				{
 					int srcX = (int) Math.floor(x);
 					int srcY = (int) Math.floor(y);
 	
-					// Sécurité pour éviter les débordements
 					srcX = Math.min(srcX, oldWidth - 1);
 					srcY = Math.min(srcY, oldHeight - 1);
 	
-					// Application directe sans interpolation
 					rotatedImg.setRGB(rX, rY, img.getRGB(srcX, srcY));
 				}
 			}
 		}
 	
-		// Mise à jour de l'image avec la version tournée
 		image.setX(image.getX() + (xCenterOld - xCenterNew));
 		image.setY(image.getY() + (yCenterOld - yCenterNew));
 		image.setImg(rotatedImg);
@@ -596,6 +614,65 @@ public class Paint
 		}
 	}
 	
+			
+
+
+
+		
+
+
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                             METHODE TEXTE                                           */
+	/* --------------------------------------------------------------------------------------------------- */
+	
+	/**
+	 * Ajoute du texte.
+	 * @param text
+	 * @param bold
+	 * @param italic
+	 * @param police
+	 * @param size
+	 */
+	public void addText (String text, boolean bold, boolean italic, String police, int size, int argb)
+	{
+		BufferedImage bi = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+		
+		Graphics2D g2 = bi.createGraphics();
+		
+		int style = Font.PLAIN;
+		if (bold  ) style = style | Font.BOLD;
+		if (italic) style = style | Font.ITALIC;
+
+		g2.setColor(new Color(argb));
+		g2.setFont(new Font(police ,style, size));
+		g2.drawString(text, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+		this.addImage(new Image(0, 0, bi));
+	}	
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                            METHODE TEXTURE                                          */
+	/* --------------------------------------------------------------------------------------------------- */
+	
+
+	/**
+	 * Remplace les pixels non transparent par une texture.
+	 * @param biTexture
+	 * @param img
+	 */
+	public void addTexture(BufferedImage biTexture, Image img)
+	{
+		BufferedImage bi = img.getImg();
+		for (int x = 0; x < bi.getWidth(); x++)
+			for (int y = 0; y < bi.getHeight(); y++)
+				if (!Paint.isTrans(bi.getRGB(x, y)))
+					bi.setRGB(x, y, biTexture.getRGB(x % biTexture.getWidth(), y % biTexture.getHeight()));
+	}
 
 
 
@@ -616,12 +693,17 @@ public class Paint
 			
 			// p.bucket(0, 0, Color.RED.getRGB(), 80);
 
+			p.addText("Test", true, true, Font.SANS_SERIF, 50, Color.RED.getRGB());
+
+
+			
+			p.addTexture(ImageIO.read(new File("src/metier/roche.png")), p.lstImages.get(p.lstImages.size() - 1));
 			// // p.setLuminosite(img, -200);
 			// p.setLuminosite(0,0,100,100, -100);
 			// p.setLuminosite(100,100,200,200, 180);
 			// p.setLuminosite(150,150, 50, -100);
-			p.retourner(img, 30);
-			p.retourner(img, -30);
+			// p.retourner(img, 30);
+			// p.retourner(img, -30);
 			// p.retourner(img, 30);
 			// p.retourner(img, 30);
 
