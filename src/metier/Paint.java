@@ -59,7 +59,6 @@ public class Paint
 		
 		this.width  = Paint.DEFAULT_WIDTH ;
 		this.height = Paint.DEFAULT_HEIGHT;
-		new Image(0, 0, new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB));
 	}
 	
 
