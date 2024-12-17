@@ -688,10 +688,10 @@ public class Paint
 	/* --------------------------------------------------------------------------------------------------- */
 	
 	/**
-	 * Flip horizontal d'une image.
+	 * Flip Vertical d'une image.
 	 * @param img
 	 */
-	public void flipHorizontal(Image img) 
+	public void flipVertical(Image img) 
 	{
 		BufferedImage bi = img.getImg();
 
@@ -714,13 +714,13 @@ public class Paint
 	
 	
 	/**
-	* Flip horizontal d'une zone rectangulaire.
+	* Flip Vertical d'une zone rectangulaire.
 	* @param xStart
 	* @param yStart
 	* @param xEnd
 	* @param yEnd
 	*/
-	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
+	public void flipVertical(int xStart, int yStart, int xEnd, int yEnd) 
 	{
 		for (int x = xStart; x < xStart + (xEnd - xStart) / 2; x++) 
 		{
@@ -752,13 +752,13 @@ public class Paint
 	}
 	
 	/**
-	 * Flip horizontal d'une zone circulaire.
+	 * Flip Vertical d'une zone circulaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipHorizontal(int xCenter, int yCenter, int radius) 
+	public void flipVertical(int xCenter, int yCenter, int radius) 
 	{
 		for (int x = xCenter - radius; x < xCenter; x++) 
 		{
@@ -796,10 +796,10 @@ public class Paint
 
 
 	/**
-	 * Flip vertical d'une image.
+	 * Flip Horizontal d'une image.
 	 * @param img
 	 */
-	public void flipVertical(Image img) 
+	public void flipHorizontal(Image img) 
 	{
 		BufferedImage bi = img.getImg();
 
@@ -820,13 +820,13 @@ public class Paint
 
 
 	/**
-	 * Flip vertical d'une zone rectangulaire.
+	 * Flip Horizontal d'une zone rectangulaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipVertical(int xStart, int yStart, int xEnd, int yEnd) 
+	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
 	{
 		for (int x = xStart; x < xEnd; x++) 
 		{
@@ -858,12 +858,12 @@ public class Paint
 	}
 
 	/**
-	 * Flip vertical d'une zone circulaire.
+	 * Flip Horizontal d'une zone circulaire.
 	 * @param xCenter
 	 * @param yCenter
 	 * @param radius
 	 */
-	public void flipVertical(int xCenter, int yCenter, int radius) 
+	public void flipHorizontal(int xCenter, int yCenter, int radius) 
 	{
 		for (int x = xCenter - radius; x <= xCenter + radius; x++) 
 		{
