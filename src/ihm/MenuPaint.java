@@ -16,6 +16,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import metier.Image;
+
 public class MenuPaint extends JMenuBar implements ActionListener
 {
 	private FrameApp frame;
@@ -71,7 +73,18 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			this.ouvrirImage();
 
 		if (this.quitterItem == e.getSource() )
+		{
+			int response = JOptionPane.showConfirmDialog(
+				this,
+            	"Êtes-vous sûr de vouloir quitter ?\n" +
+				"Toutes vos modifiactions d'images n'ont pas été enregistrées", 
+            	"Quitter l'application",
+            	JOptionPane.OK_CANCEL_OPTION
+			);
 
+			if (response == JOptionPane.YES_OPTION)
+				this.frame.dispose();
+		}
 
 		if (this.aProposItem == e.getSource() ) {}
 	}
@@ -89,10 +102,11 @@ public class MenuPaint extends JMenuBar implements ActionListener
             try
 			{
                 // Convertir l'image sélectionnée en BufferedImage
-                BufferedImage image = ImageIO.read(fichierImage);
-                if (image != null)
+                BufferedImage bi = ImageIO.read(fichierImage);
+                if (bi != null)
 				{
-					this.frame.setFullImage(image);
+					this.frame.setFullImage(bi);
+					this.frame.addImage    (new Image(0, 0, bi));
                     JOptionPane.showMessageDialog(this, "Image chargée avec succès !");
                 }
 				else

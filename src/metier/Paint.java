@@ -86,6 +86,15 @@ public class Paint
 	}
 
 	/**
+	 * Retourne la liste des images
+	 * @return
+	 */
+    public ArrayList<Image> getImages()
+	{
+		return  this.lstImages;
+    }
+
+	/**
 	 * Retourne une image qui est l'image combiné des autres
 	 * @return
 	 */
@@ -597,6 +606,4 @@ public class Paint
 			e.printStackTrace();
 		}
 	}
-
-
 }
