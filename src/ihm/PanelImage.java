@@ -10,10 +10,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.awt.Toolkit;
 import java.awt.Cursor;
 
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import metier.Circle;
 import metier.Image;
@@ -35,12 +37,18 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	private Rectangle selectedRectangle;
 	private Circle    selectedCircle;
 
+	private ArrayList<Point> pencilPoints;
+
+	private JTextField txtSaisie; // Champ de texte unique
+
+
 	public PanelImage(PLPaint frame)
 	{
 		/* Création des composants */
 		this.frame      = frame;
 		this.fullImage  = null;
 		this.startingCoord = null;
+		this.pencilPoints  = new ArrayList<Point>();
 
 		this.selectedImage     = null;
 		this.selectedRectangle = null;
@@ -48,6 +56,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		/* Configurer du panel */
 		this.setBackground(PLPaint.COUL_NO_BG);
+
+		this.setLayout(null);
 
 		/* Ecouteur de la souris */
 		this.addMouseListener      (this);
@@ -73,7 +83,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	public Circle        getSelectedCircle   () { return this.selectedCircle; }
 	
 	/**
-	 * Désactive la séléction ainsi que 
+	 * Désactive la séléction d'éléments ainsi que 
 	 * sa représentation graphique (rafraichissement)
 	 */
 	public void disableSelection()
@@ -198,9 +208,10 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 
 		// Action du Crayon
-		if (this.frame.getAction() == PLPaint.ACTION_CRAYON)
+		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
 		{
 			// TODO : this.draw(currentCoord.x(), currentCoord.y(), this.selectedArgb);
+			this.waiting();
 			return;
 		}
 
@@ -210,7 +221,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			this.frame.bucket(
 				currentCoord.x(),
 				currentCoord.y(),
-				4789456,
+				this.frame.getSelectedColor(),
 				this.frame.getDistance()
 			);
 
@@ -218,8 +229,23 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
+		// Action du texte
+		if (this.frame.getAction() == PLPaint.ACTION_WRITE_TEXT)
+		{
+			if (this.txtSaisie != null) this.remove(this.txtSaisie);
+			
+			this.txtSaisie = new JTextField("Feur");
+			this.txtSaisie.setBounds(currentCoord.x(), currentCoord.y(), 150, 25);
+			this.setVisible(true);
+
+			this.add(this.txtSaisie);
+
+			return;
+		}
+
 		// Action de la séléction d'une image
 		this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
+		this.frame.setLabelAction("Séléction Image");
 	}
 
 	public void setCursor (String fic)
@@ -234,10 +260,9 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	public void mousePressed(MouseEvent e)
 	{
 		if (this.fullImage == null) return;
-		System.out.println( "mousseClicked : x:" + e.getX() + " y:" + e.getY());
+		System.out.println( "moussePressed : x:" + e.getX() + " y:" + e.getY());
 
 		// Séléction en dehors de l'image lors du déplacement de l'image
-
 		// Initialisation de la coordonée de départ
 		if ( this.selectedImage != null ||
 			(this.startingCoord == null && 
@@ -263,9 +288,40 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		y = (e.getY() < 0) ? 0 : y;
 		x = (e.getX() < 0) ? 0 : x;
 
-		// On rafraichi l'image complète avec 
+		// Déplacement de l'image : Rafraichissement de l'image
 		if (this.selectedImage != null)
 		{
+			this.frame.repaintImagePanel();
+		}
+		
+		// Création de l'image crée par le pinceau
+		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
+		{
+			int minX, minY;
+			minX = minY = Integer.MAX_VALUE;
+
+			int maxX, maxY;
+			maxY = maxX = Integer.MIN_VALUE;
+
+			for (Point p : this.pencilPoints)
+			{
+				minX = (minX > p.x()) ? p.x(): minX;
+				minY = (minY > p.y()) ? p.y(): minY;
+				maxX = (maxX < p.x()) ? p.x(): maxX;
+				maxY = (maxY < p.y()) ? p.y(): maxY;
+			}
+
+			BufferedImage bi = new BufferedImage(maxX - minX +1, maxY - minY +1, BufferedImage.TYPE_INT_ARGB);
+			for (Point p : this.pencilPoints)
+				bi.setRGB(maxX - p.x(), maxY - p.y(), this.frame.getSelectedColor());
+			
+			Image pencilDrawing = new Image(minX, minY, bi);
+
+			System.out.println(bi);
+			System.out.println("x=" + pencilDrawing.getX() + " y=" + pencilDrawing.getY());
+			this.frame.addImage(pencilDrawing);
+			this.pencilPoints.clear();
+
 			this.frame.repaintImagePanel();
 		}
 
@@ -288,13 +344,26 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		
 		Point currentCoord = new Point(x, y);
 
+		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
+		{
+			if (!this.pencilPoints.isEmpty())
+			{
+				Point lastCoord = this.pencilPoints.get(this.pencilPoints.size() -1);	
+				if (!lastCoord.equals(currentCoord)) 
+					this.pencilPoints.add(currentCoord);
+			}
+
+			this.pencilPoints.add(currentCoord);
+			this.disableSelection();
+		}
+
 		if (this.selectedImage != null)
 		{
 			this.selectedImage.setX(x - this.selectedImage.getImgWidth () /2);
 			this.selectedImage.setY(y - this.selectedImage.getImgHeight() /2);
 		}
 
-		if (this.selectedCircle != null)
+		if (this.frame.getAction() == PLPaint.ACTION_SELECT_CIRCLE)
 		{
 			int radius1 = Math.abs((currentCoord.x() - this.startingCoord.x()) / 2);
 			int radius2 = Math.abs((currentCoord.y() - this.startingCoord.y()) / 2);
@@ -310,7 +379,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 
 		
-		if (this.selectedRectangle != null)
+		if (this.frame.getAction() == PLPaint.ACTION_SELECT_RECTANGLE)
 		{
 			this.selectedRectangle = new Rectangle
 			(
@@ -324,6 +393,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 		
 		repaint(); // Rafraichir pour voir la séléction graphique du rectangle
+	}
+
+	public void waiting()
+	{
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) { e1.printStackTrace(); }
 	}
 
 	@Override

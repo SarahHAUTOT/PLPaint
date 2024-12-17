@@ -5,7 +5,7 @@ import ihm.PLPaint;
 public class Controller 
 {
     private PLPaint frame;
-    private Paint    metier;
+    private Paint   metier;
 
     public Controller()
     {

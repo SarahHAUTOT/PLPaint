@@ -26,8 +26,9 @@ import javax.swing.event.ChangeListener;
 
 public class PanelControl extends JPanel implements ActionListener, ChangeListener
 {
+	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
 	private PLPaint frame;
-	private int      action;
+	private int     action;
 
 	private int    selectedColor;
 	private JPanel panelButtons;
@@ -54,7 +55,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	private JButton writeText;
 
 	private JButton btnColor;
-	private int     color;
+
+
+	private JPanel            panelOptionText;
+	// private JComboBox<String> jcbFont;
+	// private JComboBox<int>    jcbSize;
 
 	public PanelControl(PLPaint frame)
 	{
@@ -119,64 +124,38 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.slider      .setBackground(PLPaint.COUL_SECONDARY);
 
 
-		/*// Création du panel option
+		// Création du panel option
 		this.panelOption = new JPanel();
-		this.panelOption.setLayout(new GridLayout());
-
-		JPanel panelMain = new JPanel(new GridLayout(ABORT, color))
+		this.panelOption.setLayout(new BorderLayout());
 
         // Création des composants du panel option
 		JPanel panel = new JPanel();
 
 		/* Changement de fond des comopsants */
-		/*this             .setBackground(PLPaint.COUL_SECONDARY);
+		this             .setBackground(PLPaint.COUL_SECONDARY);
 		panel            .setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons.setBackground(PLPaint.COUL_SECONDARY);
 		this.panelOption .setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons.setPreferredSize(new Dimension(200, 300));
-		this.panelOption .setPreferredSize(new Dimension(200, 300));*/
+		this.panelOption .setPreferredSize(new Dimension(200, 300));
 
 		/* Positionnement des composants */
-		/*panel.add(this.goBack);
+		panel.add(this.goBack);
 		panel.add(this.sliderLabel);
 		this.panelOption.add(panel, BorderLayout.NORTH);
 		this.panelOption.add(this.slider, BorderLayout.CENTER);
 		
-		this.panelButtons.add(eyedropper);
-		this.panelButtons.add(bucket);
-
-		this.panelButtons.add(brightness);
-		this.panelButtons.add(rotation);
-
-		this.panelButtons.add(horizontalFlip);
-		this.panelButtons.add(verticalFlip);
-
-		this.panelButtons.add(selectionRectangle);
-		this.panelButtons.add(selectionCircle);
-
-		this.panelButtons.add(removeBg);
-		this.panelButtons.add(writeText);
-
-		this.add(this.panelButtons);
-		this.add(this.panelOption);
-		this.panelOption.setVisible(false);*/
-
+		this.panelOption.setVisible(false);
 
 		/* STRUCTURE PRINCIPALE */
-		JPanel panelMain = new JPanel(new GridLayout(5,1,15,15));
-
+		this.panelButtons = new JPanel(new GridLayout(5,1,15,15));
 
 		/* COLOR PICKER */
-		this.btnColor = new JButton();
-		this.color = 3918319;
-		this.btnColor.setBackground(new Color(this.color));
+		this.btnColor      = new JButton();
+		this.selectedColor = PanelControl.DEFAULT_COLOR;
+		this.btnColor.setBackground(new Color(this.selectedColor));
 
-		// JPanel panelColor = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		// panelColor.add(this.btnColor);
-
-		panelMain.add(this.btnColor);
-
-		
+		this.panelButtons.add(this.btnColor);
 
 		/* OUTILS 1 */
 		JPanel panelOutils1 = new JPanel(new GridLayout(2,2,10,10));
@@ -190,18 +169,14 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.styleButton(this.bucket    );
 		this.styleButton(this.eyedropper);
 		this.styleButton(this.writeText );
-
 		
-		MatteBorder topBorder = BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK);
+		MatteBorder topBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK);
 		EmptyBorder margin = new EmptyBorder(20, 20, 0, 20);
 		panelOutils1.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
 
 		JPanel panelOutils1F = new JPanel();
 		panelOutils1F.add(panelOutils1);
-        panelMain.add(panelOutils1F);
-
-
-
+        this.panelButtons.add(panelOutils1F);
 
 		/* SELECTION */
 		JPanel panelSelection = new JPanel(new GridLayout(1,2,10,10));
@@ -212,13 +187,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.styleButton(this.selectionRectangle);
 		this.styleButton(this.selectionCircle   );
 
-		
 		panelSelection.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
 
 		JPanel panelSelectionF = new JPanel();
 		panelSelectionF.add(panelSelection);
-        panelMain.add(panelSelectionF);
-
+        this.panelButtons.add(panelSelectionF);
 
 		/* OUTILS 2 */
 		JPanel panelOutils2 = new JPanel(new GridLayout(2,2,10,10));
@@ -237,14 +210,14 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		JPanel panelOutils2F = new JPanel();
 		panelOutils2F.add(panelOutils2);
-        panelMain.add(panelOutils2F);
-
-
+        this.panelButtons.add(panelOutils2F);
 
 		/* POSITIONNEMENT */
-		this.add(panelMain);
+		this.add(this.panelButtons);
+		this.add(this.panelOption);
+
 		this.setBackground(PLPaint.COUL_SECONDARY);
-		panelMain    .setBackground(PLPaint.COUL_SECONDARY);
+		this.panelButtons    .setBackground(PLPaint.COUL_SECONDARY);
 
 		panelOutils1F.setBackground(PLPaint.COUL_SECONDARY);
 		panelOutils1 .setBackground(PLPaint.COUL_SECONDARY);
@@ -255,13 +228,14 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		panelOutils2F.setBackground(PLPaint.COUL_SECONDARY);
 		panelOutils2 .setBackground(PLPaint.COUL_SECONDARY);
 
+
 		/* Ecouteurs des boutons */
 		this.goBack.addActionListener(this);
+		this.btnColor  .addActionListener(this);
 
 		this.eyedropper.addActionListener(this);
 		this.bucket    .addActionListener(this);
-		this.btnColor  .addActionListener(this);
-
+		this.pencil    .addActionListener(this);
 
 		this.brightness.addActionListener(this);
 		this.rotation.addActionListener(this);
@@ -276,11 +250,10 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.writeText.addActionListener(this);
 
 		this.slider.addChangeListener(this);
-
 	}
 
-
-	private void styleButton(JButton button) {
+	private void styleButton(JButton button)
+	{
         button.setContentAreaFilled(false);
 
         button.setBorder(new LineBorder(Color.BLACK, 1));
@@ -299,7 +272,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 
 	public void setAction       (int action) { this.action = action; }
-	public void setSelectedColor(int argb  ) { this.selectedColor = argb; }
+	public void setSelectedColor(int argb  )
+	{
+		this.selectedColor = argb;
+		this.btnColor.setBackground(new Color(argb));
+	}
 
 	public int getSelectedColor() { return this.selectedColor; }
 	public int getAction       () { return this.action; }
@@ -313,14 +290,23 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-
-		System.out.println("hghgh");
 		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		
 		if (this.btnColor == e.getSource())
 		{
-			this.color = (JColorChooser.showDialog(null, "Choose a color", new Color(this.color))).getRGB();
-			this.btnColor.setBackground(new Color(this.color));
+			Color col = JColorChooser.showDialog(null, "Choisissez une couleur", new Color(this.selectedColor));
+
+			if (col != null) this.selectedColor = col.getRGB();
+			this.btnColor.setBackground(new Color(this.selectedColor));
+		}
+		
+		if (this.pencil == e.getSource())
+		{
+			// On définit l'action
+			this.frame.setAction(PLPaint.ACTION_PENCIL);
+
+			// On ecrit le mode du curseur dans le label
+			this.frame.setLabelAction("Mode Crayon");
 		}
 
 
@@ -423,8 +409,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.frame.setLabelAction("Mode Ecriture de texte");
 			
 			// TODO : Affichage du panel texte
-			this.panelOption .setVisible(false);
-			this.panelButtons.setVisible(false);
 			this.sliderLabel.setText("Ecrire du texte");
 			// TODO : this.add(this.panelText);
 			this.revalidate();
@@ -558,4 +542,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		this.frame.repaintImagePanel();
 	}
+
+
+	public void setTextOption () 
+	{ 
+
+	}
+
 }

@@ -25,7 +25,7 @@ public class PLPaint extends JFrame
 	public static final int ACTION_BUCKET     = 2;
 
 	public static final int ACTION_RUBBER = 3;
-	public static final int ACTION_CRAYON = 4;
+	public static final int ACTION_PENCIL = 4;
 
 	public static final int ACTION_BRIGHTNESS = 5;
 	public static final int ACTION_ROTATION   = 6;
@@ -197,4 +197,7 @@ public class PLPaint extends JFrame
 
 	public void setCursor (Cursor cursor) { this.panelImage.setCursor(cursor); }
 	public void setCursor (String cursor) { this.panelImage.setCursor(cursor); }
+
+
+	public void setTextOption () { this.panelControl.setTextOption(); }
 }
