@@ -75,6 +75,10 @@ public class FrameApp extends JFrame
 
 		this.setVisible(true);
 		this.setResizable(true);
+
+		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
+		this.setTitle("PLPaint");
+		this.setIconImage(icon);
 	}
 
 	public void setLabelAction(String str)

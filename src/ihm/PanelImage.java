@@ -172,6 +172,9 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		// On remet à null tout les éléments séléctionnés
 		this.disableSelection();
 		this.startingCoord = null;
+		this.selectedRectangle = null;
+		this.selectedCircle    = null;
+		this.selectedImage     = null;
 
 		// Initialisation de la coordonée cliquée
 		Point currentCoord = null;
@@ -213,13 +216,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 
 		// Action de la séléction d'une image
-		if (currentCoord != null)
-		{
-			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
-
-			this.selectedRectangle = null;
-			this.selectedCircle = null;
-		}
+		this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
 
 		this.frame.setLabelAction("Mode Curseur");
 	}
@@ -231,12 +228,12 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		Cursor c = toolkit.createCustomCursor(image , new java.awt.Point(this.getX(), this.getY()), "img");
 		this.setCursor (c);
 	}
-	
 
 	@Override
 	public void mousePressed(MouseEvent e)
 	{
 		if (this.fullImage == null) return;
+		System.out.println( "mousseClicked : x:" + e.getX() + " y:" + e.getY());
 
 		// Initialisation de la coordonée de départ
 		if (this.startingCoord == null && 
@@ -263,7 +260,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	@Override
 	public void mouseDragged(MouseEvent e)
 	{
-		if (this.fullImage == null) return;
+		if (this.fullImage == null || this.startingCoord == null) return;
 		
 		// Initialisation de la coordonée cliquée
 		// qui forme le rectangle de séléction
