@@ -18,7 +18,7 @@ import metier.Rectangle;
 public class FrameApp extends JFrame
 {
 	// Mappage des différentes acitons possibles par l'utilisateur
-	public static final int ACTION_NONE = 0;
+	public static final int ACTION_DEFAULT = 0;
 	public static final int ACTION_EYEDROPPER = 1;
 	public static final int ACTION_BUCKET     = 2;
 
@@ -28,8 +28,8 @@ public class FrameApp extends JFrame
 	public static final int ACTION_BRIGHTNESS = 5;
 	public static final int ACTION_ROTATION   = 6;
 
-	public static final int ACTION_HORIZONTAL_TURN = 7;
-	public static final int ACTION_VERTICAL_TURN   = 8;
+	public static final int ACTION_HORIZONTAL_FLIP = 7;
+	public static final int ACTION_VERTICAL_FLIP   = 8;
 
 	public static final int ACTION_SELECT_RECTANGLE = 9;
 	public static final int ACTION_SELECT_CIRCLE    = 10;
@@ -96,10 +96,12 @@ public class FrameApp extends JFrame
 		this.repaint();
 	}
 
+	public void          disableSelection    () { this.panelImage.disableSelection(); }
 	public BufferedImage getFullImage        () { return this.panelImage.getFullImage(); }
 	public Circle        getSelectedCircle   () { return this.panelImage.getSelectedCircle(); }
 	public Rectangle     getSelectedRectangle() { return this.panelImage.getSelectedRectangle(); }
 	public Image         getSelectedImage    () { return this.panelImage.getSelectedImage(); }
+	public boolean       hasSelection        () { return this.panelImage.hasSelection(); }
 
 
 	// Panel de contrôle
@@ -135,18 +137,20 @@ public class FrameApp extends JFrame
 	}
 
 	// Méthode de changement de luminosité
-	public void setBrightness(Image img, int value)
+	public void setBrightnessImage(int value)
 	{
-		this.metier.setLuminosite(img, value);
+		this.metier.setLuminosite(this.getSelectedImage(), value);
 	}
 
-	public void setBrightness(Rectangle rect, int value)
+	public void setBrightnessRect(int value)
 	{
+		Rectangle rect = this.getSelectedRectangle();
 		this.metier.setLuminosite(rect.x(), rect.y(), rect.xEnd(), rect.yEnd(), value);
 	}
 
-	public void setBrightness(Circle circle, int value)
+	public void setBrightnessCircle(int value)
 	{
+		Circle circle = this.getSelectedCircle();
 		this.metier.setLuminosite(circle.xCenter(), circle.yCenter(), circle.radius(), value);
 	}
 
@@ -154,5 +158,40 @@ public class FrameApp extends JFrame
 	public void bucket(int x, int y, int argb, int distance)
 	{
 		this.metier.bucket(x, y, argb, distance);
+	}
+
+	// Methode retourner
+	public void flipHorizontalImage()
+	{
+		this.metier.flipHorizontal(this.getSelectedImage());
+	}
+
+	public void flipHorizontalRect()
+	{
+		Rectangle rect = this.getSelectedRectangle();
+		this.metier.flipHorizontal(rect.x(), rect.y(), rect.xEnd(), rect.yEnd());
+	}
+
+	public void flipHorizontalCircle()
+	{
+		Circle circle = this.getSelectedCircle();
+		this.metier.flipHorizontal(circle.xCenter(), circle.yCenter(), circle.radius());
+	}
+
+	public void flipVerticalImage()
+	{
+		this.metier.flipVertical(this.getSelectedImage());
+	}
+
+	public void flipVerticalRect()
+	{
+		Rectangle rect = this.getSelectedRectangle();
+		this.metier.flipVertical(rect.x(), rect.y(), rect.xEnd(), rect.yEnd());
+	}
+
+	public void flipVerticalCircle()
+	{
+		Circle circle = this.getSelectedCircle();
+		this.metier.flipVertical(circle.xCenter(), circle.yCenter(), circle.radius());
 	}
 }
