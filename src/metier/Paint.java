@@ -6,7 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
@@ -89,6 +91,27 @@ public class Paint
 	}
 
 	/**
+	 * Ajouter une image mais sans une couleur donnée.
+	 * @param img
+	 * @param argb
+	 */
+	public void addImage(Image img, int argb)
+	{
+		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage biWithArgb    = img.getImg();
+
+		for (int x = 0; x < img.getImgWidth(); x++)
+			for (int y = 0; y < img.getImgHeight(); y++)
+				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, 30))
+					biWithoutArgb.setRGB(x, y, biWithArgb.getRGB(x, y));
+
+
+		img.setImg(biWithoutArgb);
+		this.addImage(img);
+	}
+
+
+	/**
 	 * Retire une image dans la liste.
 	 * @param img
 	 */
@@ -144,10 +167,86 @@ public class Paint
 	
 		return imgSortie;
 	}
+
+
+	/**
+	 * Retire le 
+	 * @param image
+	 * @param tolerance
+	 */
+    public void removeBackground(Image image) 
+	{
+		BufferedImage bi = image.getImg();
+
+        int width  = bi.getWidth();
+        int height = bi.getHeight();
+
+        int backgroundColor = getDominantBorderColor(bi);
+
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        for (int x = 0; x < width; x++) 
+		{
+            for (int y = 0; y < height; y++) 
+			{
+                int pixel = bi.getRGB(x, y);
+
+                if (sameColor(pixel, backgroundColor, 50))
+                    result.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
+                else 
+                    result.setRGB(x, y, pixel);
+            }
+        }
+
+        image.setImg(result);
+    }
+
+	/**
+	 * Trouve la couleur dominante dans une image.
+	 * @param image
+	 * @return
+	 */
+    private static int getDominantBorderColor(BufferedImage image) 
+	{
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        Map<Integer, Integer> colorCount = new HashMap<>();
+
+        for (int x = 0; x < width; x++) 
+		{
+            addColorCount(image.getRGB(x, 0), colorCount);       
+            addColorCount(image.getRGB(x, height - 1), colorCount);
+        }
+        for (int y = 0; y < height; y++) 
+		{
+            addColorCount(image.getRGB(0, y), colorCount);
+            addColorCount(image.getRGB(width - 1, y), colorCount);
+        }
+
+        int dominantColorRGB = colorCount.entrySet()
+		                                 .stream()
+		                                 .max(Map.Entry.comparingByValue())
+		                                 .get()
+		                                 .getKey();
+
+        return dominantColorRGB;
+    }
+
+	
+	/**
+	 * Ajoute / Incrémente la couleur 
+	 * @param rgb
+	 * @param colorCount
+	 */
+    private static void addColorCount(int rgb, Map<Integer, Integer> colorCount) 
+	{
+        colorCount.put(rgb, colorCount.getOrDefault(rgb, 0) + 1);
+    }
 	
 
 	/**
-	 * Récupérer l'image (celle-tous devant) ou elle a était cliqué.
+	 * Récupérer l'image (celle-tous devant) ou elle a était cliqué (sans prendre en compte la transparence).
 	 * @param x
 	 * @param y
 	 * @return
@@ -155,7 +254,25 @@ public class Paint
 	public Image getClickedImage(int x, int y)
 	{
 		for (int i = this.lstImages.size() - 1; i >= 0; i--)
-			if (imageIn(x, y, this.lstImages.get(i))) 
+			if (imageIn(x, y, this.lstImages.get(i), true)) 
+				return this.lstImages.get(i);
+
+		return null;
+	}
+
+	
+	
+
+	/**
+	 * Récupérer l'image a des coordonées.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Image getImageAt(int x, int y)
+	{
+		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+			if (imageIn(x, y, this.lstImages.get(i), false)) 
 				return this.lstImages.get(i);
 
 		return null;
@@ -180,11 +297,11 @@ public class Paint
 	 * @param img
 	 * @return
 	 */
-	private boolean imageIn (int x, int y, Image img)
+	private boolean imageIn (int x, int y, Image img, boolean withTrans)
 	{
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
 			y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			!isTrans(img.getImg().getRGB(x, y));
+			!(isTrans(img.getImg().getRGB(x, y)) && withTrans);
 	}
 
 	public static boolean isTrans(int rgb)
@@ -222,14 +339,12 @@ public class Paint
 			Point p = file.remove();
 
 			if ( p.x() >= 0 && p.x() < bi.getWidth  () && p.y() >= 0 && p.y() < bi.getHeight () &&
-				//  colorOrig == ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF)
 				sameColor(colorOrig, ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF), distance)
 			)
 			{
 				bi.setRGB ( p.x(), p.y(), argb );
 				
-				if (this.getClickedImage(p.x(), p.y()) != null)
-					this.getClickedImage(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
+				if (this.getImageAt(p.x(), p.y()) != null) this.getImageAt(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
 
 				file.add ( new Point ( p.x()+1, p.y()   ) );
 				file.add ( new Point ( p.x()-1, p.y()   ) );
@@ -688,27 +803,9 @@ public class Paint
 		Paint p = new Paint();
 
 		try {
-			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
+			Image img = new Image(0,0, ImageIO.read(new File("src/metier/trans.png")));
 			p.addImage(img);
-			
-			// p.bucket(0, 0, Color.RED.getRGB(), 80);
-
-			p.addText("Test", true, true, Font.SANS_SERIF, 50, Color.RED.getRGB());
-
-
-			
-			p.addTexture(ImageIO.read(new File("src/metier/roche.png")), p.lstImages.get(p.lstImages.size() - 1));
-			// // p.setLuminosite(img, -200);
-			// p.setLuminosite(0,0,100,100, -100);
-			// p.setLuminosite(100,100,200,200, 180);
-			// p.setLuminosite(150,150, 50, -100);
-			// p.retourner(img, 30);
-			// p.retourner(img, -30);
-			// p.retourner(img, 30);
-			// p.retourner(img, 30);
-
-			// p.flipHorizontal(150, 100, 50);
-			// p.flipVertical(150, 100, 50);
+			p.bucket(0,0,Color.RED.getRGB(), 30);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
