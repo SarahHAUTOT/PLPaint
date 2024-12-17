@@ -49,11 +49,34 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.addMouseMotionListener(this);
 	}
 
+	/**
+	 * Retourne vrai s'il y a selection d'un élément
+	 * @return 
+	 */
+	public boolean hasSelection()
+	{
+		return this.frame.getSelectedCircle   () != null ||
+			   this.frame.getSelectedImage    () != null ||
+			   this.frame.getSelectedRectangle() != null;
+	}
+
 	public BufferedImage getFullImage        () { return this.fullImage; }
 	public Rectangle     getSelectedRectangle() { return this.selectedRectangle; }
 	public Image         getSelectedImage    () { return this.selectedImage; }
 	public Circle        getSelectedCircle   () { return this.selectedCircle; }
 	
+	/**
+	 * Désactive la séléction ainsi que 
+	 * sa représentation graphique (rafraichissement)
+	 */
+	public void disableSelection()
+	{
+		this.selectedCircle    = null;
+		this.selectedImage     = null;
+		this.selectedRectangle = null;
+		repaint();
+	}
+
 	private void outlineRect(Graphics g, Rectangle rect)
 	{
         Graphics2D g2d = (Graphics2D) g;
@@ -133,9 +156,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.fullImage == null) return;
 		
 		// On remet à null tout les éléments séléctionnés
-		this.selectedCircle    = null;
-		this.selectedImage     = null;
-		this.selectedRectangle = null;
+		this.disableSelection();
 
 		// Initialisation de la coordonée cliquée
 		Point currentCoord = null;
@@ -183,12 +204,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (currentCoord != null)
 		{
 			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
-			repaint(); // Rafraichir pour voir la séléction graphique de l'image
 
-			this.startingCoord = null;
+			this.selectedRectangle = null;
+			this.selectedCircle = null;
+
+			repaint(); // Rafraichir pour voir la séléction graphique de l'image
 		}
 
-		this.frame.setAction(FrameApp.ACTION_NONE);
 		this.frame.setLabelAction("Mode Curseur");
 	}
 
@@ -234,20 +256,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		y = (e.getY() > this.fullImage.getHeight()) ? this.fullImage.getHeight() : e.getY();
 		
 		Point currentCoord = new Point(x, y);
-		
-		if (this.frame.getAction() == FrameApp.ACTION_SELECT_RECTANGLE)
-		{
-			this.selectedRectangle = new Rectangle
-			(
-				this.startingCoord.x(),
-				this.startingCoord.y(),
-				currentCoord.x(),
-				currentCoord.y()
-			);
-	
-			repaint(); // Rafraichir pour voir la séléction graphique du rectangle
-		}
-		
+
 		if (this.frame.getAction() == FrameApp.ACTION_SELECT_CIRCLE)
 		{
 			this.selectedCircle = new Circle(
@@ -257,9 +266,18 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			);
 			
 			System.out.println("cercle : x=" + selectedCircle.xCenter() + " y=" + selectedCircle.yCenter());
-			
-			repaint(); // Rafraichir pour voir la séléction graphique du cercle
 		}
+
+		this.selectedImage = null; // On remet l'image séléctionnée à null
+		this.selectedRectangle = new Rectangle
+		(
+			this.startingCoord.x(),
+			this.startingCoord.y(),
+			currentCoord.x(),
+			currentCoord.y()
+		);
+
+		repaint(); // Rafraichir pour voir la séléction graphique du rectangle
 	}
 
 	@Override

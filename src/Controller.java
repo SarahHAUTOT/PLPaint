@@ -13,7 +13,7 @@ public class Controller
         this.frame  = new FrameApp(this.metier);
     }
 
-	public static void main(String[] args)
+    public static void main(String[] args)
     {
         new Controller();
     }

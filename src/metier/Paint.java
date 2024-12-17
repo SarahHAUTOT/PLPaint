@@ -983,4 +983,13 @@ public class Paint
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Retourne la liste des images
+	 * @return
+	 */
+    public ArrayList<Image> getImages()
+	{
+		return  this.lstImages;
+    }
 }
