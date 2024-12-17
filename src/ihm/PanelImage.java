@@ -2,7 +2,6 @@ package ihm;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -11,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.awt.Toolkit;
+import java.awt.Cursor;
 
 import javax.swing.JPanel;
 
@@ -18,6 +19,10 @@ import metier.Circle;
 import metier.Image;
 import metier.Point;
 import metier.Rectangle;
+
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.Stroke;
 
 public class PanelImage extends JPanel implements MouseMotionListener, MouseListener, KeyListener
 {
@@ -55,9 +60,9 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	 */
 	public boolean hasSelection()
 	{
-		return this.frame.getSelectedCircle   () != null ||
-			   this.frame.getSelectedImage    () != null ||
-			   this.frame.getSelectedRectangle() != null;
+		return this.frame.getSelectedCircle() != null ||
+			this.frame.getSelectedImage    () != null ||
+			this.frame.getSelectedRectangle() != null;
 	}
 
 	public BufferedImage getFullImage        () { return this.fullImage; }
@@ -79,33 +84,42 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 	private void outlineRect(Graphics g, Rectangle rect)
 	{
-        Graphics2D g2d = (Graphics2D) g;
+		Graphics2D g2d = (Graphics2D) g;
 
-        // Définit la couleur et l'épaisseur de la surbrillance
-        g2d.setColor(Color.WHITE);
-        g2d.setStroke(new BasicStroke(2));
+		// Définit la couleur et l'épaisseur de la surbrillance
+		g2d.setColor(Color.WHITE);
+		g2d.setStroke(new BasicStroke(2));
 
-        int width  = rect.xEnd() - rect.x();
-        int height = rect.yEnd() - rect.y();
+		int width  = rect.xEnd() - rect.x();
+		int height = rect.yEnd() - rect.y();
 
-        // Dessine le contour
-        g2d.drawRect(rect.x(), rect.y(), width, height);
-    }
+		// Dessine le contour en poitillé
+		float[] dash = { 4F, 4F };
+		Rectangle2D rectangle2d = new Rectangle2D.Float(rect.x(), rect.y(), width, height);
 
-	private void outlineCirle(Graphics g, Circle cirle)
+		Stroke dashedStroke = new BasicStroke(1F, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 2F, dash, 2F);
+		g2d.fill(dashedStroke.createStrokedShape(rectangle2d));
+	}
+
+	private void outlineCircle(Graphics g, Circle circle)
 	{
-        Graphics2D g2d = (Graphics2D) g;
+		Graphics2D g2d = (Graphics2D) g;
 
-        // Définit la couleur et l'épaisseur de la surbrillance
-        g2d.setColor(Color.WHITE);
-        g2d.setStroke(new BasicStroke(2));
+		// Définit la couleur et l'épaisseur de la surbrillance
+		g2d.setColor(Color.WHITE);
+		g2d.setStroke(new BasicStroke(2));
 
-		int height, width;
-        width = height = cirle.radius();
+		// Dessine le contour
+		float[] dash = { 4F, 4F };
+		Ellipse2D ellpise2d = new Ellipse2D.Float(circle.xCenter() - circle.radius(), circle.yCenter() - circle.radius(), circle.radius() * 2, circle.radius() * 2);
 
-        // Dessine le contour
-        // g2d.drawCircle()
-    }
+		Stroke dashedStroke = new BasicStroke(1F, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 2F, dash, 2F);
+		g2d.fill(dashedStroke.createStrokedShape(ellpise2d));
+
+		System.out.println("XCenter : " + circle.xCenter());
+		System.out.println("YCenter : " + circle.yCenter());
+		System.out.println("Radius  : " + circle.radius ());
+	}
 	
 	@Override
 	protected void paintComponent(Graphics g)
@@ -117,7 +131,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			this.outlineRect(g, this.selectedRectangle);
 
 		if (this.selectedCircle != null)
-			this.outlineCirle(g, this.selectedCircle);
+			this.outlineCircle(g, this.selectedCircle);
 		
 		if (this.selectedImage != null)
 			this.outlineRect(g,
@@ -157,6 +171,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		
 		// On remet à null tout les éléments séléctionnés
 		this.disableSelection();
+		this.startingCoord = null;
 
 		// Initialisation de la coordonée cliquée
 		Point currentCoord = null;
@@ -176,14 +191,12 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.frame.getAction() == FrameApp.ACTION_EYEDROPPER)
 		{
 			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
-			this.startingCoord = null;
 		}
 
 		// Action du Crayon
 		if (this.frame.getAction() == FrameApp.ACTION_CRAYON)
 		{
 			// TODO : this.draw(currentCoord.x(), currentCoord.y(), this.selectedArgb);
-			this.startingCoord = null;
 		}
 
 		// Actiond du remplissage
@@ -197,7 +210,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			);
 
 			this.frame.repaintImagePanel();
-			this.startingCoord = null;
 		}
 
 		// Action de la séléction d'une image
@@ -207,12 +219,19 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 			this.selectedRectangle = null;
 			this.selectedCircle = null;
-
-			repaint(); // Rafraichir pour voir la séléction graphique de l'image
 		}
 
 		this.frame.setLabelAction("Mode Curseur");
 	}
+
+	public void setCursor (String fic)
+	{
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		java.awt.Image image = toolkit.getImage(fic);
+		Cursor c = toolkit.createCustomCursor(image , new java.awt.Point(this.getX(), this.getY()), "img");
+		this.setCursor (c);
+	}
+	
 
 	@Override
 	public void mousePressed(MouseEvent e)
@@ -242,9 +261,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	@Override
 	public void mouseDragged(MouseEvent e)
 	{
 		if (this.fullImage == null) return;
@@ -254,31 +270,42 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		int x, y;
 		x = (e.getX() > this.fullImage.getWidth ()) ? this.fullImage.getWidth () : e.getX();
 		y = (e.getY() > this.fullImage.getHeight()) ? this.fullImage.getHeight() : e.getY();
+		y = (e.getY() < 0) ? 0 : y;
+		x = (e.getX() < 0) ? 0 : x;
 		
 		Point currentCoord = new Point(x, y);
 
 		if (this.frame.getAction() == FrameApp.ACTION_SELECT_CIRCLE)
 		{
+			int radius1 = Math.abs((currentCoord.x() - this.startingCoord.x()) / 2);
+			int radius2 = Math.abs((currentCoord.y() - this.startingCoord.y()) / 2);
+
+			int radius = radius1 < radius2 ? radius1 : radius2;
 			this.selectedCircle = new Circle(
-				currentCoord.x() - this.startingCoord.x(),
-				currentCoord.y() - this.startingCoord.y(),
-				this.startingCoord.x() - currentCoord.x()
+				this.startingCoord.x() + radius,
+				this.startingCoord.y() + radius,
+				radius
 			);
-			
-			System.out.println("cercle : x=" + selectedCircle.xCenter() + " y=" + selectedCircle.yCenter());
 		}
 
-		this.selectedImage = null; // On remet l'image séléctionnée à null
-		this.selectedRectangle = new Rectangle
-		(
-			this.startingCoord.x(),
-			this.startingCoord.y(),
-			currentCoord.x(),
-			currentCoord.y()
-		);
-
+		
+		if (this.frame.getAction() == FrameApp.ACTION_SELECT_RECTANGLE)
+		{
+			this.selectedImage = null; // On remet l'image séléctionnée à null
+			this.selectedRectangle = new Rectangle
+			(
+				this.startingCoord.x(),
+				this.startingCoord.y(),
+				currentCoord.x(),
+				currentCoord.y()
+			);
+		}
+		
 		repaint(); // Rafraichir pour voir la séléction graphique du rectangle
 	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {}
@@ -294,5 +321,4 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 	@Override
 	public void keyReleased(KeyEvent e) {}
-
 }

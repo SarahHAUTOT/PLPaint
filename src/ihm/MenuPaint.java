@@ -25,6 +25,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 	private JMenuItem createItem;
 	private JMenuItem openItem;
+	private JMenuItem importItem;
 	private JMenuItem saveItem;
 	private JMenuItem saveAsItem;
 	private JMenuItem quitterItem;
@@ -42,6 +43,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		// Ajouter des éléments au menu "Fichier"
 		this.createItem  = new JMenuItem("Nouveau");
 		this.openItem    = new JMenuItem("Ouvrir");
+		this.importItem  = new JMenuItem("Importer");
 		this.saveItem    = new JMenuItem("Enregistrer");
 		this.saveAsItem  = new JMenuItem("Enregistrer sous...");
 		this.quitterItem = new JMenuItem("Quitter");
@@ -52,6 +54,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		// Ajout des items à leur menu respectif
 		fichierMenu.add(createItem);
 		fichierMenu.add(openItem);
+		fichierMenu.add(importItem);
+		fichierMenu.addSeparator();
 		fichierMenu.add(saveItem);
 		fichierMenu.add(saveAsItem);
 		fichierMenu.addSeparator();
@@ -67,15 +71,19 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		/* Ecouteurs d'actions */
 		this.createItem .addActionListener(this);
-		this.quitterItem.addActionListener(this);
 		this.openItem	.addActionListener(this);
+		this.importItem	.addActionListener(this);
 		this.saveItem   .addActionListener(this);
 		this.saveAsItem .addActionListener(this);
+		this.quitterItem.addActionListener(this);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
+		// Désélection
+		this.frame.disableSelection();
+
 		int response;
 		if (this.createItem == e.getSource())
 		{
@@ -86,7 +94,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 					"Êtes-vous sûr de vouloir créer une nouvelle image ?\n" +
 					"Tout les modifications de l'image courante seront éffacées", 
 					"Ecraser l'image",
-					JOptionPane.OK_CANCEL_OPTION
+					JOptionPane.YES_NO_OPTION
 				);
 
 				if (response == JOptionPane.NO_OPTION)
@@ -105,7 +113,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 					"Êtes-vous sûr de vouloir créer une nouvelle image ?\n" +
 					"Tout les modifications de l'image courante seront éffacées", 
 					"Ecraser l'image",
-					JOptionPane.OK_CANCEL_OPTION
+					JOptionPane.YES_NO_OPTION
 				);
 
 				if (response == JOptionPane.NO_OPTION)
@@ -115,18 +123,12 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			this.openImage();
 		}
 
-		if (this.quitterItem == e.getSource())
+		if (this.importItem == e.getSource())
 		{
-			response = JOptionPane.showConfirmDialog(
-				this,
-				"Êtes-vous sûr de vouloir quitter ?\n" +
-				"Toutes vos modifiactions d'images ne seront pas enregistrées", 
-				"Quitter l'application",
-				JOptionPane.OK_CANCEL_OPTION
-			);
-
-			if (response == JOptionPane.YES_OPTION)
-				this.frame.dispose();
+			if (this.frame.getFullImage() == null)
+				this.openImage();
+			else
+				this.importImage();
 		}
 
 		if (this.saveItem == e.getSource() && this.frame.getFullImage() != null)
@@ -144,101 +146,106 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		{
 			// TODO : nouvelle frame avec explication des fonctionnalités
 		}
+
+		if (this.quitterItem == e.getSource())
+		{
+			response = JOptionPane.showConfirmDialog(
+				this,
+				"Êtes-vous sûr de vouloir quitter ?\n" +
+				"Toutes vos modifiactions d'images ne seront pas enregistrées", 
+				"Quitter l'application",
+				JOptionPane.YES_NO_OPTION
+			);
+
+			if (response == JOptionPane.YES_OPTION)
+				this.frame.dispose();
+		}
 	}
 
 	private void openImage()
 	{
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle("Sélectionnez une image");
-		fileChooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "jpeg", "png", "bmp", "gif"));
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
-		int response = fileChooser.showOpenDialog(this);
-		if (response == JFileChooser.APPROVE_OPTION)
+		File file = this.useFileChooser("Sélectionnez une image", null);
+		if (file == null) return;
+		
+		try
 		{
-			File file = fileChooser.getSelectedFile();
-			try
+			// Convertir l'image sélectionnée en BufferedImage
+			BufferedImage biImport = ImageIO.read(file);
+			if (biImport != null)
 			{
-				// Convertir l'image sélectionnée en BufferedImage
-				BufferedImage bi = ImageIO.read(file);
-				if (bi != null)
-				{
-					this.frame.setFullImage(bi);
-					this.frame.addImage    (new Image(0, 0, bi));
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(this, "Erreur : Impossible de charger l'image !");
-				}
+				this.frame.setFullImage(biImport);
+				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				(biBg.getGraphics()).setColor(Color.WHITE);   
+				this.frame.addImage(new Image(0, 0, biBg));
+				this.frame.addImage(new Image(0, 0, biImport));
 			}
-			catch (IOException ex)
+			else
 			{
-				JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
+				JOptionPane.showMessageDialog(this, "Erreur : Impossible de charger l'image !");
 			}
+		}
+		catch (IOException ex)
+		{
+			JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
 		}
 	}
 
 	private void createImage()
 	{
 		// Creation d'une nouvelle image
-		BufferedImage bi = new BufferedImage(FrameApp.DEFAULT_WIDTH, FrameApp.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D graphics = bi.createGraphics();
+		BufferedImage biBg = new BufferedImage(FrameApp.DEFAULT_WIDTH, FrameApp.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
 		graphics.setPaint ( Color.WHITE);
-		graphics.fillRect ( 0, 0, bi.getWidth(), bi.getHeight());
+		graphics.fillRect ( 0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
-		this.frame.setFullImage(bi);
+		this.frame.setFullImage(biBg);
+		this.frame.addImage(new Image(0, 0, biBg));
 	}
 
 	private void downloadImage(File baseDirectory)
 	{
-		JFileChooser fileChooser = new JFileChooser(); 
-		fileChooser.setCurrentDirectory(baseDirectory);
-		fileChooser.setDialogTitle("Sélectionnez un dossier");
-		fileChooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "jpeg", "png", "bmp", "gif"));
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		
-		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		File file = this.useFileChooser("Sélectionnez un dossier", baseDirectory);
+		if (file == null) return;
+
+		String fileName = file.getName();
+
+		if (!fileName.endsWith(".png"))
 		{
-			File   file = fileChooser.getSelectedFile();
-			String fileName = fileChooser.getSelectedFile().getName();
-			if (!fileName.endsWith(".png"))
-			{
-				JOptionPane.showMessageDialog(this, "Erreur : L'extension de votre image doit être en .png !");
+			JOptionPane.showMessageDialog(this, "Erreur : L'extension de votre image doit être en .png !");
+			this.downloadImage(file);
+		}
+
+		if (file.exists())
+		{
+			int response = JOptionPane.showConfirmDialog(
+				this,
+				"Ce fichier existe déjà.\n" +
+				"Voulez-vous le remplacer ?", 
+				"Remplacer image",
+				JOptionPane.YES_NO_OPTION
+			);
+
+			if (response != JOptionPane.YES_OPTION)
 				this.downloadImage(file);
-			}
-
-			if (file.exists())
-			{
-				int response = JOptionPane.showConfirmDialog(
-					this,
-					"Ce fichier existe déjà.\n" +
-					"Voulez-vous le remplacer ?", 
-					"Remplacer image",
-					JOptionPane.OK_CANCEL_OPTION
-				);
-
-				if (response != JOptionPane.YES_OPTION)
-					this.downloadImage(fileChooser.getSelectedFile());
-			}
-			
-            try
-			{
-				this.frame.disableSelection();
-				ImageIO.write(this.frame.getFullImage(), "png", file);
-			}
-			catch (IOException e)
-			{
-				JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image " + e.getMessage());
-				this.downloadImage(fileChooser.getSelectedFile());
-			}
+		}
+		
+		try
+		{
+			this.frame.disableSelection();
+			ImageIO.write(this.frame.getFullImage(), "png", file);
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image ");
+			this.downloadImage(file);
 		}
 	}
 
 	public void saveImage()
-	{
+	{		
 		try
 		{
 			this.frame.disableSelection();
@@ -246,8 +253,68 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image " + e.getMessage());
+			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image");
 			this.downloadImage(this.savedFile);
+		}
+	}
+
+	public void importImage()
+	{
+		File file = this.useFileChooser("Séléctionnez l'image à importer", null);
+		if (file == null) return;
+
+		try
+		{
+			// Convertir l'image sélectionnée en BufferedImage
+			BufferedImage biImport = ImageIO.read(file);
+			if (biImport != null)
+			{
+				// Récupération de l'image de fond
+				Image imgBg = this.frame.getImages().get(0);
+				if (this.frame.getFullImage().getWidth() < biImport.getWidth())
+				{
+					BufferedImage biBg = new BufferedImage(biImport.getWidth(), imgBg.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
+					(biBg.getGraphics()).setColor(Color.WHITE);
+					imgBg.setImg(biBg);
+				}
+
+				if (this.frame.getFullImage().getHeight() < biImport.getHeight())
+				{
+					BufferedImage biBg = new BufferedImage(imgBg.getImgWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					(biBg.getGraphics()).setColor(Color.WHITE);
+					imgBg.setImg(biBg);
+				}
+
+				this.frame.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courant du panelImage
+				this.frame.setFullImage(this.frame.getImage());				
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Erreur : Impossible de charger l'image !");
+			}
+		}
+		catch (IOException ex)
+		{
+			JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
+		}
+	}
+
+	private File useFileChooser(String dialogTitle, File baseDirectory)
+	{
+		JFileChooser fileChooser = new JFileChooser();
+		if (baseDirectory != null)
+			fileChooser.setCurrentDirectory(baseDirectory);
+		fileChooser.setDialogTitle(dialogTitle);
+		fileChooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "jpeg", "png", "bmp", "gif"));
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		
+		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		{
+			return fileChooser.getSelectedFile();
+		}
+		else
+		{
+			return null;
 		}
 	}
 }

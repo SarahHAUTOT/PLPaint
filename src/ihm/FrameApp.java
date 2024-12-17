@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import java.awt.Cursor;
+
 import metier.Circle;
 import metier.Image;
 import metier.Paint;
@@ -72,7 +74,7 @@ public class FrameApp extends JFrame
 		this.add(this.lblAction, BorderLayout.SOUTH);
 
 		this.setVisible(true);
-		this.setResizable(false);
+		this.setResizable(true);
 	}
 
 	public void setLabelAction(String str)
@@ -194,4 +196,7 @@ public class FrameApp extends JFrame
 		Circle circle = this.getSelectedCircle();
 		this.metier.flipVertical(circle.xCenter(), circle.yCenter(), circle.radius());
 	}
+
+	public void setCursor (Cursor cursor) { this.panelImage.setCursor(cursor); }
+	public void setCursor (String cursor) { this.panelImage.setCursor(cursor); }
 }

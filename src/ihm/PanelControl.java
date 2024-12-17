@@ -1,12 +1,9 @@
 package ihm;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import metier.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -109,8 +106,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
 
-        this.slider.setMinorTickSpacing( 5);
-
 		/* Changement de fond des comopsants */
 		this             .setBackground(FrameApp.COUL_SECONDARY);
 		panel            .setBackground(FrameApp.COUL_SECONDARY);
@@ -181,7 +176,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		// TODO Création de Curseur personnalisé
+		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+
 		if (this.goBack == e.getSource())
 		{
 			// On réinitiale l'action
@@ -206,6 +203,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// On ecrit le mode du curseur dans le label
 			this.action = FrameApp.ACTION_EYEDROPPER;
 			this.frame.setLabelAction("Mode Pipette");
+
+			this.frame.setCursor("./src/ihm/icons/eyedropper.png");
 		}
 
 		if (this.bucket == e.getSource())
@@ -223,13 +222,16 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.slider.setMinimum(0);
 			this.slider.setMaximum(30);
 			this.slider.setValue(10);
-			this.slider.setMajorTickSpacing(10);
+			this.slider.setMajorTickSpacing(5);
+			this.slider.setMinorTickSpacing( 1);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
 			this.panelButtons.setVisible(false);
 			this.revalidate();
 			this.repaint();
+
+			this.frame.setCursor("./src/ihm/icons/bucket.png");
 		}
 
 		if (this.rotation == e.getSource())
@@ -256,6 +258,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.slider.setMaximum(100);
 			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(20);
+			this.slider.setMinorTickSpacing( 5);
 			
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -281,6 +284,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// TODO : this.add(this.panelText);
 			this.revalidate();
 			this.repaint();
+
+			this.frame.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 		}
 
 		if (this.selectionCircle == e.getSource())
@@ -292,6 +297,17 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// On ecrit le mode du curseur dans le label
 			this.action = FrameApp.ACTION_SELECT_CIRCLE;
 			this.frame.setLabelAction("Mode Séléction Cercle");
+		}
+
+		if (this.selectionRectangle == e.getSource())
+		{
+			// On désactive la séléction
+			this.frame.disableSelection();
+			
+			// On renseigne l'action effectuée
+			// On ecrit le mode du curseur dans le label
+			this.action = FrameApp.ACTION_SELECT_RECTANGLE;
+			this.frame.setLabelAction("Mode Séléction Rectangle");
 		}
 
 		if (!this.frame.hasSelection()) return;
@@ -308,7 +324,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.slider.setMinimum(-100);
 			this.slider.setMaximum(100);
 			this.slider.setValue(0);
-			this.slider.setMajorTickSpacing(20);
+			this.slider.setMajorTickSpacing(50);
+			this.slider.setMinorTickSpacing( 20);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
