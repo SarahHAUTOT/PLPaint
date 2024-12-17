@@ -8,12 +8,14 @@ public class Image
 	private int y;
 
 	private BufferedImage img;
+	private BufferedImage imgOg;
 
 	public Image (int x, int y, BufferedImage img)
 	{
 		this.x   = x;
 		this.y   = y;
-		this.img = img;
+		this.img   = img;
+		this.imgOg = img;
 	}
 
 	public int getX        () { return this.x;  }
@@ -22,6 +24,10 @@ public class Image
 	public BufferedImage getImg      () { return this.img;}
 	public int           getImgWidth () { return this.img.getWidth();}
 	public int           getImgHeight() { return this.img.getHeight();}
+
+	public BufferedImage getImgOg      () { return this.img;}
+	public int           getImgOgWidth () { return this.img.getWidth();}
+	public int           getImgOgHeight() { return this.img.getHeight();}
 
 
 	public void setX  (int x)             { this.x = x; }

@@ -1,10 +1,14 @@
 package metier;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
@@ -80,53 +84,169 @@ public class Paint
 			
 			int h = img.getImg().getHeight(); 
 			int w = img.getImg().getWidth(); 
-			if ( h > this.height ) this.height = h;
-			if ( w > this.width  ) this.width  = w;
+
+			if ( h > this.height) this.height = h;
+			if ( w > this.width ) this.width  = w;
 		}
 	}
 
 	/**
-	 * Retourne la liste des images
-	 * @return
+	 * Ajouter une image mais sans une couleur donnée.
+	 * @param img
+	 * @param argb
 	 */
-    public ArrayList<Image> getImages()
+	public void addImage(Image img, int argb)
 	{
-		return  this.lstImages;
-    }
+		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage biWithArgb    = img.getImg();
+
+		for (int x = 0; x < img.getImgWidth(); x++)
+			for (int y = 0; y < img.getImgHeight(); y++)
+				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, 30))
+					biWithoutArgb.setRGB(x, y, biWithArgb.getRGB(x, y));
+
+
+		img.setImg(biWithoutArgb);
+		this.addImage(img);
+	}
+
+
+	/**
+	 * Retire une image dans la liste.
+	 * @param img
+	 */
+	public void removeImage(Image img)
+	{
+		this.lstImages.remove(img);
+
+		// Max height
+		if (img.getImgHeight() >= this.height)
+			for (Image image : lstImages)
+				if (!image.equals(img) && image.getImgHeight() >= this.height)
+					this.height = img.getImgHeight();	
+
+		// Max width
+		if (img.getImgWidth() >= this.width)
+			for (Image image : lstImages)
+				if (!image.equals(img) && image.getImgWidth() >= this.width)
+					this.width = img.getImgWidth();				
+	}
+
 
 	/**
 	 * Retourne une image qui est l'image combiné des autres
 	 * @return
 	 */
-	public BufferedImage getImage()
+	public BufferedImage getImage() 
 	{
 		BufferedImage imgSortie = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-
-		// Parcourir chacune des pixels des images
+	
 		for (Image img : this.lstImages) 
 		{
 			int xStart = img.getX();
 			int yStart = img.getY();
-
+	
 			BufferedImage imgEntre = img.getImg();
-
-			for (int x = 0; x < imgEntre.getWidth() && x < this.width; x++)
+	
+			for (int x = 0; x < imgEntre.getWidth(); x++) 
 			{
-				for (int y = 0; y < imgEntre.getHeight() && y < this.height; y++)
+				for (int y = 0; y < imgEntre.getHeight(); y++) 
 				{
-					int coul = (imgEntre.getRGB(x, y));
-					// Not transparent, x and y in zone
-					if((coul>>24) != 0x00 && x + xStart <= this.width && y + yStart <= this.height)
-						imgSortie.setRGB(x + xStart, y + yStart, coul);
+					int coul = imgEntre.getRGB(x, y);
+	
+					if ((coul >> 24) != 0x00) {
+						int xDest = x + xStart;
+						int yDest = y + yStart;
+	
+						if (xDest >= 0 && xDest < this.width && yDest >= 0 && yDest < this.height) 
+							imgSortie.setRGB(xDest, yDest, coul);
+					}
 				}
 			}
 		}
-
+	
 		return imgSortie;
 	}
 
+
 	/**
-	 * Récupérer l'image (celle-tous devant) ou elle a était cliqué.
+	 * Retire le 
+	 * @param image
+	 * @param tolerance
+	 */
+    public void removeBackground(Image image) 
+	{
+		BufferedImage bi = image.getImg();
+
+        int width  = bi.getWidth();
+        int height = bi.getHeight();
+
+        int backgroundColor = getDominantBorderColor(bi);
+
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        for (int x = 0; x < width; x++) 
+		{
+            for (int y = 0; y < height; y++) 
+			{
+                int pixel = bi.getRGB(x, y);
+
+                if (sameColor(pixel, backgroundColor, 50))
+                    result.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
+                else 
+                    result.setRGB(x, y, pixel);
+            }
+        }
+
+        image.setImg(result);
+    }
+
+	/**
+	 * Trouve la couleur dominante dans une image.
+	 * @param image
+	 * @return
+	 */
+    private static int getDominantBorderColor(BufferedImage image) 
+	{
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        Map<Integer, Integer> colorCount = new HashMap<>();
+
+        for (int x = 0; x < width; x++) 
+		{
+            addColorCount(image.getRGB(x, 0), colorCount);       
+            addColorCount(image.getRGB(x, height - 1), colorCount);
+        }
+        for (int y = 0; y < height; y++) 
+		{
+            addColorCount(image.getRGB(0, y), colorCount);
+            addColorCount(image.getRGB(width - 1, y), colorCount);
+        }
+
+        int dominantColorRGB = colorCount.entrySet()
+		                                 .stream()
+		                                 .max(Map.Entry.comparingByValue())
+		                                 .get()
+		                                 .getKey();
+
+        return dominantColorRGB;
+    }
+
+	
+	/**
+	 * Ajoute / Incrémente la couleur 
+	 * @param rgb
+	 * @param colorCount
+	 */
+    private static void addColorCount(int rgb, Map<Integer, Integer> colorCount) 
+	{
+        colorCount.put(rgb, colorCount.getOrDefault(rgb, 0) + 1);
+    }
+	
+
+	/**
+	 * Récupérer l'image (celle-tous devant) ou elle a était cliqué (sans prendre en compte la transparence).
 	 * @param x
 	 * @param y
 	 * @return
@@ -134,7 +254,25 @@ public class Paint
 	public Image getClickedImage(int x, int y)
 	{
 		for (int i = this.lstImages.size() - 1; i >= 0; i--)
-			if (imageIn(x, y, this.lstImages.get(i))) 
+			if (imageIn(x, y, this.lstImages.get(i), true)) 
+				return this.lstImages.get(i);
+
+		return null;
+	}
+
+	
+	
+
+	/**
+	 * Récupérer l'image a des coordonées.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Image getImageAt(int x, int y)
+	{
+		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+			if (imageIn(x, y, this.lstImages.get(i), false)) 
 				return this.lstImages.get(i);
 
 		return null;
@@ -159,11 +297,11 @@ public class Paint
 	 * @param img
 	 * @return
 	 */
-	private boolean imageIn (int x, int y, Image img)
+	private boolean imageIn (int x, int y, Image img, boolean withTrans)
 	{
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
-		       y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			   !isTrans(img.getImg().getRGB(x, y));
+			y >= img.getY() && y < img.getY() + img.getImgHeight() &&
+			!(isTrans(img.getImg().getRGB(x, y)) && withTrans);
 	}
 
 	public static boolean isTrans(int rgb)
@@ -201,14 +339,12 @@ public class Paint
 			Point p = file.remove();
 
 			if ( p.x() >= 0 && p.x() < bi.getWidth  () && p.y() >= 0 && p.y() < bi.getHeight () &&
-			    //  colorOrig == ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF)
 				sameColor(colorOrig, ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF), distance)
-			   )
+			)
 			{
 				bi.setRGB ( p.x(), p.y(), argb );
 				
-				if (this.getClickedImage(p.x(), p.y()) != null)
-					this.getClickedImage(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
+				if (this.getImageAt(p.x(), p.y()) != null) this.getImageAt(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
 
 				file.add ( new Point ( p.x()+1, p.y()   ) );
 				file.add ( new Point ( p.x()-1, p.y()   ) );
@@ -255,7 +391,7 @@ public class Paint
 	 */
 	public void setLuminosite (Image image, int var)
 	{
-		BufferedImage bi = image.getImg();
+		BufferedImage bi = image.getImgOg();
 
 		for (int x = 0; x < bi.getWidth(); x++) {
 			for (int y = 0; y < bi.getHeight(); y++) {
@@ -290,7 +426,7 @@ public class Paint
 
 				if (img != null)
 				{
-					BufferedImage bi = img.getImg();
+					BufferedImage bi = img.getImgOg();
 
 					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
@@ -314,12 +450,12 @@ public class Paint
 			for (int y = yCenter - radius; y < yCenter + radius; y++) 
 			{
 				if (x > 0 && x < this.width && y > 0 && y < this.height && 
-				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
-				   )
+					radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
+				)
 				{
 					Image img = this.getClickedImage(x, y);
 					if (img != null) {
-						BufferedImage bi = img.getImg();
+						BufferedImage bi = img.getImgOg();
 	
 						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
@@ -366,70 +502,78 @@ public class Paint
 	/*                                            METHODE ROTATIONS                                        */
 	/* --------------------------------------------------------------------------------------------------- */
 
-	
+	/**
+	 * Rotation d'un éléments.
+	 * @param image
+	 * @param angle
+	 */
 	public void retourner(Image image, int angle) 
 	{
 		BufferedImage img = image.getImg();
-
+	
 		double angleRad = Math.toRadians(angle);
-		double sin = Math.sin(angleRad);
-		double cos = Math.cos(angleRad);
+		double sin = Math.abs(Math.sin(angleRad));
+		double cos = Math.abs(Math.cos(angleRad));
 	
-		int nH = (int) Math.floor(img.getWidth() * Math.abs(sin) + img.getHeight() * Math.abs(cos));
-		int nW = (int) Math.floor(img.getWidth() * Math.abs(cos) + img.getHeight() * Math.abs(sin));
+		int oldWidth = img.getWidth();
+		int oldHeight = img.getHeight();
+		int newWidth = (int) Math.ceil(oldWidth * cos + oldHeight * sin);
+		int newHeight = (int) Math.ceil(oldWidth * sin + oldHeight * cos);
 	
-		BufferedImage rotatedImg = new BufferedImage(nW, nH, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage rotatedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 	
-		int xO = width / 2;
-		int yO = height / 2;
+		int xCenterOld = oldWidth / 2;
+		int yCenterOld = oldHeight / 2;
+		int xCenterNew = newWidth / 2;
+		int yCenterNew = newHeight / 2;
 	
-		for (int rX = 0; rX < nW; rX++) 
+		for (int rX = 0; rX < newWidth; rX++) 
 		{
-			for (int rY = 0; rY < nH; rY++) 
+			for (int rY = 0; rY < newHeight; rY++) 
 			{
-				double x = (rX - xO) * cos + (rY - yO) * sin + xO;
-				double y = -(rX - xO) * sin + (rY - yO) * cos + yO;
+				double x = (rX - xCenterNew) * Math.cos(-angleRad) - (rY - yCenterNew) * Math.sin(-angleRad) + xCenterOld;
+				double y = (rX - xCenterNew) * Math.sin(-angleRad) + (rY - yCenterNew) * Math.cos(-angleRad) + yCenterOld;
 	
-				if (x >= 0 && x < nW && y >= 0 && y < nH) 
+				if (x >= 0 && x < oldWidth && y >= 0 && y < oldHeight) 
 				{
-					int x1 = (int) Math.floor(x);
-					int x2 = x1 + 1;
-					int y1 = (int) Math.floor(y);
-					int y2 = y1 + 1;
+					int srcX = (int) Math.floor(x);
+					int srcY = (int) Math.floor(y);
 	
-					double dx = x - x1;
-					double dy = y - y1;
+					srcX = Math.min(srcX, oldWidth - 1);
+					srcY = Math.min(srcY, oldHeight - 1);
 	
-					double wHG = (1 - dx) * (1 - dy);
-					double wBG = dx * (1 - dy);      
-					double wHD = (1 - dx) * dy;      
-					double wBD = dx * dy;            
-	
-					x1 = Math.max(0, Math.min(x1, width - 1));
-					x2 = Math.max(0, Math.min(x2, width - 1));
-					y1 = Math.max(0, Math.min(y1, height - 1));
-					y2 = Math.max(0, Math.min(y2, height - 1));
-	
-					Color colHG = new Color(img.getRGB(x1, y1));
-					Color colBG = new Color(img.getRGB(x2, y1));
-					Color colHD = new Color(img.getRGB(x1, y2));
-					Color colBD = new Color(img.getRGB(x2, y2));
-	
-					int r = (int) (wHG * colHG.getRed()   + wBG * colBG.getRed()   +
-								   wHD * colHD.getRed()   + wBD * colBD.getRed());
-					int g = (int) (wHG * colHG.getGreen() + wBG * colBG.getGreen() +
-								   wHD * colHD.getGreen() + wBD * colBD.getGreen());
-					int b = (int) (wHG * colHG.getBlue()  + wBG * colBG.getBlue()  +
-								   wHD * colHD.getBlue()  + wBD * colBD.getBlue());
-	
-					rotatedImg.setRGB(rX, rY, new Color(r, g, b).getRGB());
+					rotatedImg.setRGB(rX, rY, img.getRGB(srcX, srcY));
 				}
 			}
 		}
 	
+		image.setX(image.getX() + (xCenterOld - xCenterNew));
+		image.setY(image.getY() + (yCenterOld - yCenterNew));
 		image.setImg(rotatedImg);
 	}
 
+	
+	public void retourner(int xStart, int yStart, int xEnd, int yEnd, int angle) 
+	{
+		BufferedImage bi = new BufferedImage(xEnd - xStart, yEnd - yStart, BufferedImage.TYPE_INT_ARGB);
+
+		for (int x = xStart; x < xEnd; x++)
+			for (int y = yStart; y < yEnd; y++)
+			{
+				Image image = this.getClickedImage(x, y);
+				
+				if(image != null)
+				{
+					
+				}
+			}
+	}
+	
+
+
+
+
+		
 
 
 
@@ -496,23 +640,21 @@ public class Paint
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipHorizontal(int xCenter, int yCenter, int radius) 
-	{
-		for (int x = xCenter - radius; x < xCenter + radius; x++) {
-			for (int y = yCenter - radius; y < yCenter + radius; y++) 
-			{
-				if (x > 0 && x < this.width && y > 0 && y < this.height && 
-				    radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
-				   )
-				{
-					Image img = this.getClickedImage(x, y);
+	public void flipHorizontal(int xCenter, int yCenter, int radius) {
+		for (int x = xCenter - radius; x < xCenter; x++) {
+			for (int y = yCenter - radius; y <= yCenter + radius; y++) {
+				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
+					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) {
+					
+					Image img = getClickedImage(x, y);
 					if (img != null) {
 						BufferedImage bi = img.getImg();
-	
-						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
-						Color newColor = new Color(nouvVal);
-						bi.setRGB(x, y, newColor.getRGB()); 
+						int mirrorX = xCenter + (xCenter - x);
+						if (mirrorX >= 0 && mirrorX < this.width) {
+							int temp = bi.getRGB(x, y);
+							bi.setRGB(x, y, bi.getRGB(mirrorX, y));
+							bi.setRGB(mirrorX, y, temp);
+						}
 					}
 				}
 			}
@@ -545,7 +687,7 @@ public class Paint
 	}
 	
 	/**
-	 * Flip horizontal d'une zone rectanculaire.
+	 * Flip vertical d'une zone rectanculaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
@@ -571,7 +713,98 @@ public class Paint
 		}
 	}
 	
+	/**
+	 * Flip vertical d'une zone circulaire. 
+	 * @param xCenter
+	 * @param yCenter
+	 * @param radius
+	 */
+	public void flipVertical(int xCenter, int yCenter, int radius) 
+	{
+		for (int x = xCenter - radius; x <= xCenter + radius; x++) 
+		{
+			for (int y = yCenter - radius; y < yCenter; y++) 
+			{
+				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
+					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
+				{
+					Image img = getClickedImage(x, y);
 
+					if (img != null) 
+					{
+						BufferedImage bi = img.getImg();
+						int mirrorY = yCenter + (yCenter - y);
+						if (mirrorY >= 0 && mirrorY < this.height) 
+						{
+							int temp = bi.getRGB(x, y);
+							bi.setRGB(x, y, bi.getRGB(x, mirrorY));
+							bi.setRGB(x, mirrorY, temp);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+			
+
+
+
+		
+
+
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                             METHODE TEXTE                                           */
+	/* --------------------------------------------------------------------------------------------------- */
+	
+	/**
+	 * Ajoute du texte.
+	 * @param text
+	 * @param bold
+	 * @param italic
+	 * @param police
+	 * @param size
+	 */
+	public void addText (String text, boolean bold, boolean italic, String police, int size, int argb)
+	{
+		BufferedImage bi = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+		
+		Graphics2D g2 = bi.createGraphics();
+		
+		int style = Font.PLAIN;
+		if (bold  ) style = style | Font.BOLD;
+		if (italic) style = style | Font.ITALIC;
+
+		g2.setColor(new Color(argb));
+		g2.setFont(new Font(police ,style, size));
+		g2.drawString(text, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+		this.addImage(new Image(0, 0, bi));
+	}	
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                            METHODE TEXTURE                                          */
+	/* --------------------------------------------------------------------------------------------------- */
+	
+
+	/**
+	 * Remplace les pixels non transparent par une texture.
+	 * @param biTexture
+	 * @param img
+	 */
+	public void addTexture(BufferedImage biTexture, Image img)
+	{
+		BufferedImage bi = img.getImg();
+		for (int x = 0; x < bi.getWidth(); x++)
+			for (int y = 0; y < bi.getHeight(); y++)
+				if (!Paint.isTrans(bi.getRGB(x, y)))
+					bi.setRGB(x, y, biTexture.getRGB(x % biTexture.getWidth(), y % biTexture.getHeight()));
+	}
 
 
 
@@ -589,16 +822,11 @@ public class Paint
 		try {
 			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
 			p.addImage(img);
-			
-			// p.bucket(0, 0, Color.RED.getRGB(), 80);
+			// p.bucket(0,0,Color.RED.getRGB(), 30);
 
-			// // p.setLuminosite(img, -200);
-			// p.setLuminosite(0,0,100,100, 50, -100);
-			// p.setLuminosite(200,200,100,100, 50, -100);
-			// p.setLuminosite(150,150, 50, -100);
-			// p.retourner(img, 30);
-
-			p.flipVertical(0, 100, img.getImgWidth() / 2, 300);
+			p.flipVertical(img);
+			p.setLuminosite(img, 50);
+			p.setLuminosite(img, -70);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
