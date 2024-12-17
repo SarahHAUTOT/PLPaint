@@ -37,6 +37,8 @@ public class Paint
 	/** Liste des images qui compose la grande image. */
 	private ArrayList<Image> lstImages;
 
+	private BufferedImage fond;
+
 	/** Largeur de l'image. */
 	private int width ;
 	/** Hauteur de l'image. */
@@ -63,6 +65,8 @@ public class Paint
 		
 		this.width  = Paint.DEFAULT_WIDTH ;
 		this.height = Paint.DEFAULT_HEIGHT;
+
+		this.setFond();
 	}
 	
 
@@ -111,6 +115,12 @@ public class Paint
 	}
 
 
+	public void setFond()
+	{
+		this.fond = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+	}
+
+
 	/**
 	 * Retire une image dans la liste.
 	 * @param img
@@ -123,13 +133,19 @@ public class Paint
 		if (img.getImgHeight() >= this.height)
 			for (Image image : lstImages)
 				if (!image.equals(img) && image.getImgHeight() >= this.height)
+				{
 					this.height = img.getImgHeight();	
+					this.setFond();
+				}
 
 		// Max width
 		if (img.getImgWidth() >= this.width)
 			for (Image image : lstImages)
 				if (!image.equals(img) && image.getImgWidth() >= this.width)
+				{
 					this.width = img.getImgWidth();				
+					this.setFond();
+				}
 	}
 
 
@@ -260,6 +276,18 @@ public class Paint
 		return null;
 	}
 
+
+	public ArrayList<Image> getClickedImages(int x, int y)
+	{
+		ArrayList<Image> lstImages = new ArrayList<>();
+
+		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+			if (imageIn(x, y, this.lstImages.get(i), true)) 
+				lstImages.add(this.lstImages.get(i));
+
+		return lstImages;
+	}
+
 	
 	
 
@@ -299,9 +327,13 @@ public class Paint
 	 */
 	private boolean imageIn (int x, int y, Image img, boolean withTrans)
 	{
+		// System.out.println("X " + x + " | w " + img.getImgWidth () + " | start at " + img.getX() + " | x max " + (img.getX() + img.getImgWidth ()));
+		// System.out.println("Y " + y + " | h " + img.getImgHeight() + " | start at " + img.getY() + " | x max " + (img.getY() + img.getImgHeight()));
+
+
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
-			y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			!(isTrans(img.getImg().getRGB(x, y)) && withTrans);
+			   y >= img.getY() && y < img.getY() + img.getImgHeight() &&
+			   !(isTrans(img.getImg().getRGB(x, y)) && withTrans);
 	}
 
 	public static boolean isTrans(int rgb)
@@ -322,34 +354,43 @@ public class Paint
 	 * @param x
 	 * @param y
 	 * @param argb
+	 * @param distance
 	 */
 	public void bucket(int x, int y, int argb, int distance) 
 	{
 		BufferedImage bi = this.getImage();
-		
 		Queue<Point> file = new LinkedList<Point>();
-		int colorOrig;
+		int colorOrig = bi.getRGB(x, y) & 0xFFFFFF;
 
-		colorOrig = bi.getRGB( x, y ) & 0xFFFFFF;
+		file.add(new Point(x, y));
 
-		file.add ( new Point ( x, y ) );
-
-		while ( ! file.isEmpty() )
+		while (!file.isEmpty()) 
 		{
 			Point p = file.remove();
 
-			if ( p.x() >= 0 && p.x() < bi.getWidth  () && p.y() >= 0 && p.y() < bi.getHeight () &&
-				sameColor(colorOrig, ( bi.getRGB(p.x(), p.y() ) & 0xFFFFFF), distance)
-			)
+			if (p.x() >= 0 && p.x() < bi.getWidth() && p.y() >= 0 && p.y() < bi.getHeight() &&
+				sameColor(colorOrig, (bi.getRGB(p.x(), p.y()) & 0xFFFFFF), distance)) 
 			{
-				bi.setRGB ( p.x(), p.y(), argb );
-				
-				if (this.getImageAt(p.x(), p.y()) != null) this.getImageAt(p.x(), p.y()).getImg().setRGB(p.x(), p.y(), argb);
+				bi.setRGB(p.x(), p.y(), argb);
 
-				file.add ( new Point ( p.x()+1, p.y()   ) );
-				file.add ( new Point ( p.x()-1, p.y()   ) );
-				file.add ( new Point ( p.x()  , p.y()-1 ) );
-				file.add ( new Point ( p.x()  , p.y()+1 ) );
+				Image img = this.getImageAt(p.x(), p.y());
+				if (img != null) 
+				{
+					BufferedImage subImg = img.getImg();
+
+					int localX = p.x() - img.getX();
+					int localY = p.y() - img.getY();
+
+					if (localX >= 0 && localX < subImg.getWidth() && localY >= 0 && localY < subImg.getHeight()) 
+					{
+						subImg.setRGB(localX, localY, argb);
+					}
+				}
+
+				file.add(new Point(p.x() + 1, p.y()));
+				file.add(new Point(p.x() - 1, p.y()));
+				file.add(new Point(p.x(), p.y() - 1));
+				file.add(new Point(p.x(), p.y() + 1));
 			}
 		}
 	}
@@ -391,7 +432,9 @@ public class Paint
 	 */
 	public void setLuminosite (Image image, int var)
 	{
-		BufferedImage bi = image.getImgOg();
+		if (var == 0) return;
+
+		BufferedImage bi = image.getImg();
 
 		for (int x = 0; x < bi.getWidth(); x++) {
 			for (int y = 0; y < bi.getHeight(); y++) {
@@ -406,32 +449,40 @@ public class Paint
 				}
 			}
 		}
-	}
 
+	}
 
 	/**
 	 * Changer la luminosité d'une zone rectangulaire.
-	 * @param xSart
+	 * @param xStart
 	 * @param yStart
-	 * @param xFin
-	 * @param yFin
+	 * @param xEnd
+	 * @param yEnd
 	 * @param var
 	 */
-	public void setLuminosite (int xSart, int yStart, int xFin, int yFin, int var)
+	public void setLuminosite(int xStart, int yStart, int xEnd, int yEnd, int var) 
 	{
-		for (int x = xSart; x < xFin; x++) {
-			for (int y = yStart; y < yFin; y++) 
+		if (var == 0) return;
+
+		for (int x = xStart; x < xEnd; x++) 
+		{
+			for (int y = yStart; y < yEnd; y++) 
 			{
-				Image img = this.getClickedImage(x, y);
+				ArrayList<Image> lst = this.getClickedImages(x, y);
 
-				if (img != null)
-				{
-					BufferedImage bi = img.getImgOg();
+				for (Image img : lst) {
+					BufferedImage bi = img.getImg();
 
-					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
-					Color newColor = new Color(nouvVal);
-					bi.setRGB(x, y, newColor.getRGB());
+					int localX = x - img.getX();
+					int localY = y - img.getY();
+
+					if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
+					{
+						int pixelColor = bi.getRGB(localX, localY) & 0xFFFFFF;
+						int nouvVal = Paint.luminosite(new Color(pixelColor), var);
+						Color newColor = new Color(nouvVal);
+						bi.setRGB(localX, localY, newColor.getRGB());
+					}
 				}
 			}
 		}
@@ -444,28 +495,38 @@ public class Paint
 	 * @param radius
 	 * @param var
 	 */
-	public void setLuminosite(int xCenter, int yCenter, int radius, int var) {
+	public void setLuminosite(int xCenter, int yCenter, int radius, int var) 
+	{
+		if (var == 0) return;
 
-		for (int x = xCenter - radius; x < xCenter + radius; x++) {
+		for (int x = xCenter - radius; x < xCenter + radius; x++) 
+		{
 			for (int y = yCenter - radius; y < yCenter + radius; y++) 
 			{
-				if (x > 0 && x < this.width && y > 0 && y < this.height && 
-					radius >= Math.sqrt( Math.pow( x - xCenter, 2 ) + Math.pow( y - yCenter, 2 ) ) 
-				)
+				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
+					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
 				{
-					Image img = this.getClickedImage(x, y);
-					if (img != null) {
-						BufferedImage bi = img.getImgOg();
+					ArrayList<Image> lst = this.getClickedImages(x, y);
 	
-						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
-						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
-						Color newColor = new Color(nouvVal);
-						bi.setRGB(x, y, newColor.getRGB()); 
+					for (Image img : lst) {
+						BufferedImage bi = img.getImg();
+
+						int localX = x - img.getX();
+						int localY = y - img.getY();
+
+						if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
+						{
+							int pixelColor = bi.getRGB(localX, localY) & 0xFFFFFF;
+							int nouvVal = Paint.luminosite(new Color(pixelColor), var);
+							Color newColor = new Color(nouvVal);
+							bi.setRGB(localX, localY, newColor.getRGB());
+						}	
 					}
 				}
 			}
 		}
 	}
+
 	
 
 	/**
@@ -507,8 +568,11 @@ public class Paint
 	 * @param image
 	 * @param angle
 	 */
-	public void retourner(Image image, int angle) 
+	public void rotate(Image image, int angle) 
 	{
+		if (angle == 0 || angle == 360) return;
+
+
 		BufferedImage img = image.getImg();
 	
 		double angleRad = Math.toRadians(angle);
@@ -521,7 +585,7 @@ public class Paint
 		int newHeight = (int) Math.ceil(oldWidth * sin + oldHeight * cos);
 	
 		BufferedImage rotatedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-	
+
 		int xCenterOld = oldWidth / 2;
 		int yCenterOld = oldHeight / 2;
 		int xCenterNew = newWidth / 2;
@@ -553,21 +617,61 @@ public class Paint
 	}
 
 	
-	public void retourner(int xStart, int yStart, int xEnd, int yEnd, int angle) 
+	/**
+	 * Flip d'une zone rectangulaire et rotation.
+	 * @param angle L'angle de rotation en degrés.
+	 * @param xStart Coordonnée x du coin supérieur gauche de la zone rectangulaire.
+	 * @param yStart Coordonnée y du coin supérieur gauche de la zone rectangulaire.
+	 * @param xEnd Coordonnée x du coin inférieur droit de la zone rectangulaire.
+	 * @param yEnd Coordonnée y du coin inférieur droit de la zone rectangulaire.
+	 */
+	public void rotate(int xStart, int yStart, int xEnd, int yEnd, int angle) 
 	{
-		BufferedImage bi = new BufferedImage(xEnd - xStart, yEnd - yStart, BufferedImage.TYPE_INT_ARGB);
+		if (angle == 0 || angle == 360) return;
 
-		for (int x = xStart; x < xEnd; x++)
-			for (int y = yStart; y < yEnd; y++)
+		BufferedImage img = this.getImage();
+
+		BufferedImage zoneImage = img.getSubimage(xStart, yStart, xEnd - xStart, yEnd - yStart);
+		Image zoneImageObj = new Image(xStart, yStart, zoneImage);
+
+		try {
+			ImageIO.write(zoneImage,"png",new File ("jh.png") );
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		this.lstImages.add(zoneImageObj);
+		this.rotate(zoneImageObj, angle);
+		
+		
+		
+		for (int x = xStart; x < xEnd; x++) 
+		{
+			for (int y = yStart; y < yEnd; y++) 
 			{
-				Image image = this.getClickedImage(x, y);
-				
-				if(image != null)
+				System.out.println(xStart + " " + x + " | " + yEnd + " " + y);
+				ArrayList<Image> lst = this.getClickedImages(x, y);
+				for (Image imgInZone : lst) 
 				{
-					
+					// Si l'image est totalement couvert dans la zone on l'enlève de la liste
+					if (imgInZone.getX() >= xStart && imgInZone.getX() + imgInZone.getImgWidth () <= xEnd &&
+					    imgInZone.getY() >= yStart && imgInZone.getY() + imgInZone.getImgHeight() <= yEnd) 
+					{
+						this.lstImages.remove(imgInZone);
+					}else {
+						BufferedImage bi = imgInZone.getImg();
+						int localX = x - imgInZone.getX();
+						int localY = y - imgInZone.getY();
+						if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
+						{
+							bi.setRGB(localX, localY, 0);  
+						}
+					}
 				}
 			}
+		}
 	}
+
 	
 
 
@@ -606,28 +710,42 @@ public class Paint
 		}
 	}
 	
+	
+	
+	
 	/**
-	 * Flip horizontal d'une zone rectanculaire.
-	 * @param xStart
-	 * @param yStart
-	 * @param xEnd
-	 * @param yEnd
-	 */
+	* Flip horizontal d'une zone rectangulaire.
+	* @param xStart
+	* @param yStart
+	* @param xEnd
+	* @param yEnd
+	*/
 	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
 	{
-		for (int x = xStart; x < xEnd / 2; x++) 
+		for (int x = xStart; x < xStart + (xEnd - xStart) / 2; x++) 
 		{
 			for (int y = yStart; y < yEnd; y++) 
 			{
 				Image img = getClickedImage(x, y);
+				Image imgMirror = getClickedImage(xEnd - (x - xStart) - 1, y);
 
-				if (img != null)
+				if (img != null && imgMirror != null) 
 				{
 					BufferedImage bi = img.getImg();
-					int temp = bi.getRGB(x, y);
-		
-					bi.setRGB(x, y, bi.getRGB(xEnd - x - 1, y));
-					bi.setRGB(xEnd - x - 1, y, temp);
+					BufferedImage biMirror = imgMirror.getImg();
+
+					int localX1 = x - img.getX();
+					int localX2 = xEnd - (x - xStart) - 1 - imgMirror.getX();
+					int localY = y - img.getY();
+
+					if (localX1 >= 0 && localX1 < bi.getWidth() &&
+						localX2 >= 0 && localX2 < biMirror.getWidth() &&
+						localY >= 0 && localY < bi.getHeight()) 
+					{
+						int temp = bi.getRGB(localX1, localY);
+						bi.setRGB(localX1, localY, biMirror.getRGB(localX2, localY));
+						biMirror.setRGB(localX2, localY, temp);
+					}
 				}
 			}
 		}
@@ -640,26 +758,40 @@ public class Paint
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipHorizontal(int xCenter, int yCenter, int radius) {
-		for (int x = xCenter - radius; x < xCenter; x++) {
-			for (int y = yCenter - radius; y <= yCenter + radius; y++) {
-				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
-					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) {
-					
+	public void flipHorizontal(int xCenter, int yCenter, int radius) 
+	{
+		for (int x = xCenter - radius; x < xCenter; x++) 
+		{
+			for (int y = yCenter - radius; y <= yCenter + radius; y++) 
+			{
+				if (Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
+				{
 					Image img = getClickedImage(x, y);
-					if (img != null) {
+					Image imgMirror = getClickedImage(xCenter + (xCenter - x), y);
+
+					if (img != null && imgMirror != null) 
+					{
 						BufferedImage bi = img.getImg();
-						int mirrorX = xCenter + (xCenter - x);
-						if (mirrorX >= 0 && mirrorX < this.width) {
-							int temp = bi.getRGB(x, y);
-							bi.setRGB(x, y, bi.getRGB(mirrorX, y));
-							bi.setRGB(mirrorX, y, temp);
+						BufferedImage biMirror = imgMirror.getImg();
+
+						int localX1 = x - img.getX();
+						int localX2 = xCenter + (xCenter - x) - imgMirror.getX();
+						int localY = y - img.getY();
+
+						if (localX1 >= 0 && localX1 < bi.getWidth() &&
+							localX2 >= 0 && localX2 < biMirror.getWidth() &&
+							localY >= 0 && localY < bi.getHeight()) 
+						{
+							int temp = bi.getRGB(localX1, localY);
+							bi.setRGB(localX1, localY, biMirror.getRGB(localX2, localY));
+							biMirror.setRGB(localX2, localY, temp);
 						}
 					}
 				}
 			}
 		}
 	}
+	
 
 
 
@@ -685,9 +817,10 @@ public class Paint
 			}
 		}
 	}
-	
+
+
 	/**
-	 * Flip vertical d'une zone rectanculaire.
+	 * Flip vertical d'une zone rectangulaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
@@ -697,24 +830,35 @@ public class Paint
 	{
 		for (int x = xStart; x < xEnd; x++) 
 		{
-			for (int y = yStart; y < yEnd / 2; y++) 
+			for (int y = yStart; y < yStart + (yEnd - yStart) / 2; y++) 
 			{
 				Image img = getClickedImage(x, y);
+				Image imgMirror = getClickedImage(x, yEnd - (y - yStart) - 1);
 
-				if (img != null)
+				if (img != null && imgMirror != null) 
 				{
 					BufferedImage bi = img.getImg();
-					int temp = bi.getRGB(x, y);
-		
-					bi.setRGB(x, y, bi.getRGB(x, yEnd - y - 1));
-					bi.setRGB(x, yEnd - y - 1, temp);
+					BufferedImage biMirror = imgMirror.getImg();
+
+					int localX = x - img.getX();
+					int localY1 = y - img.getY();
+					int localY2 = yEnd - (y - yStart) - 1 - imgMirror.getY();
+
+					if (localX >= 0 && localX < bi.getWidth() &&
+						localY1 >= 0 && localY1 < bi.getHeight() &&
+						localY2 >= 0 && localY2 < biMirror.getHeight()) 
+					{
+						int temp = bi.getRGB(localX, localY1);
+						bi.setRGB(localX, localY1, biMirror.getRGB(localX, localY2));
+						biMirror.setRGB(localX, localY2, temp);
+					}
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Flip vertical d'une zone circulaire. 
+	 * Flip vertical d'une zone circulaire.
 	 * @param xCenter
 	 * @param yCenter
 	 * @param radius
@@ -725,32 +869,33 @@ public class Paint
 		{
 			for (int y = yCenter - radius; y < yCenter; y++) 
 			{
-				if (x >= 0 && x < this.width && y >= 0 && y < this.height &&
-					Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
+				if (Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
 				{
 					Image img = getClickedImage(x, y);
+					Image imgMirror = getClickedImage(x, yCenter + (yCenter - y));
 
-					if (img != null) 
+					if (img != null && imgMirror != null) 
 					{
 						BufferedImage bi = img.getImg();
-						int mirrorY = yCenter + (yCenter - y);
-						if (mirrorY >= 0 && mirrorY < this.height) 
+						BufferedImage biMirror = imgMirror.getImg();
+
+						int localX = x - img.getX();
+						int localY1 = y - img.getY();
+						int localY2 = yCenter + (yCenter - y) - imgMirror.getY();
+
+						if (localX >= 0 && localX < bi.getWidth() &&
+							localY1 >= 0 && localY1 < bi.getHeight() &&
+							localY2 >= 0 && localY2 < biMirror.getHeight()) 
 						{
-							int temp = bi.getRGB(x, y);
-							bi.setRGB(x, y, bi.getRGB(x, mirrorY));
-							bi.setRGB(x, mirrorY, temp);
+							int temp = bi.getRGB(localX, localY1);
+							bi.setRGB(localX, localY1, biMirror.getRGB(localX, localY2));
+							biMirror.setRGB(localX, localY2, temp);
 						}
 					}
 				}
 			}
 		}
 	}
-	
-			
-
-
-
-		
 
 
 
@@ -820,13 +965,17 @@ public class Paint
 		Paint p = new Paint();
 
 		try {
-			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
+			Image img = new Image(60,40, ImageIO.read(new File("src/metier/test.png")));
 			p.addImage(img);
 			// p.bucket(0,0,Color.RED.getRGB(), 30);
 
-			p.flipVertical(img);
-			p.setLuminosite(img, 50);
-			p.setLuminosite(img, -70);
+			// p.flipVertical(50,50,500,350);
+			// p.setLuminosite(0,0,600,300,-50);
+			// p.setLuminosite(img, 50);
+			// p.setLuminosite(img, -50);
+			// p.setLuminosite(img, -50);
+
+			p.setLuminosite(80,120,300,450,80);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
