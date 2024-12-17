@@ -44,7 +44,7 @@ public class FrameApp extends JFrame
 	public static final int DEFAULT_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.85);
 	
 	public static final Color COUL_PRIMARY   = Color.decode("#E1EBF3"); // Couleur primaire de l'application
-	public static final Color COUL_SECONDARY = Color.decode("#729ab9"); // Couleur secondaire de l'application
+	public static final Color COUL_SECONDARY = Color.decode("#F9F6EE"); // Couleur secondaire de l'application
 	public static final Color COUL_NO_BG     = Color.decode("#BFBFBF"); // Couleur de fond par défault
 	
 	private Paint        metier;
