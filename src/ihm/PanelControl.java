@@ -109,7 +109,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
 
-        this.slider.setMajorTickSpacing(20);
         this.slider.setMinorTickSpacing( 5);
 
 		/* Changement de fond des comopsants */
@@ -222,8 +221,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// Configuration du slider
 			this.slider.setMinimum(0);
+			this.slider.setMaximum(30);
 			this.slider.setValue(10);
-			this.slider.setMaximum(50);
+			this.slider.setMajorTickSpacing(10);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -253,8 +253,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// Configuration du slider
 			this.sliderLabel.setText("Enlever le fond");
 			this.slider.setMinimum(0);
-			this.slider.setValue(0);
 			this.slider.setMaximum(100);
+			this.slider.setValue(0);
+			this.slider.setMajorTickSpacing(20);
 			
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -305,8 +306,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// Configuration du slider
 			this.slider.setMinimum(-100);
-			this.slider.setValue(0);
 			this.slider.setMaximum(100);
+			this.slider.setValue(0);
+			this.slider.setMajorTickSpacing(20);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -348,7 +350,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			if (this.frame.getSelectedImage() != null)
 				this.frame.flipVerticalImage();
 		}
-		
+
 		this.frame.repaintImagePanel();
 	}
 
