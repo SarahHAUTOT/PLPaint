@@ -17,7 +17,7 @@ import metier.Paint;
 import metier.Rectangle;
 
 
-public class FrameApp extends JFrame
+public class PLPaint extends JFrame
 {
 	// Mappage des différentes acitons possibles par l'utilisateur
 	public static final int ACTION_DEFAULT = 0;
@@ -53,7 +53,7 @@ public class FrameApp extends JFrame
 	private PanelImage   panelImage;
 	private JLabel       lblAction;
 
-	public FrameApp(Paint metier)
+	public PLPaint(Paint metier)
 	{
 		/* Création des composants */
 		this.panelControl = new PanelControl(this);
@@ -64,7 +64,7 @@ public class FrameApp extends JFrame
 
 		/* Configuration de la frame */
 		this.setLayout(new BorderLayout());
-		this.setSize(FrameApp.DEFAULT_WIDTH, FrameApp.DEFAULT_HEIGHT);
+		this.setSize(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		/* Positionnement des composants */
@@ -81,15 +81,15 @@ public class FrameApp extends JFrame
 		this.setIconImage(icon);
 	}
 
-	public void setLabelAction(String str)
+	public void setLabelAction(String str) { this.lblAction.setText(str); }
+	public void repaintImagePanel       () { this.setFullImage(this.getImage()); }
+	
+    public void selectLastImage()
 	{
-		this.lblAction.setText(str);
+		int lengthLst = this.getImages().size();
+		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
 	}
 
-	public void repaintImagePanel()
-	{
-		this.setFullImage(this.getImage());
-	}
 
 	/* --------------------------------------------------------------------------------- */
 	/*                              METHODE DES PANNELS                                  */

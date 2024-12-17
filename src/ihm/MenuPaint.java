@@ -20,7 +20,7 @@ import metier.Image;
 
 public class MenuPaint extends JMenuBar implements ActionListener
 {
-	private FrameApp frame;
+	private PLPaint frame;
 	private File     savedFile;
 
 	private JMenuItem createItem;
@@ -31,7 +31,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private JMenuItem quitterItem;
 	private JMenuItem aboutItem;
 
-	public MenuPaint(FrameApp frame)
+	public MenuPaint(PLPaint frame)
 	{
 		/* Création des composants */
 		// Créer les menus
@@ -67,7 +67,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.add(helpItem);
 
 		/* Configuration du panel */
-		this.setBackground(FrameApp.COUL_PRIMARY);
+		this.setBackground(PLPaint.COUL_PRIMARY);
 
 		/* Ecouteurs d'actions */
 		this.createItem .addActionListener(this);
@@ -175,7 +175,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			{
 				this.frame.setFullImage(biImport);
 				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				(biBg.getGraphics()).setColor(Color.WHITE);   
+				(biBg.getGraphics()).setColor(Color.BLACK);   
 				this.frame.addImage(new Image(0, 0, biBg));
 				this.frame.addImage(new Image(0, 0, biImport));
 			}
@@ -193,12 +193,12 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private void createImage()
 	{
 		// Creation d'une nouvelle image
-		BufferedImage biBg = new BufferedImage(FrameApp.DEFAULT_WIDTH, FrameApp.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage biBg = new BufferedImage(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint ( Color.WHITE);
-		graphics.fillRect ( 0, 0, biBg.getWidth(), biBg.getHeight());
+		graphics.setPaint (Color.BLACK);
+		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
 		this.frame.setFullImage(biBg);
@@ -269,7 +269,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			BufferedImage biImport = ImageIO.read(file);
 			if (biImport != null)
 			{
-				// Récupération de l'image de fond
+				// Changement de l'image de fond
+				// Si l'image importée est plus grande
 				Image imgBg = this.frame.getImages().get(0);
 				if (this.frame.getFullImage().getWidth() < biImport.getWidth())
 				{
@@ -286,7 +287,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				}
 
 				this.frame.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courant du panelImage
-				this.frame.setFullImage(this.frame.getImage());				
+				this.frame.selectLastImage();			
+				this.frame.repaintImagePanel();
 			}
 			else
 			{

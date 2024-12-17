@@ -17,7 +17,7 @@ import javax.swing.event.ChangeListener;
 
 public class PanelControl extends JPanel implements ActionListener, ChangeListener
 {
-	private FrameApp frame;
+	private PLPaint frame;
 	private int      action;
 
 	private int    selectedColor;
@@ -43,11 +43,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	private JButton removeBg;
 	private JButton writeText;
 
-	public PanelControl(FrameApp frame)
+	public PanelControl(PLPaint frame)
 	{
 		/* Création des composants */
 		this.frame  = frame;
-		this.action = FrameApp.ACTION_DEFAULT;
+		this.action = PLPaint.ACTION_DEFAULT;
 		this.selectedColor = 0;
 
 		// Création du panel grille
@@ -107,11 +107,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         slider.setPaintLabels(true);
 
 		/* Changement de fond des comopsants */
-		this             .setBackground(FrameApp.COUL_SECONDARY);
-		panel            .setBackground(FrameApp.COUL_SECONDARY);
-		this.slider      .setBackground(FrameApp.COUL_SECONDARY);
-		this.panelButtons.setBackground(FrameApp.COUL_SECONDARY);
-		this.panelOption .setBackground(FrameApp.COUL_SECONDARY);
+		this             .setBackground(PLPaint.COUL_SECONDARY);
+		panel            .setBackground(PLPaint.COUL_SECONDARY);
+		this.slider      .setBackground(PLPaint.COUL_SECONDARY);
+		this.panelButtons.setBackground(PLPaint.COUL_SECONDARY);
+		this.panelOption .setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons.setPreferredSize(new Dimension(200, 300));
 		this.panelOption .setPreferredSize(new Dimension(200, 300));
 
@@ -177,12 +177,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	public void actionPerformed(ActionEvent e)
 	{
 		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-		
 
 		if (this.goBack == e.getSource())
 		{
 			// On réinitiale l'action
-			this.frame.setAction(FrameApp.ACTION_DEFAULT);
+			this.frame.setAction(PLPaint.ACTION_DEFAULT);
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Curseur");
@@ -201,7 +200,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_EYEDROPPER;
+			this.action = PLPaint.ACTION_EYEDROPPER;
 			this.frame.setLabelAction("Mode Pipette");
 
 			this.frame.setCursor("./src/ihm/icons/eyedropper.png");
@@ -214,7 +213,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_BUCKET;
+			this.action = PLPaint.ACTION_BUCKET;
 			this.frame.setLabelAction("Mode Seau");
 			this.sliderLabel.setText("Remplir la couleur");
 
@@ -238,7 +237,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		{
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_ROTATION;
+			this.action = PLPaint.ACTION_ROTATION;
 			this.frame.setLabelAction("Mode Rotation");
 		}
 
@@ -249,7 +248,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_REMOVE_BG;
+			this.action = PLPaint.ACTION_REMOVE_BG;
 			this.frame.setLabelAction("Mode Effacer l'arrière-plan");
 			
 			// Configuration du slider
@@ -274,7 +273,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_WRITE_TEXT;
+			this.action = PLPaint.ACTION_WRITE_TEXT;
 			this.frame.setLabelAction("Mode Ecriture de texte");
 			
 			// TODO : Affichage du panel texte
@@ -295,7 +294,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_SELECT_CIRCLE;
+			this.action = PLPaint.ACTION_SELECT_CIRCLE;
 			this.frame.setLabelAction("Mode Séléction Cercle");
 		}
 
@@ -306,7 +305,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_SELECT_RECTANGLE;
+			this.action = PLPaint.ACTION_SELECT_RECTANGLE;
 			this.frame.setLabelAction("Mode Séléction Rectangle");
 		}
 
@@ -316,7 +315,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		{
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_BRIGHTNESS;
+			this.action = PLPaint.ACTION_BRIGHTNESS;
 			this.frame.setLabelAction("Mode Luminosité");
 			this.sliderLabel.setText("Changer la luminosité");
 
@@ -338,7 +337,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		{
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_HORIZONTAL_FLIP;
+			this.action = PLPaint.ACTION_HORIZONTAL_FLIP;
 			this.frame.setLabelAction("Mode Retourner (horizontalement)");
 
 			if (this.frame.getSelectedCircle() != null)
@@ -355,7 +354,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		{
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = FrameApp.ACTION_VERTICAL_FLIP;
+			this.action = PLPaint.ACTION_VERTICAL_FLIP;
 			this.frame.setLabelAction("Mode Retourner (verticalement)");
 
 			if (this.frame.getSelectedCircle() != null)
@@ -384,30 +383,30 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		// Changer la valeur du cercle séléctionné
 		if (this.frame.getSelectedCircle() != null)
 		{
-			if (this.action == FrameApp.ACTION_BRIGHTNESS)
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessCircle(this.slider.getValue());
 
-			if (this.action == FrameApp.ACTION_ROTATION) {}
+			if (this.action == PLPaint.ACTION_ROTATION) {}
 				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
 		}
 
 		// Changer la valeur du rectangle séléctionné
 		if (this.frame.getSelectedRectangle() != null)
 		{
-			if (this.action == FrameApp.ACTION_BRIGHTNESS)
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessRect(this.slider.getValue());
 			
-			if (this.action == FrameApp.ACTION_ROTATION) {}
+			if (this.action == PLPaint.ACTION_ROTATION) {}
 				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
 		}
 
 		// Changer la valeur de l'image séléctionné
 		if (this.frame.getSelectedImage() != null)
 		{
-			if (this.action == FrameApp.ACTION_BRIGHTNESS)
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessImage(this.slider.getValue());
 			
-			if (this.action == FrameApp.ACTION_ROTATION) {}
+			if (this.action == PLPaint.ACTION_ROTATION) {}
 				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
 		}
 
