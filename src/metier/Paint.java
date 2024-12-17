@@ -391,7 +391,7 @@ public class Paint
 	 */
 	public void setLuminosite (Image image, int var)
 	{
-		BufferedImage bi = image.getImgOg();
+		BufferedImage bi = image.getImg();
 
 		for (int x = 0; x < bi.getWidth(); x++) {
 			for (int y = 0; y < bi.getHeight(); y++) {
@@ -406,6 +406,9 @@ public class Paint
 				}
 			}
 		}
+
+		// if (image.getR() != 0)
+		// 	image.
 	}
 
 
@@ -426,7 +429,7 @@ public class Paint
 
 				if (img != null)
 				{
-					BufferedImage bi = img.getImgOg();
+					BufferedImage bi = img.getImg();
 
 					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
@@ -455,7 +458,7 @@ public class Paint
 				{
 					Image img = this.getClickedImage(x, y);
 					if (img != null) {
-						BufferedImage bi = img.getImgOg();
+						BufferedImage bi = img.getImg();
 	
 						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
@@ -507,7 +510,7 @@ public class Paint
 	 * @param image
 	 * @param angle
 	 */
-	public void retourner(Image image, int angle) 
+	public void rotate(Image image, int angle) 
 	{
 		BufferedImage img = image.getImg();
 	
@@ -553,7 +556,7 @@ public class Paint
 	}
 
 	
-	public void retourner(int xStart, int yStart, int xEnd, int yEnd, int angle) 
+	public void rotate(int xStart, int yStart, int xEnd, int yEnd, int angle) 
 	{
 		BufferedImage bi = new BufferedImage(xEnd - xStart, yEnd - yStart, BufferedImage.TYPE_INT_ARGB);
 
@@ -824,9 +827,11 @@ public class Paint
 			p.addImage(img);
 			// p.bucket(0,0,Color.RED.getRGB(), 30);
 
-			p.flipVertical(img);
-			p.setLuminosite(img, 50);
-			p.setLuminosite(img, -70);
+			// p.flipVertical(img);
+			// p.setLuminosite(img, 50);
+			p.setLuminosite(img, -50);
+			p.setLuminosite(img, -50);
+			// p.rotate(img, 30);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
