@@ -333,7 +333,7 @@ public class Paint
 
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
 			   y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			   !(isTrans(img.getImg().getRGB(x, y)) && withTrans);
+			   !(isTrans(img.getImg().getRGB(x- img.getX(), y - img.getY())) && withTrans);
 	}
 
 	public static boolean isTrans(int rgb)
@@ -640,7 +640,6 @@ public class Paint
 			// TODO: handle exception
 		}
 
-		this.lstImages.add(zoneImageObj);
 		this.rotate(zoneImageObj, angle);
 		
 		
@@ -649,7 +648,6 @@ public class Paint
 		{
 			for (int y = yStart; y < yEnd; y++) 
 			{
-				System.out.println(xStart + " " + x + " | " + yEnd + " " + y);
 				ArrayList<Image> lst = this.getClickedImages(x, y);
 				for (Image imgInZone : lst) 
 				{
@@ -664,13 +662,76 @@ public class Paint
 						int localY = y - imgInZone.getY();
 						if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
 						{
-							bi.setRGB(localX, localY, 0);  
+							bi.setRGB(localX, localY, 0x00000000);  
 						}
 					}
 				}
 			}
 		}
+
+		this.lstImages.add(zoneImageObj);
 	}
+
+
+	
+	
+	
+	/**
+	 * Rotation d'une zone circulaire.
+	 * @param xCentre Coordonnée x du centre du cercle.
+	 * @param yCentre Coordonnée y du centre du cercle.
+	 * @param radius Rayon du cercle.
+	 * @param angle L'angle de rotation en degrés.
+	 */
+
+	public void rotate(int xCentre, int yCentre, int radius, int angle) 
+	{
+
+		if (angle == 0 || angle == 360) return;
+
+		BufferedImage img = this.getImage();
+
+		// Calcul des limites de la zone circulaire
+		int xStart = Math.max(xCentre - radius, 0);
+		int yStart = Math.max(yCentre - radius, 0);
+		int width = Math.min(radius * 2, img.getWidth() - xStart);
+		int height = Math.min(radius * 2, img.getHeight() - yStart);
+
+		// Créer une image pour contenir la zone circulaire avant rotation
+		BufferedImage zoneImage = img.getSubimage(xStart, yStart, width, height);
+		Image zoneImageObj = new Image(xCentre - radius, yCentre - radius, zoneImage);
+
+		for (int x = xCentre - radius; x < xCentre + radius; x++) 
+		{
+			for (int y = yCentre - radius; y < yCentre + radius; y++) 
+			{
+				if (Math.pow(x - xCentre, 2) + Math.pow(y - yCentre, 2) <= Math.pow(radius, 2)) 
+				{
+					ArrayList<Image> lst = this.getClickedImages(x, y);
+					for (Image imgInZone : lst) {
+						// Si l'image est totalement couverte dans la zone, on l'enlève de la liste
+						if (imgInZone.getX() >= xStart && imgInZone.getX() + imgInZone.getImgWidth () <= xStart + width &&
+							imgInZone.getY() >= yStart && imgInZone.getY() + imgInZone.getImgHeight() <= yStart + height) {
+							this.lstImages.remove(imgInZone);
+						} else {
+							BufferedImage bi = imgInZone.getImg();
+							int localX = x - imgInZone.getX();
+							int localY = y - imgInZone.getY();
+							if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
+								bi.setRGB(localX, localY, 0x00000000);  // Effacer le pixel
+						}
+					}
+				} else { 
+					zoneImage.setRGB(x - zoneImageObj.getX(), y - zoneImageObj.getY(), 0x00000000);
+				}
+			}
+		}
+
+		rotate(zoneImageObj, angle);
+
+		this.lstImages.add(zoneImageObj);
+	}
+
 
 	
 
@@ -688,10 +749,10 @@ public class Paint
 	/* --------------------------------------------------------------------------------------------------- */
 	
 	/**
-	 * Flip horizontal d'une image.
+	 * Flip Vertical d'une image.
 	 * @param img
 	 */
-	public void flipHorizontal(Image img) 
+	public void flipVertical(Image img) 
 	{
 		BufferedImage bi = img.getImg();
 
@@ -714,13 +775,13 @@ public class Paint
 	
 	
 	/**
-	* Flip horizontal d'une zone rectangulaire.
+	* Flip Vertical d'une zone rectangulaire.
 	* @param xStart
 	* @param yStart
 	* @param xEnd
 	* @param yEnd
 	*/
-	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
+	public void flipVertical(int xStart, int yStart, int xEnd, int yEnd) 
 	{
 		for (int x = xStart; x < xStart + (xEnd - xStart) / 2; x++) 
 		{
@@ -752,13 +813,13 @@ public class Paint
 	}
 	
 	/**
-	 * Flip horizontal d'une zone circulaire.
+	 * Flip Vertical d'une zone circulaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipHorizontal(int xCenter, int yCenter, int radius) 
+	public void flipVertical(int xCenter, int yCenter, int radius) 
 	{
 		for (int x = xCenter - radius; x < xCenter; x++) 
 		{
@@ -796,10 +857,10 @@ public class Paint
 
 
 	/**
-	 * Flip vertical d'une image.
+	 * Flip Horizontal d'une image.
 	 * @param img
 	 */
-	public void flipVertical(Image img) 
+	public void flipHorizontal(Image img) 
 	{
 		BufferedImage bi = img.getImg();
 
@@ -820,13 +881,13 @@ public class Paint
 
 
 	/**
-	 * Flip vertical d'une zone rectangulaire.
+	 * Flip Horizontal d'une zone rectangulaire.
 	 * @param xStart
 	 * @param yStart
 	 * @param xEnd
 	 * @param yEnd
 	 */
-	public void flipVertical(int xStart, int yStart, int xEnd, int yEnd) 
+	public void flipHorizontal(int xStart, int yStart, int xEnd, int yEnd) 
 	{
 		for (int x = xStart; x < xEnd; x++) 
 		{
@@ -858,12 +919,12 @@ public class Paint
 	}
 
 	/**
-	 * Flip vertical d'une zone circulaire.
+	 * Flip Horizontal d'une zone circulaire.
 	 * @param xCenter
 	 * @param yCenter
 	 * @param radius
 	 */
-	public void flipVertical(int xCenter, int yCenter, int radius) 
+	public void flipHorizontal(int xCenter, int yCenter, int radius) 
 	{
 		for (int x = xCenter - radius; x <= xCenter + radius; x++) 
 		{
@@ -976,6 +1037,7 @@ public class Paint
 			// p.setLuminosite(img, -50);
 
 			p.setLuminosite(80,120,300,450,80);
+			p.rotate(150,150,50,90);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
