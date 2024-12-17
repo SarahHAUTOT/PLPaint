@@ -150,14 +150,12 @@ public class PLPaint extends JFrame
 
 	public void setBrightnessRect(int value)
 	{
-		Rectangle rect = this.getSelectedRectangle();
-		this.metier.setLuminosite(rect.x(), rect.y(), rect.xEnd(), rect.yEnd(), value);
+		this.metier.setLuminosite(this.getSelectedRectangle(), value);
 	}
 
 	public void setBrightnessCircle(int value)
 	{
-		Circle circle = this.getSelectedCircle();
-		this.metier.setLuminosite(circle.xCenter(), circle.yCenter(), circle.radius(), value);
+		this.metier.setLuminosite(this.getSelectedCircle(), value);
 	}
 
 	// Methode Seau
@@ -174,14 +172,12 @@ public class PLPaint extends JFrame
 
 	public void flipHorizontalRect()
 	{
-		Rectangle rect = this.getSelectedRectangle();
-		this.metier.flipHorizontal(rect.x(), rect.y(), rect.xEnd(), rect.yEnd());
+		this.metier.flipHorizontal(this.getSelectedRectangle());
 	}
 
 	public void flipHorizontalCircle()
 	{
-		Circle circle = this.getSelectedCircle();
-		this.metier.flipHorizontal(circle.xCenter(), circle.yCenter(), circle.radius());
+		this.metier.flipHorizontal(this.getSelectedCircle());
 	}
 
 	public void flipVerticalImage()
@@ -191,14 +187,12 @@ public class PLPaint extends JFrame
 
 	public void flipVerticalRect()
 	{
-		Rectangle rect = this.getSelectedRectangle();
-		this.metier.flipVertical(rect.x(), rect.y(), rect.xEnd(), rect.yEnd());
+		this.metier.flipVertical(this.getSelectedRectangle());
 	}
 
 	public void flipVerticalCircle()
 	{
-		Circle circle = this.getSelectedCircle();
-		this.metier.flipVertical(circle.xCenter(), circle.yCenter(), circle.radius());
+		this.metier.flipVertical(this.getSelectedCircle());
 	}
 
 	public void setCursor (Cursor cursor) { this.panelImage.setCursor(cursor); }
