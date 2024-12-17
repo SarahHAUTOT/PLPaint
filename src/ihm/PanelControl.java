@@ -1,17 +1,26 @@
 package ihm;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -30,6 +39,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	private JButton goBack;
 	private JButton eyedropper;
 	private JButton bucket;
+	private JButton pencil;
 
 	private JButton brightness;
 	private JButton rotation;
@@ -42,6 +52,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 	private JButton removeBg;
 	private JButton writeText;
+
+	private JButton btnColor;
+	private int     color;
 
 	public PanelControl(PLPaint frame)
 	{
@@ -59,6 +72,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		{
 			this.eyedropper = new JButton(new ImageIcon("./src/ihm/icons/eyedropper.png"));
 			this.bucket     = new JButton(new ImageIcon("./src/ihm/icons/bucket.png"));
+			this.pencil     = new JButton(new ImageIcon("./src/ihm/icons/pencil.png"));
 	
 			this.brightness = new JButton(new ImageIcon("./src/ihm/icons/brightness.png"));
 			this.rotation   = new JButton(new ImageIcon("./src/ihm/icons/rotate.png"));
@@ -92,13 +106,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.writeText = new JButton("Ecrire Texte");
 		}
 
-		// Création du panel option
-		this.panelOption = new JPanel();
-		this.panelOption.setLayout(new BorderLayout());
-
-        // Création des composants du panel option
-		JPanel panel = new JPanel();
 		this.goBack  = new JButton("<html>&#x21B2;</html>");
+
+		
 		this.sliderLabel = new JLabel();
 		this.slider      = new JSlider(JSlider.VERTICAL, -100, 100, 0);
 		
@@ -106,17 +116,28 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
 
-		/* Changement de fond des comopsants */
-		this             .setBackground(PLPaint.COUL_SECONDARY);
-		panel            .setBackground(PLPaint.COUL_SECONDARY);
 		this.slider      .setBackground(PLPaint.COUL_SECONDARY);
+
+
+		/*// Création du panel option
+		this.panelOption = new JPanel();
+		this.panelOption.setLayout(new GridLayout());
+
+		JPanel panelMain = new JPanel(new GridLayout(ABORT, color))
+
+        // Création des composants du panel option
+		JPanel panel = new JPanel();
+
+		/* Changement de fond des comopsants */
+		/*this             .setBackground(PLPaint.COUL_SECONDARY);
+		panel            .setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons.setBackground(PLPaint.COUL_SECONDARY);
 		this.panelOption .setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons.setPreferredSize(new Dimension(200, 300));
-		this.panelOption .setPreferredSize(new Dimension(200, 300));
+		this.panelOption .setPreferredSize(new Dimension(200, 300));*/
 
 		/* Positionnement des composants */
-		panel.add(this.goBack);
+		/*panel.add(this.goBack);
 		panel.add(this.sliderLabel);
 		this.panelOption.add(panel, BorderLayout.NORTH);
 		this.panelOption.add(this.slider, BorderLayout.CENTER);
@@ -138,13 +159,109 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		this.add(this.panelButtons);
 		this.add(this.panelOption);
-		this.panelOption.setVisible(false);
+		this.panelOption.setVisible(false);*/
+
+
+		/* STRUCTURE PRINCIPALE */
+		JPanel panelMain = new JPanel(new GridLayout(5,1,15,15));
+
+
+		/* COLOR PICKER */
+		this.btnColor = new JButton();
+		this.color = 3918319;
+		this.btnColor.setBackground(new Color(this.color));
+
+		// JPanel panelColor = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		// panelColor.add(this.btnColor);
+
+		panelMain.add(this.btnColor);
+
+		
+
+		/* OUTILS 1 */
+		JPanel panelOutils1 = new JPanel(new GridLayout(2,2,10,10));
+
+		panelOutils1.add(this.pencil    );
+		panelOutils1.add(this.bucket    );
+		panelOutils1.add(this.eyedropper);
+		panelOutils1.add(this.writeText );
+
+		this.styleButton(this.pencil    );
+		this.styleButton(this.bucket    );
+		this.styleButton(this.eyedropper);
+		this.styleButton(this.writeText );
+
+		
+		MatteBorder topBorder = BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK);
+		EmptyBorder margin = new EmptyBorder(20, 20, 0, 20);
+		panelOutils1.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+
+		JPanel panelOutils1F = new JPanel();
+		panelOutils1F.add(panelOutils1);
+        panelMain.add(panelOutils1F);
+
+
+
+
+		/* SELECTION */
+		JPanel panelSelection = new JPanel(new GridLayout(1,2,10,10));
+
+		panelSelection.add(this.selectionRectangle);
+		panelSelection.add(this.selectionCircle   );
+
+		this.styleButton(this.selectionRectangle);
+		this.styleButton(this.selectionCircle   );
+
+		
+		panelSelection.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+
+		JPanel panelSelectionF = new JPanel();
+		panelSelectionF.add(panelSelection);
+        panelMain.add(panelSelectionF);
+
+
+		/* OUTILS 2 */
+		JPanel panelOutils2 = new JPanel(new GridLayout(2,2,10,10));
+
+		panelOutils2.add(this.horizontalFlip);
+		panelOutils2.add(this.verticalFlip  );
+		panelOutils2.add(this.rotation      );
+		panelOutils2.add(this.brightness    );
+
+		this.styleButton(this.horizontalFlip);
+		this.styleButton(this.verticalFlip  );
+		this.styleButton(this.rotation      );
+		this.styleButton(this.brightness    );
+		
+		panelOutils2.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+
+		JPanel panelOutils2F = new JPanel();
+		panelOutils2F.add(panelOutils2);
+        panelMain.add(panelOutils2F);
+
+
+
+		/* POSITIONNEMENT */
+		this.add(panelMain);
+		this.setBackground(PLPaint.COUL_SECONDARY);
+		panelMain    .setBackground(PLPaint.COUL_SECONDARY);
+
+		panelOutils1F.setBackground(PLPaint.COUL_SECONDARY);
+		panelOutils1 .setBackground(PLPaint.COUL_SECONDARY);
+
+		panelSelectionF.setBackground(PLPaint.COUL_SECONDARY);
+		panelSelection .setBackground(PLPaint.COUL_SECONDARY);
+
+		panelOutils2F.setBackground(PLPaint.COUL_SECONDARY);
+		panelOutils2 .setBackground(PLPaint.COUL_SECONDARY);
 
 		/* Ecouteurs des boutons */
 		this.goBack.addActionListener(this);
 
 		this.eyedropper.addActionListener(this);
 		this.bucket    .addActionListener(this);
+		this.btnColor  .addActionListener(this);
+
 
 		this.brightness.addActionListener(this);
 		this.rotation.addActionListener(this);
@@ -159,7 +276,27 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.writeText.addActionListener(this);
 
 		this.slider.addChangeListener(this);
+
 	}
+
+
+	private void styleButton(JButton button) {
+        button.setContentAreaFilled(false);
+
+        button.setBorder(new LineBorder(Color.BLACK, 1));
+
+        button.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        // button.setPreferredSize(new Dimension(80,80));
+		button.setPreferredSize(new Dimension(40,40));
+		button.setMaximumSize  (new Dimension(40,40));
+
+
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+
+
 
 	public void setAction       (int action) { this.action = action; }
 	public void setSelectedColor(int argb  ) { this.selectedColor = argb; }
@@ -176,7 +313,16 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
+
+		System.out.println("hghgh");
 		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+		if (this.btnColor == e.getSource())
+		{
+			this.color = (JColorChooser.showDialog(null, "Choose a color", new Color(this.color))).getRGB();
+			this.btnColor.setBackground(new Color(this.color));
+		}
+
 
 		if (this.goBack == e.getSource())
 		{
