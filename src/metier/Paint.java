@@ -391,7 +391,7 @@ public class Paint
 	 */
 	public void setLuminosite (Image image, int var)
 	{
-		BufferedImage bi = image.getImg();
+		BufferedImage bi = image.getImgOg();
 
 		for (int x = 0; x < bi.getWidth(); x++) {
 			for (int y = 0; y < bi.getHeight(); y++) {
@@ -426,7 +426,7 @@ public class Paint
 
 				if (img != null)
 				{
-					BufferedImage bi = img.getImg();
+					BufferedImage bi = img.getImgOg();
 
 					int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 					int nouvVal = Paint.luminosite(new Color(pixelColor), var);
@@ -455,7 +455,7 @@ public class Paint
 				{
 					Image img = this.getClickedImage(x, y);
 					if (img != null) {
-						BufferedImage bi = img.getImg();
+						BufferedImage bi = img.getImgOg();
 	
 						int pixelColor = bi.getRGB(x, y) & 0xFFFFFF;
 						int nouvVal = Paint.luminosite(new Color(pixelColor), var); 
@@ -551,8 +551,25 @@ public class Paint
 		image.setY(image.getY() + (yCenterOld - yCenterNew));
 		image.setImg(rotatedImg);
 	}
+
 	
-			
+	public void retourner(int xStart, int yStart, int xEnd, int yEnd, int angle) 
+	{
+		BufferedImage bi = new BufferedImage(xEnd - xStart, yEnd - yStart, BufferedImage.TYPE_INT_ARGB);
+
+		for (int x = xStart; x < xEnd; x++)
+			for (int y = yStart; y < yEnd; y++)
+			{
+				Image image = this.getClickedImage(x, y);
+				
+				if(image != null)
+				{
+					
+				}
+			}
+	}
+	
+
 
 
 
@@ -803,9 +820,13 @@ public class Paint
 		Paint p = new Paint();
 
 		try {
-			Image img = new Image(0,0, ImageIO.read(new File("src/metier/trans.png")));
+			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
 			p.addImage(img);
-			p.bucket(0,0,Color.RED.getRGB(), 30);
+			// p.bucket(0,0,Color.RED.getRGB(), 30);
+
+			p.flipVertical(img);
+			p.setLuminosite(img, 50);
+			p.setLuminosite(img, -70);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
