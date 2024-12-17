@@ -327,9 +327,13 @@ public class Paint
 	 */
 	private boolean imageIn (int x, int y, Image img, boolean withTrans)
 	{
+		// System.out.println("X " + x + " | w " + img.getImgWidth () + " | start at " + img.getX() + " | x max " + (img.getX() + img.getImgWidth ()));
+		// System.out.println("Y " + y + " | h " + img.getImgHeight() + " | start at " + img.getY() + " | x max " + (img.getY() + img.getImgHeight()));
+
+
 		return x >= img.getX() && x < img.getX() + img.getImgWidth () && 
-			y >= img.getY() && y < img.getY() + img.getImgHeight() &&
-			!(isTrans(img.getImg().getRGB(x, y)) && withTrans);
+			   y >= img.getY() && y < img.getY() + img.getImgHeight() &&
+			   !(isTrans(img.getImg().getRGB(x, y)) && withTrans);
 	}
 
 	public static boolean isTrans(int rgb)
@@ -581,7 +585,7 @@ public class Paint
 		int newHeight = (int) Math.ceil(oldWidth * sin + oldHeight * cos);
 	
 		BufferedImage rotatedImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-	
+
 		int xCenterOld = oldWidth / 2;
 		int yCenterOld = oldHeight / 2;
 		int xCenterNew = newWidth / 2;
@@ -613,25 +617,61 @@ public class Paint
 	}
 
 	
+	/**
+	 * Flip d'une zone rectangulaire et rotation.
+	 * @param angle L'angle de rotation en degrés.
+	 * @param xStart Coordonnée x du coin supérieur gauche de la zone rectangulaire.
+	 * @param yStart Coordonnée y du coin supérieur gauche de la zone rectangulaire.
+	 * @param xEnd Coordonnée x du coin inférieur droit de la zone rectangulaire.
+	 * @param yEnd Coordonnée y du coin inférieur droit de la zone rectangulaire.
+	 */
 	public void rotate(int xStart, int yStart, int xEnd, int yEnd, int angle) 
 	{
-		BufferedImage bi = new BufferedImage(xEnd - xStart, yEnd - yStart, BufferedImage.TYPE_INT_ARGB);
+		if (angle == 0 || angle == 360) return;
 
-		for (int x = xStart; x < xEnd; x++)
-			for (int y = yStart; y < yEnd; y++)
+		BufferedImage img = this.getImage();
+
+		BufferedImage zoneImage = img.getSubimage(xStart, yStart, xEnd - xStart, yEnd - yStart);
+		Image zoneImageObj = new Image(xStart, yStart, zoneImage);
+
+		try {
+			ImageIO.write(zoneImage,"png",new File ("jh.png") );
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		this.lstImages.add(zoneImageObj);
+		this.rotate(zoneImageObj, angle);
+		
+		
+		
+		for (int x = xStart; x < xEnd; x++) 
+		{
+			for (int y = yStart; y < yEnd; y++) 
 			{
-				Image image = this.getClickedImage(x, y);
-
-				if(image != null)
+				System.out.println(xStart + " " + x + " | " + yEnd + " " + y);
+				ArrayList<Image> lst = this.getClickedImages(x, y);
+				for (Image imgInZone : lst) 
 				{
-					int localX = x - image.getX();
-					int localY = y - image.getY();
-
-
-					// bi.setRGB(x, y  );
+					// Si l'image est totalement couvert dans la zone on l'enlève de la liste
+					if (imgInZone.getX() >= xStart && imgInZone.getX() + imgInZone.getImgWidth () <= xEnd &&
+					    imgInZone.getY() >= yStart && imgInZone.getY() + imgInZone.getImgHeight() <= yEnd) 
+					{
+						this.lstImages.remove(imgInZone);
+					}else {
+						BufferedImage bi = imgInZone.getImg();
+						int localX = x - imgInZone.getX();
+						int localY = y - imgInZone.getY();
+						if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) 
+						{
+							bi.setRGB(localX, localY, 0);  
+						}
+					}
 				}
 			}
+		}
 	}
+
 	
 
 
@@ -929,12 +969,13 @@ public class Paint
 			p.addImage(img);
 			// p.bucket(0,0,Color.RED.getRGB(), 30);
 
-			p.flipVertical(50,50,500,350);
-			p.setLuminosite(0,0,600,300,-50);
+			// p.flipVertical(50,50,500,350);
+			// p.setLuminosite(0,0,600,300,-50);
 			// p.setLuminosite(img, 50);
 			// p.setLuminosite(img, -50);
 			// p.setLuminosite(img, -50);
-			// p.rotate(img, 30);
+
+			p.setLuminosite(80,120,300,450,80);
 
 			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
 
