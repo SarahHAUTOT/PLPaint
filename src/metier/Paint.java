@@ -2,6 +2,7 @@ package metier;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -270,7 +271,7 @@ public class Paint
 	 */
 	public Image getClickedImage(int x, int y)
 	{
-		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+		for (int i = this.lstImages.size() - 1; i >= 1; i--)
 			if (imageIn(x, y, this.lstImages.get(i), true)) 
 				return this.lstImages.get(i);
 
@@ -828,25 +829,38 @@ public class Paint
 	 * @param police
 	 * @param size
 	 */
-	public Image addText (String text, boolean bold, boolean italic, String police, int size, int argb, int x, int y)
+	
+	 public Image addText(String text, boolean bold, boolean italic, String police, int size, int argb, int x, int y)
 	{
-		BufferedImage bi = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-		
-		Graphics2D g2 = bi.createGraphics();
-		
 		int style = Font.PLAIN;
-		if (bold  ) style = style | Font.BOLD;
-		if (italic) style = style | Font.ITALIC;
-
-		g2.setColor(new Color(argb));
-		g2.setFont(new Font(police ,style, size));
-		g2.drawString(text, x, y);
-
-		Image imgText = new Image(0, 0, bi);
+		if (bold) style |= Font.BOLD;
+		if (italic) style |= Font.ITALIC;
+		
+		Font font = new Font(police, style, size);
+		
+		BufferedImage dummyImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = dummyImage.createGraphics();
+		g2d.setFont(font);
+		FontMetrics metrics = g2d.getFontMetrics();
+		
+		int textWidth  = metrics.stringWidth(text);
+		int textHeight = metrics.getHeight();
+		
+		BufferedImage bi = new BufferedImage(textWidth, textHeight, BufferedImage.TYPE_INT_ARGB);
+		
+		g2d = bi.createGraphics();
+		g2d.setColor(new Color(argb));
+		g2d.setFont(font);
+		g2d.drawString(text, 0, metrics.getAscent()); 
+		
+		g2d.dispose();
+		
+		Image imgText = new Image(x, y, bi);
 		this.addImage(imgText);
-
+		
 		return imgText;
-	}	
+	}
+
 
 
 
