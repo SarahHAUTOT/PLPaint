@@ -95,32 +95,6 @@ public class Paint
 		this.save();
 	}
 
-	/**
-	 * Ajouter une image mais sans une couleur donnée.
-	 * @param img
-	 * @param argb
-	 */
-	public void removeColor(Image img, int argb, int val) 
-	{
-		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
-		BufferedImage biWithArgb = img.getImg();
-	
-		for (int x = 0; x < img.getImgWidth(); x++) {
-			for (int y = 0; y < img.getImgHeight(); y++) {
-				int pixelColor = biWithArgb.getRGB(x, y);
-				int alpha = (pixelColor >> 24) & 0xFF; 
-				int colorWithoutAlpha = pixelColor & 0xFFFFFF;
-	
-				if (!Paint.sameColor(colorWithoutAlpha, argb, val)) 
-					biWithoutArgb.setRGB(x, y, pixelColor); 
-			}
-		}
-	
-		img.setImg(biWithoutArgb);
-		this.save();
-	}
-	
-
 
 	/**
 	 * Retire une image dans la liste.
@@ -257,14 +231,12 @@ public class Paint
 	 * @param image
 	 * @param tolerance
 	 */
-    public void removeBackground(Image image) 
+    public void removeBackground(Image image, int color, int val) 
 	{
 		BufferedImage bi = image.getImg();
 
         int width  = bi.getWidth();
         int height = bi.getHeight();
-
-        int backgroundColor = getDominantBorderColor(bi);
 
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -272,9 +244,9 @@ public class Paint
 		{
             for (int y = 0; y < height; y++) 
 			{
-                int pixel = bi.getRGB(x, y);
+                int pixel = bi.getRGB(x, y) & 0xFFFFFF;
 
-                if (sameColor(pixel, backgroundColor, 50))
+                if (sameColor(pixel, color, val))
                     result.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
                 else 
                     result.setRGB(x, y, pixel);
@@ -283,6 +255,12 @@ public class Paint
 
         image.setImg(result);
     }
+
+
+	public void removeBackground (Image img, int val)
+	{
+		this.removeBackground(img, Paint.getDominantBorderColor(img.getImg()), val);
+	}
 
 	/**
 	 * Trouve la couleur dominante dans une image.
@@ -1074,8 +1052,10 @@ public class Paint
 		Paint p = new Paint();
 
 		try {
-			Image img = new Image(60,40, ImageIO.read(new File("src/metier/test.png")));
+			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
 			p.addImage(img);
+
+			p.removeBackground(img, img.getImg().getRGB(0, 0), 20);
 			// p.bucket(0,0,Color.RED.getRGB(), 30);
 
 			// p.flipVertical(50,50,500,350);
