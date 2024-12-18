@@ -978,6 +978,7 @@ public class Paint
 
 	public Image trim (Rectangle rect)
 	{
+		if (this.lstImages.size() < 1) return null;
 
 		int xStart = rect.x();
 		int yStart = rect.y();
@@ -1039,6 +1040,7 @@ public class Paint
 
 	public Image trim (Circle cerc)
 	{
+		if (this.lstImages.size() < 1) return null;
 
 		int xCentre = cerc.xCenter();
 		int yCentre = cerc.yCenter();
