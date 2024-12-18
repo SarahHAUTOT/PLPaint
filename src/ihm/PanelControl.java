@@ -65,6 +65,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 	private JButton addToParent;
 	private JButton removeBg;
+	private JButton trim;
 	private JButton writeText;
 
 	private JButton btnColor;
@@ -110,6 +111,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.selectionCircle    = new JButton(new ImageIcon("./src/ihm/icons/circle.png"));
 			this.deselection        = new JButton(new ImageIcon("./src/ihm/icons/unselect.png"));
 
+			this.trim      = new JButton(new ImageIcon("./src/ihm/icons/trim.png"));
 			this.removeBg  = new JButton(new ImageIcon("./src/ihm/icons/rm-bg.png"));
 			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
 			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
@@ -218,13 +220,18 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		
 		if (isChildren)
 		{
-			this.styleButton(this.eyedropper);
+			this.styleButton  (this.eyedropper);
 			panelSelection.add(this.eyedropper);
+		}
+		else
+		{
+			panelSelection.add(this.trim);
 		}
 
 		this.styleButton(this.selectionRectangle);
 		this.styleButton(this.selectionCircle   );
 		this.styleButton(this.deselection       );
+		this.styleButton(this.trim              );
 
 		panelSelection.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
 
@@ -360,6 +367,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.removeBg .addActionListener(this);
 		this.writeText.addActionListener(this);
 		this.addToParent.addActionListener(this);
+		this.trim      .addActionListener(this);
 
 		this.slider.addChangeListener(this);
 	}
@@ -572,6 +580,20 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.repaint();
 		}
 
+		if (this.trim == e.getSource())
+		{
+			// On renseigne l'action effectuée
+			// On ecrit le mode du curseur dans le label
+			this.action = PLPaint.ACTION_TRIM_SURFACE;
+			this.frame.setLabelAction("Mode Rogner");
+
+			if (this.frame.getSelectedRectangle() != null)
+				this.frame.trimRect();
+
+			if (this.frame.getSelectedCircle() != null)
+				this.frame.trimCircle();
+		}
+
 		if (this.rotation == e.getSource())
 		{
 			// On renseigne l'action effectuée
@@ -669,9 +691,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			if (this.action == PLPaint.ACTION_ROTATION)
 				this.frame.rotateCircle(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
-				this.frame.trimCircle();
 		}
 
 		// Changer la valeur du rectangle séléctionné
@@ -682,9 +701,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			if (this.action == PLPaint.ACTION_ROTATION)
 				this.frame.rotateRect(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
-				this.frame.trimRect();
 		}
 
 		// Changer la valeur de l'image séléctionné
