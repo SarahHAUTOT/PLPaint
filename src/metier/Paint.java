@@ -100,20 +100,26 @@ public class Paint
 	 * @param img
 	 * @param argb
 	 */
-	public void addImage(Image img, int argb, int val)
+	public void removeColor(Image img, int argb, int val) 
 	{
 		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
-		BufferedImage biWithArgb    = img.getImg();
-
-		for (int x = 0; x < img.getImgWidth(); x++)
-			for (int y = 0; y < img.getImgHeight(); y++)
-				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, val))
-					biWithoutArgb.setRGB(x, y, biWithArgb.getRGB(x, y));
-
-
+		BufferedImage biWithArgb = img.getImg();
+	
+		for (int x = 0; x < img.getImgWidth(); x++) {
+			for (int y = 0; y < img.getImgHeight(); y++) {
+				int pixelColor = biWithArgb.getRGB(x, y);
+				int alpha = (pixelColor >> 24) & 0xFF; 
+				int colorWithoutAlpha = pixelColor & 0xFFFFFF;
+	
+				if (!Paint.sameColor(colorWithoutAlpha, argb, val)) 
+					biWithoutArgb.setRGB(x, y, pixelColor); 
+			}
+		}
+	
 		img.setImg(biWithoutArgb);
 		this.save();
 	}
+	
 
 
 	/**

@@ -345,7 +345,7 @@ public class PLPaint extends JFrame implements KeyListener
 	// Methode Effacer arrière plan
 	public void removeBgImage(int distance)
 	{
-		this.metier.addImage(
+		this.metier.removeColor(
 			this.getSelectedImage(),
 			this.getSelectedColor(),
 			distance
@@ -356,7 +356,7 @@ public class PLPaint extends JFrame implements KeyListener
 
 	public void removeBgScreen(int argb, int distance)
 	{
-		this.metier.addImage(
+		this.metier.removeColor(
 			new Image(0, 0, this.getFullImage()),
 			this.getSelectedColor(),
 			distance
