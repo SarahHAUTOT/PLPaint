@@ -17,11 +17,12 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import metier.Image;
+import metier.Paint;
 
 public class MenuPaint extends JMenuBar implements ActionListener
 {
 	private PLPaint frame;
-	private File     savedFile;
+	private File    savedFile;
 
 	private JMenuItem createItem;
 	private JMenuItem openItem;
@@ -173,7 +174,6 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			BufferedImage biImport = ImageIO.read(file);
 			if (biImport != null)
 			{
-				this.frame.setFullImage(biImport);
 				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				
 				// Remplissage de l'image de fond
@@ -181,6 +181,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				g2d.setColor(Color.WHITE);
 				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
 
+				this.frame.setFullImage(biImport);
 				this.frame.addImage(new Image(0, 0, biBg));
 				this.frame.addImage(new Image(0, 0, biImport));
 			}
@@ -198,7 +199,12 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private void createImage()
 	{
 		// Creation d'une nouvelle image
-		BufferedImage biBg = new BufferedImage(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage biBg = new BufferedImage(
+			(int) (this.frame.getWidth() - this.frame.getWidthPanelControl() * 1.5),
+			(int) (this.frame.getHeight() * 0.80),
+			BufferedImage.TYPE_INT_ARGB
+		);
+
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
@@ -215,11 +221,11 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		File file = this.useFileChooser("Sélectionnez un dossier", baseDirectory);
 		if (file == null) return;
 
-		String fileName = file.getName();
+		String fileName  = file.getName();
 
 		if (!fileName.endsWith(".png"))
 		{
-			JOptionPane.showMessageDialog(this, "Erreur : L'extension de votre image doit être en .png !");
+			JOptionPane.showMessageDialog(this, "Erreur : L'image enregistré doit être en .png");
 			this.downloadImage(file);
 		}
 
@@ -246,7 +252,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image");
-			this.downloadImage(file);
+			if (file.exists())
+				this.downloadImage(file);
+			this.downloadImage(new File("."));
 		}
 	}
 
@@ -275,34 +283,19 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			BufferedImage biImport = ImageIO.read(file);
 			if (biImport != null)
 			{
-				// Changement de l'image de fond
-				// Si l'image importée est plus grande
-				Image imgBg = this.frame.getImages().get(0);
-				if (this.frame.getFullImage().getWidth() < biImport.getWidth())
-				{
-					BufferedImage biBg = new BufferedImage(biImport.getWidth(), imgBg.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
-					
-					// Remplissage  de l'image
-					Graphics2D graphics = biBg.createGraphics();
-					graphics.setPaint (Color.WHITE);
-					graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
-					imgBg.setImg(biBg);
-				}
+				// Creéation de la nouvelle fenêtre
+				// de l'application
+				PLPaint app = new PLPaint("Importer une nouvelle image", new Paint(), this.frame);
 
-				if (this.frame.getFullImage().getHeight() < biImport.getHeight())
-				{
-					BufferedImage biBg = new BufferedImage(imgBg.getImgWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				// Remplissage de l'image de fond
+				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
+				g2d.setColor(Color.WHITE);
+				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
 
-					// Remplissage  de l'image
-					Graphics2D graphics = biBg.createGraphics();
-					graphics.setPaint (Color.WHITE);
-					graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
-					imgBg.setImg(biBg);
-				}
-
-				this.frame.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courant du panelImage
-				this.frame.selectLastImage();			
-				this.frame.repaintImagePanel();
+				app.setFullImage(biImport);
+				app.addImage(new Image(0, 0, biBg));
+				app.addImage(new Image(0, 0, biImport));
 			}
 			else
 			{

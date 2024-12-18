@@ -283,7 +283,7 @@ public class Paint
 	{
 		ArrayList<Image> lstImages = new ArrayList<>();
 
-		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+		for (int i = this.lstImages.size() - 1; i >= 1; i--)
 			if (imageIn(x, y, this.lstImages.get(i), true)) 
 				lstImages.add(this.lstImages.get(i));
 

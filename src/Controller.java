@@ -10,7 +10,7 @@ public class Controller
     public Controller()
     {
         this.metier = new Paint();
-        this.frame  = new PLPaint(this.metier, true);
+        this.frame  = new PLPaint("PLPaint", this.metier, null);
     }
 
     public static void main(String[] args)

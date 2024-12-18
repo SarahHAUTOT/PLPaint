@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,6 +63,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	private JButton selectionCircle;
 	private JButton deselection;
 
+	private JButton addToParent;
 	private JButton removeBg;
 	private JButton writeText;
 
@@ -81,7 +81,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 
 
-	public PanelControl(PLPaint frame)
+	public PanelControl(PLPaint frame, boolean isChildren)
 	{
 		/* Création des composants */
 		this.frame  = frame;
@@ -111,6 +111,8 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 			this.removeBg  = new JButton(new ImageIcon("./src/ihm/icons/rm-bg.png"));
 			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
+			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
+			this.addToParent = new JButton(new ImageIcon("./src/ihm/icons/import.png"));
 			
 		}
 		catch (Exception e)
@@ -130,12 +132,12 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	
 			this.removeBg  = new JButton("Enlever Fond");
 			this.writeText = new JButton("Ecrire Texte");
+			this.addToParent = new JButton("Importer");
 		}
 
 		this.goBack     = new JButton("<html>&#x21B2;</html>");
 		this.goBackText = new JButton("<html>&#x21B2;</html>");
 
-		
 		this.sliderLabel = new JLabel();
 		this.slider      = new JSlider(JSlider.VERTICAL, -100, 100, 0);
 		
@@ -236,6 +238,12 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		panelOutils2F.add(panelOutils2);
         this.panelButtons.add(panelOutils2F);
 
+		// Bouton d'importation
+		if (isChildren)
+		{
+			this.styleButton(this.addToParent);
+        	this.panelButtons.add(this.addToParent);
+		}
 
 		/* OPTION POUR LE TEXTE */
 
@@ -328,6 +336,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 		this.removeBg .addActionListener(this);
 		this.writeText.addActionListener(this);
+		this.addToParent.addActionListener(this);
 
 		this.slider.addMouseListener(this);
 	}
@@ -369,6 +378,25 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	{
 		this.frame.hideTextInput();
 		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
+		{
+			// On désactive la séléction
+			this.frame.disableSelection();
+			
+			// On réinitiale l'action
+			this.action = PLPaint.ACTION_DEFAULT;
+
+			// On ecrit le mode du curseur dans le label
+			this.frame.setLabelAction("Mode Curseur");
+
+			// Affichage du panel d'actions
+			this.panelOption.setVisible(false);
+			this.panelOptionText.setVisible(false);
+			this.panelButtons.setVisible(true);
+			this.revalidate();
+			this.repaint();
+		}
 		
 		if (this.btnColor == e.getSource())
 		{
@@ -388,24 +416,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.frame.setCursor("./src/ihm/icons/pencil.png");
 		}
 
-
-		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
+		if (this.addToParent == e.getSource())
 		{
-			// On désactive la séléction
-			this.frame.disableSelection();
-			
-			// On réinitiale l'action
-			this.action = PLPaint.ACTION_DEFAULT;
-
-			// On ecrit le mode du curseur dans le label
-			this.frame.setLabelAction("Mode Curseur");
-
-			// Affichage du panel d'actions
-			this.panelOption.setVisible(false);
-			this.panelOptionText.setVisible(false);
-			this.panelButtons.setVisible(true);
-			this.revalidate();
-			this.repaint();
+			this.frame.addImgToParent();
 		}
 
 		if (this.eyedropper == e.getSource())
@@ -549,10 +562,10 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.sliderLabel.setText("Tourner l'image");
 
 			// Configuration du slider
-			this.slider.setMinimum(-100);
-			this.slider.setMaximum(100);
+			this.slider.setMinimum(-360);
+			this.slider.setMaximum(360);
 			this.slider.setValue(0);
-			this.slider.setMajorTickSpacing(50);
+			this.slider.setMajorTickSpacing(20);
 			this.slider.setMinorTickSpacing( 10);
 
 			// Affichage du panel slider
@@ -571,8 +584,8 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.sliderLabel.setText("Changer la luminosité");
 
 			// Configuration du slider
-			this.slider.setMinimum(-100);
-			this.slider.setMaximum(100);
+			this.slider.setMinimum(-200);
+			this.slider.setMaximum(200);
 			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(50);
 			this.slider.setMinorTickSpacing( 10);
@@ -621,11 +634,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		this.frame.repaintImagePanel();
 	}
 
-
 	/* --------------------------------------------------------------------------------- */
-	/*                              METHODE ECOUTEUR SLIDER                              */
+	/*                              METHODE ECOUTEUR SOURIS                              */
 	/* --------------------------------------------------------------------------------- */
-	public void mousePressed(MouseEvent e) {}
 
 	public void mouseReleased(MouseEvent e)
 	{
@@ -664,7 +675,13 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		this.frame.repaintImagePanel();
 	}
 
+	public void mouseClicked(MouseEvent e)
+	{
+		this.frame.defaultAction();
+		this.frame.disableSelection();
+	}
+
 	public void mouseEntered(MouseEvent e) {}
 	public void mouseExited (MouseEvent e) {}
-	public void mouseClicked(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {}
 }

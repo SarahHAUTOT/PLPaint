@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import java.awt.Cursor;
 
@@ -19,7 +20,7 @@ import metier.Rectangle;
 
 public class PLPaint extends JFrame
 {
-	// Mappage des différentes acitons possibles par l'utilisateur
+	// Mappage des différentes actions disponibles par l'utilisateur
 	public static final int ACTION_DEFAULT = 0;
 	public static final int ACTION_EYEDROPPER = 1;
 	public static final int ACTION_BUCKET     = 2;
@@ -39,24 +40,29 @@ public class PLPaint extends JFrame
 	public static final int ACTION_REMOVE_BG  = 11;
 	public static final int ACTION_WRITE_TEXT = 12;
 
+	// Controle avec les touches clavier
+
 	// Définition de la taille de la fenêtre
 	public static final int DEFAULT_WIDTH  = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth () * 0.8);
 	public static final int DEFAULT_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.85);
 	
-	public static final Color COUL_PRIMARY   = Color.decode("#E1EBF3"); // Couleur primaire de l'application
-	public static final Color COUL_SECONDARY = Color.decode("#F9F6EE"); // Couleur secondaire de l'application
+	public static final Color COUL_PRIMARY   = Color.decode("#dedbff"); // Couleur primaire de l'application
+	public static final Color COUL_SECONDARY = Color.decode("#f5f5ff"); // Couleur secondaire de l'application
 	public static final Color COUL_NO_BG     = Color.decode("#BFBFBF"); // Couleur de fond par défault
 	
+	private PLPaint      parent;
+
 	private Paint        metier;
 	private MenuPaint    menu;
 	private PanelControl panelControl;
 	private PanelImage   panelImage;
 	private JLabel       lblAction;
 
-	public PLPaint(Paint metier, boolean showMenu)
+	public PLPaint(String title, Paint metier, PLPaint parent)
 	{
 		/* Création des composants */
-		this.panelControl = new PanelControl(this);
+		this.parent       = parent;
+		this.panelControl = new PanelControl(this, parent != null);
 		this.panelImage   = new PanelImage  (this);
 		this.menu         = new MenuPaint   (this);
 		this.metier       = metier;
@@ -65,39 +71,89 @@ public class PLPaint extends JFrame
 		/* Configuration de la frame */
 		this.setLayout(new BorderLayout());
 		this.setSize(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setFocusable(false);
+		if (parent == null)
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
+		this.setTitle(title);
+		this.setIconImage(icon);
+
+		JPanel panelLbl = new JPanel();
+		panelLbl.setBackground(PLPaint.COUL_SECONDARY);
+		panelLbl.add(this.lblAction);
 
 		/* Positionnement des composants */
-		if (showMenu)
+		if (parent == null)
 			this.setJMenuBar(menu);
 		
 		this.add(panelControl, BorderLayout.EAST);
 		this.add(panelImage, BorderLayout.CENTER);
-		this.add(this.lblAction, BorderLayout.SOUTH);
+		this.add(panelLbl, BorderLayout.SOUTH);
 
+		/* Ecouteur du clavier */
 		this.setVisible(true);
-		this.setResizable(true);
-
-		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
-		this.setTitle("PLPaint");
-		this.setIconImage(icon);
 	}
 
 	public void setLabelAction(String str) { this.lblAction.setText(str); }
 	public void repaintImagePanel       () { this.setFullImage(this.getImage()); }
-	
-    public void selectLastImage()
+
+	public void addImgToParent()
 	{
-		int lengthLst = this.getImages().size();
-		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
+		BufferedImage biImport = this.getFullImage();
+		
+		// Vérifier la taille de l'image de fond du parent
+		/*
+		// Changement de l'image de fond
+		// Si l'image importée est plus grande
+		Image imgBg = this.frame.getImages().get(0);
+		if (this.frame.getFullImage().getWidth() < biImport.getWidth())
+		{
+			biBg = new BufferedImage(biImport.getWidth(), imgBg.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
+			
+			// Remplissage  de l'image
+			Graphics2D graphics = biBg.createGraphics();
+			graphics.setPaint (Color.WHITE);
+			graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
+			imgBg.setImg(biBg);
+		}
+
+		if (this.frame.getFullImage().getHeight() < biImport.getHeight())
+		{
+			biBg = new BufferedImage(imgBg.getImgWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+			// Remplissage  de l'image
+			Graphics2D graphics = biBg.createGraphics();
+			graphics.setPaint (Color.WHITE);
+			graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
+			imgBg.setImg(biBg);
+		}
+		 */
+
+		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
+		this.parent.selectLastImage();			
+		this.parent.repaintImagePanel();
+		this.dispose();
 	}
 
+	public void defaultAction()
+	{
+		this.setAction(PLPaint.ACTION_DEFAULT);
+		this.setLabelAction("Mode Curseur");
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
 
 	/* --------------------------------------------------------------------------------- */
 	/*                              METHODE DES PANNELS                                  */
 	/* --------------------------------------------------------------------------------- */
 
 	// Panel de l'image
+    public void selectLastImage()
+	{
+		int lengthLst = this.getImages().size();
+		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
+	}
+
 	public void setFullImage(BufferedImage bi)
 	{
 		this.panelImage.setFullImage(bi);
@@ -116,10 +172,12 @@ public class PLPaint extends JFrame
 	public Image         getSelectedImage    () { return this.panelImage.getSelectedImage(); }
 	public boolean       hasSelection        () { return this.panelImage.hasSelection(); }
 
-
 	// Panel de contrôle
 	public void setSelectedColor(int argb  ) { this.panelControl.setSelectedColor(argb); }
 	public void setAction       (int action) { this.panelControl.setAction(action); }
+
+	public int getWidthPanelControl () { return this.panelControl.getWidth (); }
+	public int getHeightPanelControl() { return this.panelControl.getHeight(); }
 
 	public int getSelectedColor() { return this.panelControl.getSelectedColor(); }
 	public int getDistance     () { return this.panelControl.getDistance(); }
@@ -147,6 +205,13 @@ public class PLPaint extends JFrame
 	public void addImage(Image img)
 	{
 		this.metier.addImage(img);
+	}
+
+	public void removeImage(Image img)
+	{
+		this.metier.removeImage(img);
+		this.disableSelection();
+		repaintImagePanel();
 	}
 
 	// Méthode de changement de luminosité
@@ -219,7 +284,6 @@ public class PLPaint extends JFrame
 		this.metier.rotate(this.getSelectedRectangle(), angle);
 	}
 
-
 	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)
 	{
 		String text = this.panelImage.getText();
@@ -235,6 +299,5 @@ public class PLPaint extends JFrame
 				
 			this.repaintImagePanel();
 		}
-
 	}
 }

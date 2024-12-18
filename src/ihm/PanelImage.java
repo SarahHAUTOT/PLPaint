@@ -13,8 +13,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.awt.Toolkit;
 import java.awt.Cursor;
-import java.io.File;
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -40,7 +38,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 	private ArrayList<Point> pencilPoints;
 
-	private JTextField txtSaisie; // Champ de texte unique
+	private JTextField textInput; // Champ de texte unique
 
 
 	public PanelImage(PLPaint frame)
@@ -57,12 +55,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		/* Configurer du panel */
 		this.setBackground(PLPaint.COUL_NO_BG);
-
+		this.setFocusable(true);
 		this.setLayout(null);
 
 		/* Ecouteur de la souris */
 		this.addMouseListener      (this);
 		this.addMouseMotionListener(this);
+		this.addKeyListener        (this);
 	}
 
 	/**
@@ -83,6 +82,25 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	public Image         getSelectedImage    () { return this.selectedImage; }
 	public Circle        getSelectedCircle   () { return this.selectedCircle; }
 	
+	public void hideTextInput()
+	{
+		if (this.textInput != null) this.remove(this.textInput);
+		this.revalidate();
+	}
+
+	public String getText()
+	{
+		if (this.textInput != null) return this.textInput.getText();
+
+		return null;
+	}
+
+	public java.awt.Point getTextLocation()
+	{
+		if (this.textInput != null) return this.textInput.getLocation();
+		return null;
+	}
+
 	/**
 	 * Désactive la séléction d'éléments ainsi que 
 	 * sa représentation graphique (rafraichissement)
@@ -93,6 +111,15 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.selectedImage     = null;
 		this.selectedRectangle = null;
 		repaint();
+	}
+
+	public void selectScreen()
+	{
+		if (this.fullImage != null)
+		{
+			this.selectedRectangle = new Rectangle(0, 0, this.fullImage.getWidth(), this.fullImage.getHeight());
+			this.repaint();
+		}
 	}
 
 	private void outlineRect(Graphics g, Rectangle rect, Color color)
@@ -179,26 +206,16 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		super.paintComponent(g);
 		g.drawImage(fullImage, 0, 0, this);
 
+		// Affichage de la séléction d'un rectangle
 		if (this.selectedRectangle != null)
 			this.outlineRect(g, this.selectedRectangle, Color.RED);
 
+		// Affichage de la séléction d'un cercle
 		if (this.selectedCircle != null)
 			this.outlineCircle(g, this.selectedCircle, Color.RED);
 		
-			if (this.selectedImage != null)
-			this.outlineRect(g,
-				new Rectangle(
-					this.selectedImage.getX(),
-					this.selectedImage.getY(), 
-					this.selectedImage.getImgWidth () + this.selectedImage.getX(),
-					this.selectedImage.getImgHeight() + this.selectedImage.getY()
-				),
-				Color.YELLOW
-			);
-		
-		
+		// Affichage de la séléction d'une image (rectangle)
 		if (this.selectedImage != null)
-		{
 			this.outlineRect(g,
 				new Rectangle(
 					this.selectedImage.getX(),
@@ -208,6 +225,26 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 				),
 				Color.YELLOW
 			);
+		
+		// Affichage du tracé du trait
+		if (this.pencilPoints.size() > 2)
+		{
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setPaint(new Color(this.frame.getSelectedColor()));
+			Stroke stroke = new BasicStroke(2f);
+			g2d.setStroke(stroke);
+			
+			for (int i = 1; i < this.pencilPoints.size(); i++)
+			{
+				Point lastCoord = this.pencilPoints.get(i -1);
+				Point coord     = this.pencilPoints.get(i);
+				g2d.drawLine(
+					lastCoord.x(),
+					lastCoord.y(), 
+					coord.x(),
+					coord.y()
+				);
+			}
 		}
 	}
 
@@ -250,6 +287,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 		else
 		{
+			this.frame.defaultAction();
 			return;
 		}
 
@@ -259,6 +297,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
 		{
 			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
+			this.frame.setAction(PLPaint.ACTION_DEFAULT);
+			this.frame.setLabelAction("Mode curseur");
 			return;
 		}
 
@@ -279,13 +319,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		// Action du texte
 		if (this.frame.getAction() == PLPaint.ACTION_WRITE_TEXT)
 		{
-			if (this.txtSaisie != null) this.remove(this.txtSaisie);
+			if (this.textInput != null) this.remove(this.textInput);
 			
-			this.txtSaisie = new JTextField("Feur");
-			this.txtSaisie.setBounds(currentCoord.x(), currentCoord.y() - 25, 150, 25);
+			this.textInput = new JTextField("Feur");
+			this.textInput.setBounds(currentCoord.x(), currentCoord.y() - 25, 150, 25);
 			this.setVisible(true);
 
-			this.add(this.txtSaisie);
+			this.add(this.textInput);
 
 			return;
 		}
@@ -318,13 +358,9 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			e.getX() < this.fullImage.getWidth () && e.getX() > 0 &&
 			e.getY() < this.fullImage.getHeight() && e.getY() > 0;
 		
-		if (clickInFullImage)
+		if (clickInFullImage || this.selectedImage != null)
 		{
 			this.startingCoord = new Point(e.getX(), e.getY());
-		}
-		else
-		{
-			return;
 		}
 	}
 
@@ -423,40 +459,31 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		repaint(); // Rafraichir pour voir la séléction graphique du rectangle
 	}
 
-	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	public void hideTextInput()
-	{
-		if (this.txtSaisie != null) this.remove(this.txtSaisie);
-		this.revalidate();
-	}
-
-	public String getText()
-	{
-		if (this.txtSaisie != null) return this.txtSaisie.getText();
-
-		return null;
-	}
-
-	public java.awt.Point getTextLocation()
-	{
-		if (this.txtSaisie != null) return this.txtSaisie.getLocation();
-		return null;
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {}
-
-	@Override
+	public void mouseMoved  (MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited (MouseEvent e) {}
 
-	@Override
-	public void mouseExited(MouseEvent e) {}
+	/* --------------------------------------------------------------------------------- */
+	/*                              METHODE ECOUTEUR CLAVIER                             */
+	/* --------------------------------------------------------------------------------- */
 
-	@Override
-	public void keyTyped(KeyEvent e) {}
+	public void keyPressed(KeyEvent e)
+	{
+		if (e.getKeyCode() == KeyEvent.VK_DELETE)
+			if (this.getSelectedImage() != null)
+			{
+				this.frame.removeImage(getSelectedImage());
+			}
 
-	@Override
+		if (e.isControlDown() && e.getKeyCode() == 'A')
+		{
+			this.selectScreen();
+		}
+
+		if (e.isControlDown() && e.getKeyCode() == 'Z') {}
+			// TODO this.frame.ctrlZ();
+	}
+
+	public void keyTyped   (KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
 }
