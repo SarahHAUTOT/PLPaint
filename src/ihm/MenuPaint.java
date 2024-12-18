@@ -87,9 +87,6 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		this.goBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 
-
-
-
 		/* Positionnement des composants */
 		this.add(fichierMenu);
 		this.add(fichierOutils);
@@ -97,6 +94,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		/* Configuration du panel */
 		this.setBackground(PLPaint.COUL_PRIMARY);
+		this.setLayout(null);
 
 		/* Ecouteurs d'actions */
 		this.createItem .addActionListener(this);
@@ -180,20 +178,6 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		if (this.quitItem == e.getSource())
 		{
-			if (this.frame.getFullImage() != null)
-			{
-				response = JOptionPane.showConfirmDialog(
-					this,
-					"Êtes-vous sûr de vouloir quitter ?\n" +
-					"Toutes vos modifiactions d'images ne seront pas enregistrées", 
-					"Quitter l'application",
-					JOptionPane.YES_NO_OPTION
-				);
-	
-				if (response != JOptionPane.YES_OPTION)
-					return;
-			}
-			
 			this.frame.dispose();
 		}
 
@@ -330,13 +314,14 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				// Creéation de la nouvelle fenêtre
 				// de l'application
 				PLPaint app = new PLPaint("Importer une nouvelle image", new Paint(), this.frame);
+				this.frame.setFocusable(false);
 
 				// Remplissage de l'image de fond
 				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
 				g2d.setColor(Color.WHITE);
 				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
-
+				app.setSize((int) (PLPaint.DEFAULT_WIDTH * 0.6), (int) (PLPaint.DEFAULT_HEIGHT * 0.6));
 				app.setFullImage(biImport);
 				app.addImage(new Image(0, 0, biBg));
 				app.addImage(new Image(0, 0, biImport));
