@@ -283,8 +283,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.hideTextInput();
 		if (this.fullImage == null) return;
 		
+		// Si c'est une action qui necessite un élément selectionné on empeche la desselection 
+		if (this.frame.getAction() == PLPaint.ACTION_ROTATION || this.frame.getAction() == PLPaint.ACTION_BRIGHTNESS)
+			return;
+		
 		// On remet à null tout les éléments séléctionnés
 		this.disableSelection();
+
 		this.startingCoord = null;
 
 		// Initialisation de la coordonée cliquée
@@ -330,7 +335,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		this.frame.defaultAction();
 
-		// System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
+		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
 
 		// Action de la Pipette
 		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
@@ -359,7 +364,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	public void mousePressed(MouseEvent e)
 	{
 		if (this.fullImage == null) return;
-		// System.out.println( "moussePressed : x:" + e.getX() + " y:" + e.getY());
+		System.out.println( "moussePressed : x:" + e.getX() + " y:" + e.getY());
 
 		// Séléction en dehors de l'image autorisé lors du déplacement d'une l'image
 		// Initialisation de la coordonée de départ
@@ -398,7 +403,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			this.frame.repaintImagePanel();
 		}
 
-		// System.out.println( "mouseReleased : x:" + this.startingCoord.x() + " y:" + this.startingCoord.y());
+		System.out.println( "mouseReleased : x:" + this.startingCoord.x() + " y:" + this.startingCoord.y());
 		this.startingCoord = null;
 	}
 

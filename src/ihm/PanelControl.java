@@ -396,6 +396,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.panelButtons.setVisible(true);
 			this.revalidate();
 			this.repaint();
+			this.frame.save();
 		}
 		
 		if (this.btnColor == e.getSource())

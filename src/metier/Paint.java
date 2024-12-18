@@ -571,16 +571,10 @@ public class Paint
 					Color newColor = new Color(nouvVal >> 16 & 0xFF, nouvVal >> 8 & 0xFF, nouvVal & 0xFF, alpha); // Conserver l'alpha
 					bi.setRGB(x, y, newColor.getRGB());
 				} 
-				else 
-				{
-					bi.setRGB(x, y, pixelColor); 
-				}
 			}
 		}
 	
 		image.setImg(bi);
-		this.save();
-	
 	}
 	
 
@@ -714,7 +708,6 @@ public class Paint
 			e.printStackTrace();
 		}
 
-		this.save();
 	}
 	
 	
