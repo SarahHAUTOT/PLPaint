@@ -187,6 +187,40 @@ public class Paint
 	}
 
 
+	
+	public BufferedImage getImageWithoutBackground() 
+	{
+		BufferedImage imgSortie = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+	
+		for (Image img : this.lstImages) 
+		{
+			int xStart = img.getX();
+			int yStart = img.getY();
+	
+			BufferedImage imgEntre = img.getImg();
+	
+			for (int x = 0; x < imgEntre.getWidth(); x++) 
+			{
+				for (int y = 0; y < imgEntre.getHeight(); y++) 
+				{
+					int coul = imgEntre.getRGB(x, y);
+	
+					if ((coul >> 24) != 0x00) {
+						int xDest = x + xStart;
+						int yDest = y + yStart;
+	
+						if (xDest >= 0 && xDest < this.width && yDest >= 0 && yDest < this.height) 
+							imgSortie.setRGB(xDest, yDest, coul);
+					}
+				}
+			}
+		}
+	
+		return imgSortie;
+	}
+
+
+
 	/**
 	 * Retire le 
 	 * @param image
@@ -302,7 +336,7 @@ public class Paint
 	public Image getImageAt(int x, int y)
 	{
 		for (int i = this.lstImages.size() - 1; i >= 0; i--)
-			if (imageIn(x, y, this.lstImages.get(i), false)) 
+			if (imageIn(x, y, this.lstImages.get(i), true)) 
 				return this.lstImages.get(i);
 
 		return null;
@@ -899,7 +933,7 @@ public class Paint
 		int yEnd = rect.yEnd();
 
 		
-		BufferedImage img = this.getImage();
+		BufferedImage img = this.getImageWithoutBackground();
 
 		BufferedImage zoneImage = img.getSubimage(xStart, yStart, xEnd - xStart, yEnd - yStart);
 		Image zoneImageObj = new Image(xStart, yStart, zoneImage);
@@ -940,7 +974,7 @@ public class Paint
 		int yCentre = cerc.yCenter();
 		int radius  = cerc.radius();
 		
-		BufferedImage img = this.getImage();
+		BufferedImage img = this.getImageWithoutBackground();
 
 		// Calcul des limites de la zone circulaire
 		int xStart = Math.max(xCentre - radius, 0);
