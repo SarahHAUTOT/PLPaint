@@ -39,6 +39,8 @@ public class Paint
 	/** Liste des images qui compose la grande image. */
 	private ArrayList<Image> lstImages;
 
+	private ArrayList<ArrayList<Image>> lstHistorique;
+
 	private BufferedImage fond;
 
 	/** Largeur de l'image. */
@@ -373,10 +375,26 @@ public class Paint
 		return ((rgb >>24 )& 0xff) == 0;
 	}
 
-	public void maj ()
+	public void save ()
 	{
+		ArrayList<Image> historique= new ArrayList<>();
 		for (Image image : lstImages)
-			image.maj();
+		{
+			image.save();
+			historique.add(new Image(image));
+		}
+
+		this.lstHistorique.add(historique);
+	}
+
+	public boolean goBack()
+	{
+		int lastInd = this.lstHistorique.size() -1;
+		if (lastInd < 0) return false;
+
+		this.lstImages = this.lstHistorique.remove(lastInd);
+
+		return true;
 	}
 
 
@@ -396,7 +414,7 @@ public class Paint
 	 */
 	public void bucket(int x, int y, int argb, int distance) 
 	{
-		this.maj();
+		this.save();
 
 		BufferedImage bi = this.getImage();
 		int width = bi.getWidth();
@@ -724,7 +742,7 @@ public class Paint
 	 */
 	public void flipVertical(Image img) 
 	{
-		this.maj();
+		this.save();
 
 		BufferedImage bi = img.getImg();
 
@@ -776,7 +794,7 @@ public class Paint
 	 */
 	public void flipHorizontal(Image img) 
 	{
-		this.maj();
+		this.save();
 
 		BufferedImage bi = img.getImg();
 
@@ -905,7 +923,7 @@ public class Paint
 
 	public Image rogner (Rectangle rect)
 	{
-		this.maj();
+		this.save();
 
 		int xStart = rect.x();
 		int yStart = rect.y();
@@ -951,7 +969,7 @@ public class Paint
 
 	public Image rogner (Circle cerc)
 	{
-		this.maj();
+		this.save();
 
 		int xCentre = cerc.xCenter();
 		int yCentre = cerc.yCenter();

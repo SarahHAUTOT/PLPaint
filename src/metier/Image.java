@@ -8,20 +8,21 @@ public class Image
 	private int x;	
 	private int y;
 
-	private int xOg;	
-	private int yOg;
-
-
 	private BufferedImage img;
 	private BufferedImage imgOg;
 
 	public Image (int x, int y, BufferedImage img)
 	{
-		this.x   = this.xOg = x;
-		this.y   = this.yOg = y;
+		this.x = x;
+		this.y = y;
 
 		this.img   = img;
 		this.imgOg = Image.copy(img);
+	}
+
+	public Image (Image image)
+	{
+		this(image.x, image.y, Image.copy(image.img));
 	}
 
 	public int getX        () { return this.x;  }
@@ -42,11 +43,9 @@ public class Image
 	public void setY  (int y)             { this.y = y; }
 	public void setImg(BufferedImage img) { this.img = img; }	
 
-	public void maj () 
+	public void save () 
 	{ 
 		this.imgOg = Image.copy(this.img);
-		this.xOg = this.x;
-		this.yOg = this.y;
 	}
 
 
