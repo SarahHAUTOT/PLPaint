@@ -36,7 +36,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PanelControl extends JPanel implements ActionListener, ChangeListener, MouseListener
+public class PanelControl extends JPanel implements ActionListener, MouseListener
 {
 	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
 	private PLPaint frame;
@@ -381,7 +381,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		if (this.pencil == e.getSource())
 		{
 			// On définit l'action
-			this.frame.setAction(PLPaint.ACTION_PENCIL);
+			this.action = PLPaint.ACTION_PENCIL;
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Crayon");
@@ -391,8 +391,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
 		{
+			// On désactive la séléction
+			this.frame.disableSelection();
+			
 			// On réinitiale l'action
-			this.frame.setAction(PLPaint.ACTION_DEFAULT);
+			this.action = PLPaint.ACTION_DEFAULT;
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Curseur");
@@ -443,14 +446,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.repaint();
 
 			this.frame.setCursor("./src/ihm/icons/bucket.png");
-		}
-
-		if (this.rotation == e.getSource())
-		{
-			// On renseigne l'action effectuée
-			// On ecrit le mode du curseur dans le label
-			this.action = PLPaint.ACTION_ROTATION;
-			this.frame.setLabelAction("Mode Rotation");
 		}
 
 		if (this.removeBg == e.getSource())
@@ -540,15 +535,32 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			boolean bold   = this.cbBold  .isSelected();
 			boolean italic = this.cbItalic.isSelected();
 
-			System.out.println("Font   : " + font);
-			System.out.println("Size   : " + size);
-			System.out.println("Bold   : " + bold);
-			System.out.println("Italic : " + italic);
-
 			this.frame.addText(font, size, bold, italic, this.biTexture, this.selectedColor);
 		}
 
 		if (!this.frame.hasSelection()) return;
+
+		if (this.rotation == e.getSource())
+		{
+			// On renseigne l'action effectuée
+			// On ecrit le mode du curseur dans le label
+			this.action = PLPaint.ACTION_ROTATION;
+			this.frame.setLabelAction("Mode Rotation");
+			this.sliderLabel.setText("Tourner l'image");
+
+			// Configuration du slider
+			this.slider.setMinimum(-100);
+			this.slider.setMaximum(100);
+			this.slider.setValue(0);
+			this.slider.setMajorTickSpacing(50);
+			this.slider.setMinorTickSpacing( 10);
+
+			// Affichage du panel slider
+			this.panelOption .setVisible(true);
+			this.panelButtons.setVisible(false);
+			this.revalidate();
+			this.repaint();
+		}
 
 		if (this.brightness == e.getSource())
 		{
@@ -563,7 +575,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.slider.setMaximum(100);
 			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(50);
-			this.slider.setMinorTickSpacing( 20);
+			this.slider.setMinorTickSpacing( 10);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -613,10 +625,10 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	/* --------------------------------------------------------------------------------- */
 	/*                              METHODE ECOUTEUR SLIDER                              */
 	/* --------------------------------------------------------------------------------- */
+	public void mousePressed(MouseEvent e) {}
 
-	@Override
-	public void stateChanged(ChangeEvent e)
-	{/*
+	public void mouseReleased(MouseEvent e)
+	{
 		if (!this.frame.hasSelection()) return;
 		
 		// Changer la valeur du cercle séléctionné
@@ -625,8 +637,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessCircle(this.slider.getValue());
 
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateCircle(this.slider.getValue());
 		}
 
 		// Changer la valeur du rectangle séléctionné
@@ -635,8 +647,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessRect(this.slider.getValue());
 			
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateRect(this.slider.getValue());
 		}
 
 		// Changer la valeur de l'image séléctionné
@@ -645,65 +657,14 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			if (this.action == PLPaint.ACTION_BRIGHTNESS)
 				this.frame.setBrightnessImage(this.slider.getValue());
 			
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
-		}
-
-		this.frame.repaintImagePanel();*/
-	}
-
-	public void setTextOption () 
-	{ 
-
-	}
-
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	public void mousePressed(MouseEvent e) {
-	}
-
-	public void mouseReleased(MouseEvent e) {
-		
-		if (!this.frame.hasSelection()) return;
-		
-		// Changer la valeur du cercle séléctionné
-		if (this.frame.getSelectedCircle() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessCircle(this.slider.getValue());
-
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
-		}
-
-		// Changer la valeur du rectangle séléctionné
-		if (this.frame.getSelectedRectangle() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessRect(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
-		}
-
-		// Changer la valeur de l'image séléctionné
-		if (this.frame.getSelectedImage() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessImage(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_ROTATION) {}
-				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateImage(this.slider.getValue());
 		}
 
 		this.frame.repaintImagePanel();
 	}
 
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	public void mouseExited(MouseEvent e) {
-	}
-
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited (MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {}
 }

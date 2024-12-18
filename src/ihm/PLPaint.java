@@ -53,7 +53,7 @@ public class PLPaint extends JFrame
 	private PanelImage   panelImage;
 	private JLabel       lblAction;
 
-	public PLPaint(Paint metier)
+	public PLPaint(Paint metier, boolean showMenu)
 	{
 		/* Création des composants */
 		this.panelControl = new PanelControl(this);
@@ -68,7 +68,9 @@ public class PLPaint extends JFrame
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		/* Positionnement des composants */
-		this.setJMenuBar(menu);
+		if (showMenu)
+			this.setJMenuBar(menu);
+		
 		this.add(panelControl, BorderLayout.EAST);
 		this.add(panelImage, BorderLayout.CENTER);
 		this.add(this.lblAction, BorderLayout.SOUTH);
@@ -101,6 +103,11 @@ public class PLPaint extends JFrame
 		this.panelImage.setFullImage(bi);
 		this.repaint();
 	}
+
+	public void hideTextInput() { this.panelImage.hideTextInput(); }
+
+	public void setCursor (Cursor cursor) { this.panelImage.setCursor(cursor); }
+	public void setCursor (String cursor) { this.panelImage.setCursor(cursor); }
 
 	public void          disableSelection    () { this.panelImage.disableSelection(); }
 	public BufferedImage getFullImage        () { return this.panelImage.getFullImage(); }
@@ -164,7 +171,7 @@ public class PLPaint extends JFrame
 		this.metier.bucket(x, y, argb, distance);
 	}
 
-	// Methode retourner
+	// Methode retourner (horizontal)
 	public void flipHorizontalImage()
 	{
 		this.metier.flipHorizontal(this.getSelectedImage());
@@ -180,6 +187,7 @@ public class PLPaint extends JFrame
 		this.metier.flipHorizontal(this.getSelectedCircle());
 	}
 
+	// Methode retourner (vertical)
 	public void flipVerticalImage()
 	{
 		this.metier.flipVertical(this.getSelectedImage());
@@ -195,16 +203,22 @@ public class PLPaint extends JFrame
 		this.metier.flipVertical(this.getSelectedCircle());
 	}
 
-	public void setCursor (Cursor cursor) { this.panelImage.setCursor(cursor); }
-	public void setCursor (String cursor) { this.panelImage.setCursor(cursor); }
-
-
-	public void setTextOption () { this.panelControl.setTextOption(); }
-
-	public void hideTextInput()
+	// Methode rotation
+	public void rotateCircle(int angle)
 	{
-		this.panelImage.hideTextInput();
+		this.metier.rotate(this.getSelectedCircle(), angle);
 	}
+
+	public void rotateImage(int angle)
+	{
+		this.metier.rotate(this.getSelectedImage(), angle);
+	}
+
+	public void rotateRect(int angle)
+	{
+		this.metier.rotate(this.getSelectedRectangle(), angle);
+	}
+
 
 	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)
 	{

@@ -97,7 +97,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 					JOptionPane.YES_NO_OPTION
 				);
 
-				if (response == JOptionPane.NO_OPTION)
+				if (response != JOptionPane.YES_OPTION)
 					return;
 			}
 
@@ -116,7 +116,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 					JOptionPane.YES_NO_OPTION
 				);
 
-				if (response == JOptionPane.NO_OPTION)
+				if (response != JOptionPane.YES_OPTION)
 					return;
 			}
 
@@ -175,7 +175,12 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			{
 				this.frame.setFullImage(biImport);
 				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				(biBg.getGraphics()).setColor(Color.BLACK);   
+				
+				// Remplissage de l'image de fond
+				Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
+				g2d.setColor(Color.WHITE);
+				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
+
 				this.frame.addImage(new Image(0, 0, biBg));
 				this.frame.addImage(new Image(0, 0, biImport));
 			}
@@ -236,10 +241,11 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		{
 			this.frame.disableSelection();
 			ImageIO.write(this.frame.getFullImage(), "png", file);
+			this.savedFile = file;
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image ");
+			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image");
 			this.downloadImage(file);
 		}
 	}

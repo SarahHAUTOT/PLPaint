@@ -262,14 +262,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
-		// Action du Crayon
-		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
-		{
-			// TODO : this.draw(currentCoord.x(), currentCoord.y(), this.selectedArgb);
-			this.waiting();
-			return;
-		}
-
 		// Actiond du remplissage
 		if (this.frame.getAction() == PLPaint.ACTION_BUCKET)
 		{
@@ -299,8 +291,11 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 
 		// Action de la séléction d'une image
-		this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
-		this.frame.setLabelAction("Séléction Image");
+		if (this.frame.getAction() == PLPaint.ACTION_DEFAULT)
+		{
+			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
+			this.frame.setLabelAction("Séléction Image");
+		}
 	}
 
 	public void setCursor (String fic)
@@ -319,10 +314,11 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		// Séléction en dehors de l'image autorisé lors du déplacement d'une l'image
 		// Initialisation de la coordonée de départ
-		if ( this.selectedImage != null ||
-			(this.startingCoord == null && 
-			 e.getX() < this.fullImage.getWidth () && e.getX() > 0 &&
-			 e.getY() < this.fullImage.getHeight() && e.getY() > 0))
+		boolean clickInFullImage = this.startingCoord == null &&
+			e.getX() < this.fullImage.getWidth () && e.getX() > 0 &&
+			e.getY() < this.fullImage.getHeight() && e.getY() > 0;
+		
+		if (clickInFullImage)
 		{
 			this.startingCoord = new Point(e.getX(), e.getY());
 		}
@@ -447,13 +443,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		if (this.txtSaisie != null) return this.txtSaisie.getLocation();
 		return null;
-	}
-
-	public void waiting()
-	{
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e1) { e1.printStackTrace(); }
 	}
 
 	@Override
