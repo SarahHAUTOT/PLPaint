@@ -173,8 +173,9 @@ public class Paint
 	{
 		BufferedImage imgSortie = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 	
-		for (Image img : this.lstImages) 
+		for (int i = 1; i < this.lstImages.size(); i++) 
 		{
+			Image img = this.lstImages.get(i);
 			int xStart = img.getX();
 			int yStart = img.getY();
 	
