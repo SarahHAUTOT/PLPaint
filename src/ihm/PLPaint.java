@@ -15,6 +15,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 import java.awt.Cursor;
+import java.awt.KeyboardFocusManager;
 
 import metier.Circle;
 import metier.Image;
@@ -102,7 +103,9 @@ public class PLPaint extends JFrame implements KeyListener
 		this.add(panelLbl, BorderLayout.SOUTH);
 
 		/* Ecouteur du clavier */
-		this.addKeyListener(this);
+		// this.             addKeyListener(this);
+		// this.panelImage.  addKeyListener(this);
+		// this.panelControl.addKeyListener(this);
 
 		this.setVisible(true);
 	}
@@ -154,6 +157,8 @@ public class PLPaint extends JFrame implements KeyListener
 			imgBg.setImg(biBg);
 		}
 		 */
+
+		
 
 		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
 		this.parent.selectLastImage();			

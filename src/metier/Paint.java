@@ -91,6 +91,8 @@ public class Paint
 			if ( h > this.height) this.height = h;
 			if ( w > this.width ) this.width  = w;
 		}
+
+		this.save();
 	}
 
 	/**
@@ -398,6 +400,7 @@ public class Paint
 
 	public void save ()
 	{
+		System.out.println("JAI SAUVEGARDE");
 		ArrayList<Image> historique= new ArrayList<>();
 		for (Image image : lstImages)
 		{
@@ -435,8 +438,6 @@ public class Paint
 	 */
 	public void bucket(int x, int y, int argb, int distance) 
 	{
-		this.save();
-
 		BufferedImage bi = this.getImage();
 		int width = bi.getWidth();
 		int height = bi.getHeight();

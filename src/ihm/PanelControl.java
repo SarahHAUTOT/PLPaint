@@ -91,7 +91,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		// Création du panel grille
 		this.panelButtons = new JPanel();
 		this.panelButtons.setLayout(new GridLayout(5, 2, 8, 8));
-		this.setFocusable(false);
+		this.setFocusable(true);
 
 		// Création des boutons du panel grille
 		try

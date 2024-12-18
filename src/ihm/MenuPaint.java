@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import metier.Image;
@@ -31,6 +34,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private JMenuItem saveAsItem;
 	private JMenuItem quitItem;
 	private JMenuItem aboutItem;
+	private JMenuItem goBackItem;
+	private JMenuItem resetItem;
 
 	public MenuPaint(PLPaint frame)
 	{
@@ -38,8 +43,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		// Créer les menus
 		this.frame     = frame;
 		this.savedFile = null;
-		JMenu fichierMenu = new JMenu("Fichier");
-		JMenu helpItem    = new JMenu("Aide");
+		JMenu fichierMenu   = new JMenu("Fichier");
+		JMenu fichierOutils = new JMenu("Outils");
+		JMenu helpItem      = new JMenu("Aide");
 
 		// Ajouter des éléments au menu "Fichier"
 		this.createItem  = new JMenuItem("Nouveau");
@@ -47,10 +53,16 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.importItem  = new JMenuItem("Importer");
 		this.saveItem    = new JMenuItem("Enregistrer");
 		this.saveAsItem  = new JMenuItem("Enregistrer sous...");
-		this.quitItem = new JMenuItem("Quitter");
+		this.quitItem    = new JMenuItem("Quitter");
 
 		// Ajouter des éléments au menu "Aide"
 		this.aboutItem = new JMenuItem("À propos");
+
+		// Retour
+		this.goBackItem = new JMenuItem("Retour en arrière");
+		
+		// Reset
+		this.resetItem = new JMenuItem("Reset");
 
 		// Ajout des items à leur menu respectif
 		fichierMenu.add(createItem);
@@ -61,10 +73,26 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		fichierMenu.add(saveAsItem);
 		fichierMenu.addSeparator();
 		fichierMenu.add(quitItem);
+
+		fichierOutils.add(goBackItem);
+
 		helpItem.add(aboutItem);
+
+		this.createItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK)); 
+		this.openItem  .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)); 
+		this.importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK)); 
+		this.saveItem  .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK)); 
+		this.saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		this.quitItem  .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
+
+		this.goBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+
+
+
 
 		/* Positionnement des composants */
 		this.add(fichierMenu);
+		this.add(fichierOutils);
 		this.add(helpItem);
 
 		/* Configuration du panel */
@@ -76,7 +104,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.importItem	.addActionListener(this);
 		this.saveItem   .addActionListener(this);
 		this.saveAsItem .addActionListener(this);
-		this.quitItem.addActionListener(this);
+		this.quitItem   .addActionListener(this);
+		this.goBackItem .addActionListener(this);
 	}
 
 	@Override
@@ -84,6 +113,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	{
 		// Désélection
 		this.frame.disableSelection();
+		System.out.println("Menu a capté");
 
 		int response;
 		if (this.createItem == e.getSource())
@@ -165,6 +195,14 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			}
 			
 			this.frame.dispose();
+		}
+
+
+		if (this.goBackItem == e.getSource())
+		{
+			System.out.println("HHGHGHGH");
+			this.frame.ctrlZ();
+			return;
 		}
 	}
 
