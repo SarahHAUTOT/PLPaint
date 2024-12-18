@@ -538,6 +538,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			boolean bold   = this.cbBold  .isSelected();
 			boolean italic = this.cbItalic.isSelected();
 
+			System.out.println("Font   : " + font);
+			System.out.println("Size   : " + size);
+			System.out.println("Bold   : " + bold);
+			System.out.println("Italic : " + italic);
+
 			this.frame.addText(font, size, bold, italic, this.biTexture, this.selectedColor);
 		}
 
