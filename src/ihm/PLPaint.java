@@ -82,6 +82,7 @@ public class PLPaint extends JFrame implements KeyListener
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
+		icon = icon.getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);  // Choisissez la taille appropriée ici
 		this.setTitle(title);
 		this.setIconImage(icon);
 
