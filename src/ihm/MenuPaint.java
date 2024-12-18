@@ -87,7 +87,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		fichierOutils.add(this.bucketItem     );
 		fichierOutils.add(this.eyedropperItem );
 		fichierOutils.add(this.textItem       );
-		fichierMenu.addSeparator();
+		fichierMenu  .addSeparator();
 		fichierOutils.add(this.goBackItem     );
 		fichierOutils.add(this.deleteImage    );
 
@@ -106,7 +106,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.eyedropperItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
 		this.textItem      .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
 		this.goBackItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK));
+		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 
 		/* Positionnement des composants */
 		this.add(fichierMenu);
@@ -127,6 +127,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 
 		
+		this.deleteImage   .addActionListener(this);
 		this.goBackItem    .addActionListener(this);
 		this.pencilItem    .addActionListener(this);
 		this.bucketItem    .addActionListener(this);
