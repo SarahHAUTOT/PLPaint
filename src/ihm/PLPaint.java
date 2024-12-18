@@ -338,6 +338,25 @@ public class PLPaint extends JFrame implements KeyListener
 		this.metier.bucket(x, y, argb, distance);
 	}
 
+	// Methode Effacer arrière plan
+	public void removeBgImage(int distance)
+	{
+		this.metier.addImage(
+			this.getSelectedImage(),
+			this.getSelectedColor(),
+			distance
+		);
+	}
+
+	public void removeBgScreen(int argb, int distance)
+	{
+		this.metier.addImage(
+			new Image(0, 0, this.getFullImage()),
+			this.getSelectedColor(),
+			distance
+		);
+	}
+
 	// Methode Rogner
 	public void trimRect()
 	{

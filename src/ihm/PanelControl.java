@@ -269,7 +269,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			panelImportF.add(panelImport);
 			
 			this.panelButtons.add(panelImportF);
-			
+
 			panelImportF.setBackground(PLPaint.COUL_SECONDARY);
 			panelImport .setBackground(PLPaint.COUL_SECONDARY);
 		}
@@ -484,28 +484,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.frame.setCursor("./src/ihm/icons/bucket.png");
 		}
 
-		if (this.removeBg == e.getSource())
-		{
-			// On renseigne l'action effectuée
-			// On ecrit le mode du curseur dans le label
-			this.action = PLPaint.ACTION_REMOVE_BG;
-			this.frame.setLabelAction("Mode Effacer l'arrière-plan");
-			
-			// Configuration du slider
-			this.sliderLabel.setText("Enlever le fond");
-			this.slider.setMinimum(0);
-			this.slider.setMaximum(100);
-			this.slider.setMajorTickSpacing(20);
-			this.slider.setMinorTickSpacing( 5);
-			this.slider.setValue(0);
-			
-			// Affichage du panel slider
-			this.panelOption .setVisible(true);
-			this.panelButtons.setVisible(false);
-			this.revalidate();
-			this.repaint();
-		}
-
 		if (this.writeText == e.getSource())
 		{
 			// On désactive la séléction
@@ -571,6 +549,28 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		}
 
 		if (!this.frame.hasSelection()) return;
+
+		if (this.removeBg == e.getSource())
+		{
+			// On renseigne l'action effectuée
+			// On ecrit le mode du curseur dans le label
+			this.action = PLPaint.ACTION_REMOVE_BG;
+			this.frame.setLabelAction("Mode Effacer l'arrière-plan");
+			
+			// Configuration du slider
+			this.sliderLabel.setText("Enlever le fond");
+			this.slider.setMinimum(0);
+			this.slider.setMaximum(100);
+			this.slider.setMajorTickSpacing(20);
+			this.slider.setMinorTickSpacing( 5);
+			this.slider.setValue(0);
+			
+			// Affichage du panel slider
+			this.panelOption .setVisible(true);
+			this.panelButtons.setVisible(false);
+			this.revalidate();
+			this.repaint();
+		}
 
 		if (this.rotation == e.getSource())
 		{
@@ -671,7 +671,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 				this.frame.rotateCircle(this.slider.getValue());
 			
 			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
-				this.frame.trim(this.slider.getValue());
+				this.frame.trimCircle();
 		}
 
 		// Changer la valeur du rectangle séléctionné
@@ -684,7 +684,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 				this.frame.rotateRect(this.slider.getValue());
 			
 			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
-				this.frame.trim(this.slider.getValue());
+				this.frame.trimRect();
 		}
 
 		// Changer la valeur de l'image séléctionné
@@ -697,10 +697,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 				this.frame.rotateImage(this.slider.getValue());
 			
 			if (this.action == PLPaint.ACTION_REMOVE_BG)
-				this.frame.rotateCircle(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
-				this.frame.trim(this.slider.getValue());
+				this.frame.removeBgImage(this.slider.getValue());
 		}
 
 		this.frame.repaintImagePanel();
