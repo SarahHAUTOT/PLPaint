@@ -256,6 +256,12 @@ public class PLPaint extends JFrame implements KeyListener
 	public void ctrlZ()
 	{
 		this.metier.goBack();
+		try {
+			wait(500);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		this.repaintImagePanel();
 	}
 
@@ -364,6 +370,8 @@ public class PLPaint extends JFrame implements KeyListener
 		this.metier.rotate(this.getSelectedRectangle(), angle);
 		this.selectLastImage();
 	}
+
+	public void save() {this.metier.save();}
 
 	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)
 	{

@@ -400,26 +400,37 @@ public class Paint
 
 	public void save ()
 	{
-		System.out.println("JAI SAUVEGARDE");
 		ArrayList<Image> historique= new ArrayList<>();
 		for (Image image : lstImages)
 		{
 			image.save();
 			historique.add(new Image(image));
 		}
-
+		
+		System.out.println("JAI SAUVEGARDE " + historique.size() + " informations");
 		this.lstHistorique.add(historique);
 	}
 
 	public boolean goBack()
 	{
-		int lastInd = this.lstHistorique.size() -1;
-		if (lastInd < 0) return false;
-
-		this.lstImages = this.lstHistorique.remove(lastInd);
-
+		System.out.println("Historique avant retour : " + this.lstHistorique.size());
+		int lastInd = this.lstHistorique.size() - 1;
+	
+		if (lastInd <= 0) {
+			System.out.println("Impossible de revenir en arrière. Historique insuffisant.");
+			return false;
+		}
+	
+		ArrayList<Image> previousState = this.lstHistorique.get(lastInd - 1);
+		System.out.println("État précédent : " + previousState);
+	
+		this.lstImages = new ArrayList<>(previousState);
+		this.lstHistorique.remove(lastInd);
+	
+		System.out.println("Historique après retour : " + this.lstHistorique.size());
 		return true;
 	}
+	
 
 
 
@@ -500,6 +511,8 @@ public class Paint
 			}
 		}
 
+		this.save();
+
 	}
 
 
@@ -566,6 +579,7 @@ public class Paint
 		}
 	
 		image.setImg(bi);
+		this.save();
 	
 	}
 	
@@ -697,6 +711,8 @@ public class Paint
 		{
 			e.printStackTrace();
 		}
+
+		this.save();
 	}
 	
 	
@@ -782,6 +798,7 @@ public class Paint
 			}
 		}
 
+		this.save();
 	}
 	
 	
@@ -909,6 +926,7 @@ public class Paint
 		
 		Image imgText = new Image(x, y, bi);
 		this.addImage(imgText);
+		this.save();
 		
 		return imgText;
 	}
@@ -934,6 +952,8 @@ public class Paint
 				if (!Paint.isTrans(bi.getRGB(x, y)))
 					bi.setRGB(x, y, biTexture.getRGB(x % biTexture.getWidth(), y % biTexture.getHeight()));
 
+
+		this.save();
 	}
 
 
@@ -945,7 +965,6 @@ public class Paint
 
 	public Image rogner (Rectangle rect)
 	{
-		this.save();
 
 		int xStart = rect.x();
 		int yStart = rect.y();
@@ -991,7 +1010,6 @@ public class Paint
 
 	public Image rogner (Circle cerc)
 	{
-		this.save();
 
 		int xCentre = cerc.xCenter();
 		int yCentre = cerc.yCenter();

@@ -33,9 +33,14 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private JMenuItem saveItem;
 	private JMenuItem saveAsItem;
 	private JMenuItem quitItem;
+
 	private JMenuItem aboutItem;
+
+	private JMenuItem pencilItem;
+	private JMenuItem bucketItem;
+	private JMenuItem eyedropperItem;
+	private JMenuItem textItem;
 	private JMenuItem goBackItem;
-	private JMenuItem resetItem;
 
 	public MenuPaint(PLPaint frame)
 	{
@@ -59,24 +64,30 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.aboutItem = new JMenuItem("À propos");
 
 		// Retour
-		this.goBackItem = new JMenuItem("Retour en arrière");
-		
-		// Reset
-		this.resetItem = new JMenuItem("Reset");
+		this.pencilItem     = new JMenuItem("Crayon");
+		this.bucketItem     = new JMenuItem("Seau");
+		this.eyedropperItem = new JMenuItem("Pipette");
+		this.textItem       = new JMenuItem("Text");
+		this.goBackItem     = new JMenuItem("Retour en arrière");
 
 		// Ajout des items à leur menu respectif
-		fichierMenu.add(createItem);
-		fichierMenu.add(openItem);
-		fichierMenu.add(importItem);
+		fichierMenu.add(this.createItem);
+		fichierMenu.add(this.openItem);
+		fichierMenu.add(this.importItem);
 		fichierMenu.addSeparator();
-		fichierMenu.add(saveItem);
-		fichierMenu.add(saveAsItem);
+		fichierMenu.add(this.saveItem);
+		fichierMenu.add(this.saveAsItem);
 		fichierMenu.addSeparator();
-		fichierMenu.add(quitItem);
+		fichierMenu.add(this.quitItem);
 
-		fichierOutils.add(goBackItem);
 
-		helpItem.add(aboutItem);
+		fichierOutils.add(this.pencilItem     );
+		fichierOutils.add(this.bucketItem     );
+		fichierOutils.add(this.eyedropperItem );
+		fichierOutils.add(this.textItem       );
+		fichierOutils.add(this.goBackItem     );
+
+		helpItem.add(this.aboutItem);
 
 		this.createItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK)); 
 		this.openItem  .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)); 
@@ -85,7 +96,12 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
 		this.quitItem  .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 
-		this.goBackItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+
+		this.pencilItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK));
+		this.bucketItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
+		this.eyedropperItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+		this.textItem      .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
+		this.goBackItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 
 
 
@@ -105,7 +121,14 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.saveItem   .addActionListener(this);
 		this.saveAsItem .addActionListener(this);
 		this.quitItem   .addActionListener(this);
-		this.goBackItem .addActionListener(this);
+
+
+		
+		this.goBackItem    .addActionListener(this);
+		this.pencilItem    .addActionListener(this);
+		this.bucketItem    .addActionListener(this);
+		this.eyedropperItem.addActionListener(this);
+		this.textItem      .addActionListener(this);
 	}
 
 	@Override
@@ -198,12 +221,11 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		}
 
 
-		if (this.goBackItem == e.getSource())
-		{
-			System.out.println("HHGHGHGH");
-			this.frame.ctrlZ();
-			return;
-		}
+		if (this.goBackItem     == e.getSource()) { this.frame.ctrlZ()                             ; return;}
+		if (this.pencilItem     == e.getSource()) { this.frame.setAction(PLPaint.ACTION_PENCIL)    ; return;}
+		if (this.bucketItem     == e.getSource()) { this.frame.setAction(PLPaint.ACTION_BUCKET)    ; return;}
+		if (this.eyedropperItem == e.getSource()) { this.frame.setAction(PLPaint.ACTION_EYEDROPPER); return;}
+		if (this.textItem       == e.getSource()) { this.frame.setAction(PLPaint.ACTION_WRITE_TEXT); return;}
 	}
 
 	private void openImage()
