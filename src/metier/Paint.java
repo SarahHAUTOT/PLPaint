@@ -112,7 +112,7 @@ public class Paint
 
 
 		img.setImg(biWithoutArgb);
-		this.addImage(img);
+		this.save();
 	}
 
 
@@ -556,6 +556,7 @@ public class Paint
 		if (var == 0) return;
 	
 		BufferedImage biOg = image.getImgOg();
+
 		BufferedImage bi = new BufferedImage(biOg.getWidth(), biOg.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	
 		for (int x = 0; x < biOg.getWidth(); x++) 
@@ -570,7 +571,7 @@ public class Paint
 					int alpha = (pixelColor >> 24) & 0xFF;  // Extraire l'alpha du pixel original
 					Color newColor = new Color(nouvVal >> 16 & 0xFF, nouvVal >> 8 & 0xFF, nouvVal & 0xFF, alpha); // Conserver l'alpha
 					bi.setRGB(x, y, newColor.getRGB());
-				} 
+				}
 			}
 		}
 	
