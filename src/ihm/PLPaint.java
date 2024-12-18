@@ -297,6 +297,11 @@ public class PLPaint extends JFrame implements KeyListener
 	}
 
 	// Gestion des images
+	public void reset()
+	{
+		return this.metier.reset();
+	}
+
 	public Image getClickedImage(int x, int y)
 	{
 		return this.metier.getClickedImage(x, y);
