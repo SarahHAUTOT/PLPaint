@@ -100,14 +100,14 @@ public class Paint
 	 * @param img
 	 * @param argb
 	 */
-	public void addImage(Image img, int argb)
+	public void addImage(Image img, int argb, int val)
 	{
 		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage biWithArgb    = img.getImg();
 
 		for (int x = 0; x < img.getImgWidth(); x++)
 			for (int y = 0; y < img.getImgHeight(); y++)
-				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, 30))
+				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, val))
 					biWithoutArgb.setRGB(x, y, biWithArgb.getRGB(x, y));
 
 
@@ -400,26 +400,37 @@ public class Paint
 
 	public void save ()
 	{
-		System.out.println("JAI SAUVEGARDE");
 		ArrayList<Image> historique= new ArrayList<>();
 		for (Image image : lstImages)
 		{
 			image.save();
 			historique.add(new Image(image));
 		}
-
+		
+		System.out.println("JAI SAUVEGARDE " + historique.size() + " informations");
 		this.lstHistorique.add(historique);
 	}
 
 	public boolean goBack()
 	{
-		int lastInd = this.lstHistorique.size() -1;
-		if (lastInd < 0) return false;
-
-		this.lstImages = this.lstHistorique.remove(lastInd);
-
+		System.out.println("Historique avant retour : " + this.lstHistorique.size());
+		int lastInd = this.lstHistorique.size() - 1;
+	
+		if (lastInd <= 0) {
+			System.out.println("Impossible de revenir en arrière. Historique insuffisant.");
+			return false;
+		}
+	
+		ArrayList<Image> previousState = this.lstHistorique.get(lastInd - 1);
+		System.out.println("État précédent : " + previousState);
+	
+		this.lstImages = new ArrayList<>(previousState);
+		this.lstHistorique.remove(lastInd);
+	
+		System.out.println("Historique après retour : " + this.lstHistorique.size());
 		return true;
 	}
+	
 
 
 
@@ -500,6 +511,8 @@ public class Paint
 			}
 		}
 
+		this.save();
+
 	}
 
 
@@ -558,15 +571,10 @@ public class Paint
 					Color newColor = new Color(nouvVal >> 16 & 0xFF, nouvVal >> 8 & 0xFF, nouvVal & 0xFF, alpha); // Conserver l'alpha
 					bi.setRGB(x, y, newColor.getRGB());
 				} 
-				else 
-				{
-					bi.setRGB(x, y, pixelColor); 
-				}
 			}
 		}
 	
 		image.setImg(bi);
-	
 	}
 	
 
@@ -581,7 +589,8 @@ public class Paint
 	 */
 	public void setLuminosite(Rectangle rect, int var) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
+		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
 
@@ -594,7 +603,8 @@ public class Paint
 	 */
 	public void setLuminosite(Circle cerc, int var) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
+		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
 
@@ -697,6 +707,7 @@ public class Paint
 		{
 			e.printStackTrace();
 		}
+
 	}
 	
 	
@@ -715,7 +726,8 @@ public class Paint
 	{
 		if (angle == 0 || angle == 360) return;
 
-		Image zoneImage = this.rogner(rect);
+		Image zoneImage = this.trim(rect);
+		this.lstImages.add(zoneImage);
 		this.rotate(zoneImage, angle);
 	}
 
@@ -736,7 +748,8 @@ public class Paint
 
 		if (angle == 0 || angle == 360) return;
 
-		Image zoneImageObj = this.rogner(cerc);
+		Image zoneImageObj = this.trim(cerc);
+		this.lstImages.add(zoneImageObj);
 		rotate(zoneImageObj, angle);
 
 		this.lstImages.add(zoneImageObj);
@@ -782,6 +795,7 @@ public class Paint
 			}
 		}
 
+		this.save();
 	}
 	
 	
@@ -796,13 +810,15 @@ public class Paint
 	*/
 	public void flipVertical(Rectangle rect) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
+		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
 
 	public void flipVertical(Circle cerc) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
+		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
 
@@ -846,7 +862,8 @@ public class Paint
 	 */
 	public void flipHorizontal(Rectangle rect) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
+		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
 
@@ -860,7 +877,8 @@ public class Paint
 	 */
 	public void flipHorizontal(Circle cerc) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
+		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
 	
@@ -909,6 +927,7 @@ public class Paint
 		
 		Image imgText = new Image(x, y, bi);
 		this.addImage(imgText);
+		this.save();
 		
 		return imgText;
 	}
@@ -934,18 +953,19 @@ public class Paint
 				if (!Paint.isTrans(bi.getRGB(x, y)))
 					bi.setRGB(x, y, biTexture.getRGB(x % biTexture.getWidth(), y % biTexture.getHeight()));
 
+
+		this.save();
 	}
 
 
 
 
 	/* --------------------------------------------------------------------------------------------------- */
-	/*                                            METHODE ROGNER                                           */
+	/*                                            METHODE trim                                           */
 	/* --------------------------------------------------------------------------------------------------- */
 
-	public Image rogner (Rectangle rect)
+	public Image trim (Rectangle rect)
 	{
-		this.save();
 
 		int xStart = rect.x();
 		int yStart = rect.y();
@@ -984,14 +1004,12 @@ public class Paint
 			}
 		}
 
-		this.lstImages.add(zoneImageObj);
 		return zoneImageObj;
 	}
 
 
-	public Image rogner (Circle cerc)
+	public Image trim (Circle cerc)
 	{
-		this.save();
 
 		int xCentre = cerc.xCenter();
 		int yCentre = cerc.yCenter();
@@ -1035,7 +1053,6 @@ public class Paint
 			}
 		}
 
-		this.lstImages.add(zoneImageObj);
 		return zoneImageObj;
 	}
 

@@ -83,6 +83,7 @@ public class PLPaint extends JFrame implements KeyListener
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
+		icon = icon.getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);  // Choisissez la taille appropriée ici
 		this.setTitle(title);
 		this.setIconImage(icon);
 
@@ -276,6 +277,12 @@ public class PLPaint extends JFrame implements KeyListener
 	public void ctrlZ()
 	{
 		this.metier.goBack();
+		try {
+			wait(500);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		this.repaintImagePanel();
 	}
 
@@ -397,6 +404,8 @@ public class PLPaint extends JFrame implements KeyListener
 		this.metier.rotate(this.getSelectedRectangle(), angle);
 		this.selectLastImage();
 	}
+
+	public void save() {this.metier.save();}
 
 	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)
 	{

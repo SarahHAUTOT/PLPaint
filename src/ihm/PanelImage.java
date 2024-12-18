@@ -283,8 +283,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.hideTextInput();
 		if (this.fullImage == null) return;
 		
+		// Si c'est une action qui necessite un élément selectionné on empeche la desselection 
+		if (this.frame.getAction() == PLPaint.ACTION_ROTATION || this.frame.getAction() == PLPaint.ACTION_BRIGHTNESS)
+			return;
+		
 		// On remet à null tout les éléments séléctionnés
 		this.disableSelection();
+
 		this.startingCoord = null;
 
 		// Initialisation de la coordonée cliquée
@@ -387,6 +392,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.selectedImage != null)
 		{
 			this.frame.repaintImagePanel();
+			this.frame.save();
 		}
 		
 		// Création de l'image crée par le pinceau
