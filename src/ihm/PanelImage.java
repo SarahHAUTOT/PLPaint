@@ -302,6 +302,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
+		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
+
 		// Actiond du remplissage
 		if (this.frame.getAction() == PLPaint.ACTION_BUCKET)
 		{
@@ -330,8 +332,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
-		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
-
 		// Action de la Pipette
 		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
 		{
@@ -342,6 +342,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		// Action de rognage
 		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE)
+		{
+			this.frame.defaultAction();
+			return;
+		}
+
+		// Action du pinceau
+		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
 		{
 			this.frame.defaultAction();
 			return;

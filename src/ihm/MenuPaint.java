@@ -87,7 +87,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		fichierOutils.add(this.bucketItem     );
 		fichierOutils.add(this.eyedropperItem );
 		fichierOutils.add(this.textItem       );
-		fichierMenu  .addSeparator();
+		fichierOutils.addSeparator();
 		fichierOutils.add(this.goBackItem     );
 		fichierOutils.add(this.deleteImage    );
 
@@ -255,7 +255,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private void createImage()
 	{
 		this.frame.reset();
-		
+
 		// Creation d'une nouvelle image
 		BufferedImage biBg = new BufferedImage(
 			(int) (this.frame.getWidth() - this.frame.getWidthPanelControl() * 1.5),

@@ -297,10 +297,7 @@ public class PLPaint extends JFrame implements KeyListener
 	}
 
 	// Gestion des images
-	public void reset()
-	{
-		return this.metier.reset();
-	}
+	public void reset() { this.metier.reset(); }
 
 	public Image getClickedImage(int x, int y)
 	{
@@ -385,6 +382,7 @@ public class PLPaint extends JFrame implements KeyListener
 	{
 		Image img = this.metier.trim(this.getSelectedRectangle());
 		this.disableSelection();
+		this.defaultAction();
 		if (img == null) return;
 
 		this.addImage(img);
@@ -395,6 +393,7 @@ public class PLPaint extends JFrame implements KeyListener
 	{
 		Image img = this.metier.trim(this.getSelectedCircle());
 		this.disableSelection();
+		this.defaultAction();
 		if (img == null) return;
 
 		this.addImage(img);
