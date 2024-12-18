@@ -7,11 +7,10 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 
@@ -96,24 +95,23 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		// Création des boutons du panel grille
 		try
 		{
-			this.eyedropper = new JButton(new ImageIcon("./src/ihm/icons/eyedropper.png"));
-			this.bucket     = new JButton(new ImageIcon("./src/ihm/icons/bucket.png"));
-			this.pencil     = new JButton(new ImageIcon("./src/ihm/icons/pencil.png"));
-	
-			this.brightness = new JButton(new ImageIcon("./src/ihm/icons/brightness.png"));
-			this.rotation   = new JButton(new ImageIcon("./src/ihm/icons/rotate.png"));
+			this.eyedropper = createButton("/ihm/icons/eyedropper.png");
+			this.bucket     = createButton("/ihm/icons/bucket.png");
+			this.pencil     = createButton("/ihm/icons/pencil.png");
 
-			this.horizontalFlip = new JButton(new ImageIcon("./src/ihm/icons/flip-horizontal.png"));
-			this.verticalFlip   = new JButton(new ImageIcon("./src/ihm/icons/flip-vertical.png"));
-	
-			this.selectionRectangle = new JButton(new ImageIcon("./src/ihm/icons/square.png"));
-			this.selectionCircle    = new JButton(new ImageIcon("./src/ihm/icons/circle.png"));
-			this.deselection        = new JButton(new ImageIcon("./src/ihm/icons/unselect.png"));
+			this.brightness = createButton("/ihm/icons/brightness.png");
+			this.rotation   = createButton("/ihm/icons/rotate.png");
 
-			this.removeBg  = new JButton(new ImageIcon("./src/ihm/icons/rm-bg.png"));
-			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
-			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
-			this.addToParent = new JButton(new ImageIcon("./src/ihm/icons/import.png"));
+			this.horizontalFlip = createButton("/ihm/icons/flip-horizontal.png");
+			this.verticalFlip   = createButton("/ihm/icons/flip-vertical.png");
+
+			this.selectionRectangle = createButton("/ihm/icons/square.png");
+			this.selectionCircle    = createButton("/ihm/icons/circle.png");
+			this.deselection        = createButton("/ihm/icons/unselect.png");
+
+			this.removeBg    = createButton("/ihm/icons/rm-bg.png");
+			this.writeText   = createButton("/ihm/icons/text.png");
+			this.addToParent = createButton("/ihm/icons/import.png");
 			
 		}
 		catch (Exception e)
@@ -363,6 +361,16 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		this.slider.addChangeListener(this);
 	}
+
+	private JButton createButton(String resourcePath) 
+	{
+        URL resource = getClass().getResource(resourcePath);
+        if (resource == null) {
+            System.err.println("Resource not found: " + resourcePath);
+            return new JButton("Missing Icon");
+        }
+        return new JButton(new ImageIcon(resource));
+    }
 
 	private void styleButton(JButton button)
 	{
