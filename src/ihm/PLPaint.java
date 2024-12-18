@@ -378,13 +378,21 @@ public class PLPaint extends JFrame implements KeyListener
 	// Methode Rogner
 	public void trimRect()
 	{
-		this.addImage(this.metier.trim(this.getSelectedRectangle()));
+		Image img = this.metier.trim(this.getSelectedRectangle());
+		this.disableSelection();
+		if (img == null) return;
+
+		this.addImage(img);
 		this.selectLastImage();
 	}
 
 	public void trimCircle()
 	{
-		this.addImage(this.metier.trim(this.getSelectedCircle()));
+		Image img = this.metier.trim(this.getSelectedCircle());
+		this.disableSelection();
+		if (img == null) return;
+
+		this.addImage(img);
 		this.selectLastImage();
 	}
 
