@@ -340,6 +340,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
+		// Action de rognage
+		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE)
+		{
+			this.frame.defaultAction();
+			return;
+		}
+
 		// Action de la séléction d'une image
 		if (this.frame.getAction() == PLPaint.ACTION_DEFAULT)
 		{
