@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -42,8 +43,9 @@ public class PLPaint extends JFrame implements KeyListener
 	public static final int ACTION_SELECT_RECTANGLE = 9;
 	public static final int ACTION_SELECT_CIRCLE    = 10;
 
-	public static final int ACTION_REMOVE_BG  = 11;
-	public static final int ACTION_WRITE_TEXT = 12;
+	public static final int ACTION_REMOVE_BG    = 11;
+	public static final int ACTION_TRIM_SURFACE = 12;
+	public static final int ACTION_WRITE_TEXT   = 13;
 
 	// Controle avec les touches clavier
 
@@ -78,8 +80,7 @@ public class PLPaint extends JFrame implements KeyListener
 		this.setSize(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT);
 		this.setFocusable(true);
 
-		if (parent == null)
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
 		icon = icon.getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);  // Choisissez la taille appropriée ici
@@ -93,8 +94,6 @@ public class PLPaint extends JFrame implements KeyListener
 		/* Positionnement des composants */
 		if (parent == null)
 			this.setJMenuBar(menu);
-
-		
 
 		JScrollPane sp = new JScrollPane(this.panelImage);
 		configureScrollPaneSensitivity(sp);
@@ -111,16 +110,37 @@ public class PLPaint extends JFrame implements KeyListener
 		this.setVisible(true);
 	}
 
+	public void dispose()
+	{
+		if (this.parent != null)
+			this.parent.setFocusable(true);
+		else
+			if (this.getFullImage() != null)
+			{
+				int response = JOptionPane.showConfirmDialog(
+					this,
+					"Êtes-vous sûr de vouloir quitter ?\n" +
+					"Toutes vos modifiactions d'images ne seront pas enregistrées", 
+					"Quitter l'application",
+					JOptionPane.YES_NO_OPTION
+				);
 	
+				if (response != JOptionPane.YES_OPTION)
+					return;
+			}
+		
+		super.dispose();
+	}
 
-	private void configureScrollPaneSensitivity(JScrollPane scrollPane) {
+	private void configureScrollPaneSensitivity(JScrollPane scrollPane)
+	{
 		JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
 		JScrollBar horizontalScrollBar = scrollPane.getHorizontalScrollBar();
 
-		verticalScrollBar.setUnitIncrement(16);  
+		verticalScrollBar  .setUnitIncrement(16);  
 		horizontalScrollBar.setUnitIncrement(16);
 
-		verticalScrollBar.setBlockIncrement(100);   
+		verticalScrollBar  .setBlockIncrement(100);   
 		horizontalScrollBar.setBlockIncrement(100); 
 	}
 
@@ -159,11 +179,11 @@ public class PLPaint extends JFrame implements KeyListener
 		}
 		 */
 
-		
 
 		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
 		this.parent.selectLastImage();			
 		this.parent.repaintImagePanel();
+		this.parent.setVisible(true);
 		this.dispose();
 	}
 
@@ -316,6 +336,19 @@ public class PLPaint extends JFrame implements KeyListener
 	public void bucket(int x, int y, int argb, int distance)
 	{
 		this.metier.bucket(x, y, argb, distance);
+	}
+
+	// Methode Rogner
+	public void trimRect()
+	{
+		this.metier.trim(this.getSelectedRectangle());
+		this.selectLastImage();
+	}
+
+	public void trimCircle()
+	{
+		this.metier.trim(this.getSelectedCircle());
+		this.selectLastImage();
 	}
 
 	// Methode retourner (horizontal)

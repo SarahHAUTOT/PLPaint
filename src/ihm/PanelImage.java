@@ -333,20 +333,20 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
-		this.frame.defaultAction();
-
 		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
 
 		// Action de la Pipette
 		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
 		{
 			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
+			this.frame.defaultAction();
 			return;
 		}
 
 		// Action de la séléction d'une image
 		if (this.frame.getAction() == PLPaint.ACTION_DEFAULT)
 		{
+			this.frame.defaultAction();
 			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
 			if (this.selectedImage != null)
 				this.frame.setLabelAction("Séléction Image");

@@ -35,7 +35,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PanelControl extends JPanel implements ActionListener, MouseListener, ChangeListener
+public class PanelControl extends JPanel implements ActionListener, ChangeListener
 {
 	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
 	private PLPaint frame;
@@ -146,8 +146,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
 
-		this.slider      .setBackground(PLPaint.COUL_SECONDARY);
-
+		this.slider.setBackground(PLPaint.COUL_SECONDARY);
 
 		// Création du panel option
 		this.panelOption = new JPanel();
@@ -183,25 +182,32 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		this.panelButtons.add(this.btnColor);
 
 		/* OUTILS 1 */
-		JPanel panelOutils1 = new JPanel(new GridLayout(2,2,10,10));
-
-		panelOutils1.add(this.pencil    );
-		panelOutils1.add(this.bucket    );
-		panelOutils1.add(this.eyedropper);
-		panelOutils1.add(this.writeText );
-
-		this.styleButton(this.pencil    );
-		this.styleButton(this.bucket    );
-		this.styleButton(this.eyedropper);
-		this.styleButton(this.writeText );
-		
 		MatteBorder topBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK);
 		EmptyBorder margin = new EmptyBorder(20, 20, 0, 20);
-		panelOutils1.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
 
-		JPanel panelOutils1F = new JPanel();
-		panelOutils1F.add(panelOutils1);
-        this.panelButtons.add(panelOutils1F);
+		if (!isChildren)
+		{
+			JPanel panelOutils1 = new JPanel(new GridLayout(2,2,10,10));
+
+			panelOutils1.add(this.pencil    );
+			panelOutils1.add(this.bucket    );
+			panelOutils1.add(this.eyedropper);
+			panelOutils1.add(this.writeText );
+
+			this.styleButton(this.pencil    );
+			this.styleButton(this.bucket    );
+			this.styleButton(this.eyedropper);
+			this.styleButton(this.writeText );
+			
+			panelOutils1.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+
+			JPanel panelOutils1F = new JPanel();
+			panelOutils1F.add(panelOutils1);
+			this.panelButtons.add(panelOutils1F);
+
+			panelOutils1F.setBackground(PLPaint.COUL_SECONDARY);
+			panelOutils1 .setBackground(PLPaint.COUL_SECONDARY);
+		}
 
 		/* SELECTION */
 		JPanel panelSelection = new JPanel(new GridLayout(2,2,10,10));
@@ -209,6 +215,12 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		panelSelection.add(this.selectionRectangle);
 		panelSelection.add(this.selectionCircle   );
 		panelSelection.add(this.deselection       );
+		
+		if (isChildren)
+		{
+			this.styleButton(this.eyedropper);
+			panelSelection.add(this.eyedropper);
+		}
 
 		this.styleButton(this.selectionRectangle);
 		this.styleButton(this.selectionCircle   );
@@ -218,32 +230,48 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 		JPanel panelSelectionF = new JPanel();
 		panelSelectionF.add(panelSelection);
-        this.panelButtons.add(panelSelectionF);
+		this.panelButtons.add(panelSelectionF);
 
 		/* OUTILS 2 */
-		JPanel panelOutils2 = new JPanel(new GridLayout(2,2,10,10));
-
-		panelOutils2.add(this.horizontalFlip);
-		panelOutils2.add(this.verticalFlip  );
-		panelOutils2.add(this.rotation      );
-		panelOutils2.add(this.brightness    );
-
-		this.styleButton(this.horizontalFlip);
-		this.styleButton(this.verticalFlip  );
-		this.styleButton(this.rotation      );
-		this.styleButton(this.brightness    );
-		
-		panelOutils2.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
-
-		JPanel panelOutils2F = new JPanel();
-		panelOutils2F.add(panelOutils2);
-        this.panelButtons.add(panelOutils2F);
-
-		// Bouton d'importation
-		if (isChildren)
+		if (!isChildren)
 		{
+			JPanel panelOutils2 = new JPanel(new GridLayout(2,2,10,10));
+
+			panelOutils2.add(this.horizontalFlip);
+			panelOutils2.add(this.verticalFlip  );
+			panelOutils2.add(this.rotation      );
+			panelOutils2.add(this.brightness    );
+
+			this.styleButton(this.horizontalFlip);
+			this.styleButton(this.verticalFlip  );
+			this.styleButton(this.rotation      );
+			this.styleButton(this.brightness    );
+			
+			panelOutils2.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+			JPanel panelOutils2F = new JPanel();
+			panelOutils2F.add(panelOutils2);
+			this.panelButtons.add(panelOutils2F);
+
+			panelOutils2F.setBackground(PLPaint.COUL_SECONDARY);
+			panelOutils2 .setBackground(PLPaint.COUL_SECONDARY);
+		}
+		else
+		{
+			JPanel panelImport = new JPanel(new GridLayout(1,2,10,10));
 			this.styleButton(this.addToParent);
-        	this.panelButtons.add(this.addToParent);
+			this.styleButton(this.removeBg);
+
+			panelImport.add(this.addToParent);
+			panelImport.add(this.removeBg   );
+
+			panelImport.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+			JPanel panelImportF = new JPanel();
+			panelImportF.add(panelImport);
+			
+			this.panelButtons.add(panelImportF);
+			
+			panelImportF.setBackground(PLPaint.COUL_SECONDARY);
+			panelImport .setBackground(PLPaint.COUL_SECONDARY);
 		}
 
 		/* OPTION POUR LE TEXTE */
@@ -299,22 +327,16 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		this.panelOptionText.setVisible(false);
 
 		/* POSITIONNEMENT */
+
+		panelSelectionF.setBackground(PLPaint.COUL_SECONDARY);
+		panelSelection .setBackground(PLPaint.COUL_SECONDARY);
+
 		this.add(this.panelButtons);
 		this.add(this.panelOption);
 		this.add(this.panelOptionText);
 
 		this.setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons    .setBackground(PLPaint.COUL_SECONDARY);
-
-		panelOutils1F.setBackground(PLPaint.COUL_SECONDARY);
-		panelOutils1 .setBackground(PLPaint.COUL_SECONDARY);
-
-		panelSelectionF.setBackground(PLPaint.COUL_SECONDARY);
-		panelSelection .setBackground(PLPaint.COUL_SECONDARY);
-
-		panelOutils2F.setBackground(PLPaint.COUL_SECONDARY);
-		panelOutils2 .setBackground(PLPaint.COUL_SECONDARY);
-
 
 		/* Ecouteurs des boutons */
 		this.goBack    .addActionListener(this);
@@ -464,9 +486,6 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 		if (this.removeBg == e.getSource())
 		{
-			// On désactive la séléction
-			this.frame.disableSelection();
-			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
 			this.action = PLPaint.ACTION_REMOVE_BG;
@@ -635,55 +654,8 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	}
 
 	/* --------------------------------------------------------------------------------- */
-	/*                              METHODE ECOUTEUR SOURIS                              */
+	/*                              METHODE ECOUTEUR SLIDER                              */
 	/* --------------------------------------------------------------------------------- */
-
-	public void mouseReleased(MouseEvent e)
-	{
-		if (!this.frame.hasSelection()) return;
-		
-		// Changer la valeur du cercle séléctionné
-		if (this.frame.getSelectedCircle() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessCircle(this.slider.getValue());
-
-			if (this.action == PLPaint.ACTION_ROTATION)
-				this.frame.rotateCircle(this.slider.getValue());
-		}
-
-		// Changer la valeur du rectangle séléctionné
-		if (this.frame.getSelectedRectangle() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessRect(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_ROTATION)
-				this.frame.rotateRect(this.slider.getValue());
-		}
-
-		// Changer la valeur de l'image séléctionné
-		if (this.frame.getSelectedImage() != null)
-		{
-			if (this.action == PLPaint.ACTION_BRIGHTNESS)
-				this.frame.setBrightnessImage(this.slider.getValue());
-			
-			if (this.action == PLPaint.ACTION_ROTATION)
-				this.frame.rotateImage(this.slider.getValue());
-		}
-
-		this.frame.repaintImagePanel();
-	}
-
-	public void mouseClicked(MouseEvent e)
-	{
-		this.frame.defaultAction();
-		this.frame.disableSelection();
-	}
-
-	public void mouseEntered(MouseEvent e) {}
-	public void mouseExited (MouseEvent e) {}
-	public void mousePressed(MouseEvent e) {}
 
 	public void stateChanged(ChangeEvent e)
 	{
@@ -697,6 +669,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 
 			if (this.action == PLPaint.ACTION_ROTATION)
 				this.frame.rotateCircle(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
+				this.frame.trim(this.slider.getValue());
 		}
 
 		// Changer la valeur du rectangle séléctionné
@@ -707,6 +682,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			
 			if (this.action == PLPaint.ACTION_ROTATION)
 				this.frame.rotateRect(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
+				this.frame.trim(this.slider.getValue());
 		}
 
 		// Changer la valeur de l'image séléctionné
@@ -717,6 +695,12 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			
 			if (this.action == PLPaint.ACTION_ROTATION)
 				this.frame.rotateImage(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_REMOVE_BG)
+				this.frame.rotateCircle(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_TRIM_SURFACE)
+				this.frame.trim(this.slider.getValue());
 		}
 
 		this.frame.repaintImagePanel();
