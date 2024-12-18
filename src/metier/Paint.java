@@ -3,15 +3,14 @@ package metier;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 import javax.imageio.ImageIO;
 
@@ -41,8 +40,6 @@ public class Paint
 
 	private ArrayList<ArrayList<Image>> lstHistorique;
 
-	private BufferedImage fond;
-
 	/** Largeur de l'image. */
 	private int width ;
 	/** Hauteur de l'image. */
@@ -62,15 +59,13 @@ public class Paint
 	 * Constructeur par défauts (sans rien).
 	 * @param ctrl
 	 */
-	public Paint()//Controlleur ctrl)
+	public Paint()
 	{
-		// this.ctrl = ctrl;
 		this.lstImages = new ArrayList<>();
+		this.lstHistorique = new ArrayList<>();
 		
 		this.width  = Paint.DEFAULT_WIDTH ;
 		this.height = Paint.DEFAULT_HEIGHT;
-
-		this.setFond();
 	}
 	
 
@@ -119,12 +114,6 @@ public class Paint
 	}
 
 
-	public void setFond()
-	{
-		this.fond = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-	}
-
-
 	/**
 	 * Retire une image dans la liste.
 	 * @param img
@@ -139,7 +128,6 @@ public class Paint
 				if (!image.equals(img) && image.getImgHeight() >= this.height)
 				{
 					this.height = img.getImgHeight();	
-					this.setFond();
 				}
 
 		// Max width
@@ -148,7 +136,6 @@ public class Paint
 				if (!image.equals(img) && image.getImgWidth() >= this.width)
 				{
 					this.width = img.getImgWidth();				
-					this.setFond();
 				}
 	}
 
@@ -220,6 +207,40 @@ public class Paint
 	
 		return imgSortie;
 	}
+
+
+	public void merge(Image img1, Image img2) 
+	{
+		int minX = Math.min(img1.getX(), img2.getX());
+		int minY = Math.min(img1.getY(), img2.getY());
+		int maxX = Math.max(img1.getX() + img1.getImgWidth(), img2.getX() + img2.getImgWidth());
+		int maxY = Math.max(img1.getY() + img1.getImgHeight(), img2.getY() + img2.getImgHeight());
+
+		int mergedWidth = maxX - minX;
+		int mergedHeight = maxY - minY;
+
+		BufferedImage mergedImg = new BufferedImage(mergedWidth, mergedHeight, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics g = mergedImg.getGraphics();
+
+		g.drawImage(img1.getImg(), img1.getX() - minX, img1.getY() - minY, null);
+		g.drawImage(img2.getImg(), img2.getX() - minX, img2.getY() - minY, null);
+
+		g.dispose();
+
+		img1.setImg(mergedImg);
+		img1.setX(minX);
+		img1.setY(minY);
+}
+
+
+
+
+
+
+	/* --------------------------------------------------------------------------------------------------- */
+	/*                                           METHODE BACKGROUND                                        */
+	/* --------------------------------------------------------------------------------------------------- */
 
 
 

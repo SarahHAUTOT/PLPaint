@@ -29,7 +29,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private JMenuItem importItem;
 	private JMenuItem saveItem;
 	private JMenuItem saveAsItem;
-	private JMenuItem quitterItem;
+	private JMenuItem quitItem;
 	private JMenuItem aboutItem;
 
 	public MenuPaint(PLPaint frame)
@@ -47,7 +47,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.importItem  = new JMenuItem("Importer");
 		this.saveItem    = new JMenuItem("Enregistrer");
 		this.saveAsItem  = new JMenuItem("Enregistrer sous...");
-		this.quitterItem = new JMenuItem("Quitter");
+		this.quitItem = new JMenuItem("Quitter");
 
 		// Ajouter des éléments au menu "Aide"
 		this.aboutItem = new JMenuItem("À propos");
@@ -60,7 +60,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		fichierMenu.add(saveItem);
 		fichierMenu.add(saveAsItem);
 		fichierMenu.addSeparator();
-		fichierMenu.add(quitterItem);
+		fichierMenu.add(quitItem);
 		helpItem.add(aboutItem);
 
 		/* Positionnement des composants */
@@ -76,7 +76,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.importItem	.addActionListener(this);
 		this.saveItem   .addActionListener(this);
 		this.saveAsItem .addActionListener(this);
-		this.quitterItem.addActionListener(this);
+		this.quitItem.addActionListener(this);
 	}
 
 	@Override
@@ -148,18 +148,23 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			// TODO : nouvelle frame avec explication des fonctionnalités
 		}
 
-		if (this.quitterItem == e.getSource())
+		if (this.quitItem == e.getSource())
 		{
-			response = JOptionPane.showConfirmDialog(
-				this,
-				"Êtes-vous sûr de vouloir quitter ?\n" +
-				"Toutes vos modifiactions d'images ne seront pas enregistrées", 
-				"Quitter l'application",
-				JOptionPane.YES_NO_OPTION
-			);
-
-			if (response == JOptionPane.YES_OPTION)
-				this.frame.dispose();
+			if (this.frame.getFullImage() != null)
+			{
+				response = JOptionPane.showConfirmDialog(
+					this,
+					"Êtes-vous sûr de vouloir quitter ?\n" +
+					"Toutes vos modifiactions d'images ne seront pas enregistrées", 
+					"Quitter l'application",
+					JOptionPane.YES_NO_OPTION
+				);
+	
+				if (response != JOptionPane.YES_OPTION)
+					return;
+			}
+			
+			this.frame.dispose();
 		}
 	}
 
@@ -229,7 +234,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 			this.downloadImage(file);
 		}
 
-		if (file.exists())
+		if (file.exists() && !file.isDirectory())
 		{
 			int response = JOptionPane.showConfirmDialog(
 				this,
@@ -252,8 +257,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		catch (IOException e)
 		{
 			JOptionPane.showMessageDialog(this, "Erreur : Impossible d'enregistrer l'image");
-			if (file.exists())
+			if (file.exists() && file.isDirectory())
 				this.downloadImage(file);
+			
 			this.downloadImage(new File("."));
 		}
 	}

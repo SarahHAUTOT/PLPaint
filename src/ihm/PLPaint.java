@@ -3,12 +3,16 @@ package ihm;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 
 import java.awt.Cursor;
 
@@ -18,7 +22,7 @@ import metier.Paint;
 import metier.Rectangle;
 
 
-public class PLPaint extends JFrame
+public class PLPaint extends JFrame implements KeyListener
 {
 	// Mappage des différentes actions disponibles par l'utilisateur
 	public static final int ACTION_DEFAULT = 0;
@@ -71,7 +75,8 @@ public class PLPaint extends JFrame
 		/* Configuration de la frame */
 		this.setLayout(new BorderLayout());
 		this.setSize(PLPaint.DEFAULT_WIDTH, PLPaint.DEFAULT_HEIGHT);
-		this.setFocusable(false);
+		this.setFocusable(true);
+
 		if (parent == null)
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -86,13 +91,33 @@ public class PLPaint extends JFrame
 		/* Positionnement des composants */
 		if (parent == null)
 			this.setJMenuBar(menu);
+
 		
+
+		JScrollPane sp = new JScrollPane(this.panelImage);
+		configureScrollPaneSensitivity(sp);
+
 		this.add(panelControl, BorderLayout.EAST);
-		this.add(panelImage, BorderLayout.CENTER);
+		this.add(sp, BorderLayout.CENTER);
 		this.add(panelLbl, BorderLayout.SOUTH);
 
 		/* Ecouteur du clavier */
+		this.addKeyListener(this);
+
 		this.setVisible(true);
+	}
+
+	
+
+	private void configureScrollPaneSensitivity(JScrollPane scrollPane) {
+		JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+		JScrollBar horizontalScrollBar = scrollPane.getHorizontalScrollBar();
+
+		verticalScrollBar.setUnitIncrement(16);  
+		horizontalScrollBar.setUnitIncrement(16);
+
+		verticalScrollBar.setBlockIncrement(100);   
+		horizontalScrollBar.setBlockIncrement(100); 
 	}
 
 	public void setLabelAction(String str) { this.lblAction.setText(str); }
@@ -136,6 +161,9 @@ public class PLPaint extends JFrame
 		this.dispose();
 	}
 
+	/**
+	 * Définit l'action et le curseur de base
+	 */
 	public void defaultAction()
 	{
 		this.setAction(PLPaint.ACTION_DEFAULT);
@@ -144,6 +172,38 @@ public class PLPaint extends JFrame
 	}
 
 	/* --------------------------------------------------------------------------------- */
+	/*                              METHODE ECOUTEUR CLAVIER                             */
+	/* --------------------------------------------------------------------------------- */
+
+	public void keyPressed(KeyEvent e)
+	{
+		System.out.println("oui");
+		if (e.getKeyCode() == KeyEvent.VK_DELETE)
+		{
+			System.out.println("delete");
+			if (this.getSelectedImage() != null)
+			{
+				this.removeImage(getSelectedImage());
+			}
+		}
+
+		if (e.isControlDown() && e.getKeyCode() == 'A')
+		{
+			System.out.println("ctrl a");
+			this.panelImage.selectScreen();
+		}
+
+		if (e.isControlDown() && e.getKeyCode() == 'Z')
+		{
+			System.out.println("ctrl z");
+			this.ctrlZ();
+		}
+	}
+
+	public void keyTyped   (KeyEvent e) {}
+	public void keyReleased(KeyEvent e) {}
+	
+	/* --------------------------------------------------------------------------------- */
 	/*                              METHODE DES PANNELS                                  */
 	/* --------------------------------------------------------------------------------- */
 
@@ -151,6 +211,7 @@ public class PLPaint extends JFrame
     public void selectLastImage()
 	{
 		int lengthLst = this.getImages().size();
+		this.disableSelection();
 		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
 	}
 
@@ -186,6 +247,13 @@ public class PLPaint extends JFrame
 	/* ------------------------------------------------------------------------------- */
 	/*                              METHODE DU METIER                                  */
 	/* ------------------------------------------------------------------------------- */
+	// Gestion de l'historique
+	public void ctrlZ()
+	{
+		this.metier.goBack();
+		this.repaintImagePanel();
+	}
+
 	// Gestion des images
 	public Image getClickedImage(int x, int y)
 	{
@@ -223,11 +291,13 @@ public class PLPaint extends JFrame
 	public void setBrightnessRect(int value)
 	{
 		this.metier.setLuminosite(this.getSelectedRectangle(), value);
+		this.selectLastImage();
 	}
 
 	public void setBrightnessCircle(int value)
 	{
 		this.metier.setLuminosite(this.getSelectedCircle(), value);
+		this.selectLastImage();
 	}
 
 	// Methode Seau
@@ -245,11 +315,13 @@ public class PLPaint extends JFrame
 	public void flipHorizontalRect()
 	{
 		this.metier.flipHorizontal(this.getSelectedRectangle());
+		this.selectLastImage();
 	}
 
 	public void flipHorizontalCircle()
 	{
 		this.metier.flipHorizontal(this.getSelectedCircle());
+		this.selectLastImage();
 	}
 
 	// Methode retourner (vertical)
@@ -261,17 +333,20 @@ public class PLPaint extends JFrame
 	public void flipVerticalRect()
 	{
 		this.metier.flipVertical(this.getSelectedRectangle());
+		this.selectLastImage();
 	}
 
 	public void flipVerticalCircle()
 	{
 		this.metier.flipVertical(this.getSelectedCircle());
+		this.selectLastImage();
 	}
 
 	// Methode rotation
 	public void rotateCircle(int angle)
 	{
 		this.metier.rotate(this.getSelectedCircle(), angle);
+		this.selectLastImage();
 	}
 
 	public void rotateImage(int angle)
@@ -282,6 +357,7 @@ public class PLPaint extends JFrame
 	public void rotateRect(int angle)
 	{
 		this.metier.rotate(this.getSelectedRectangle(), angle);
+		this.selectLastImage();
 	}
 
 	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)

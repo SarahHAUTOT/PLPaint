@@ -35,7 +35,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PanelControl extends JPanel implements ActionListener, MouseListener
+public class PanelControl extends JPanel implements ActionListener, MouseListener, ChangeListener
 {
 	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
 	private PLPaint frame;
@@ -91,6 +91,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		// Création du panel grille
 		this.panelButtons = new JPanel();
 		this.panelButtons.setLayout(new GridLayout(5, 2, 8, 8));
+		this.setFocusable(false);
 
 		// Création des boutons du panel grille
 		try
@@ -338,7 +339,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		this.writeText.addActionListener(this);
 		this.addToParent.addActionListener(this);
 
-		this.slider.addMouseListener(this);
+		this.slider.addChangeListener(this);
 	}
 
 	private void styleButton(JButton button)
@@ -377,7 +378,6 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	public void actionPerformed(ActionEvent e)
 	{
 		this.frame.hideTextInput();
-		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
 		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
 		{
@@ -385,7 +385,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.frame.disableSelection();
 			
 			// On réinitiale l'action
-			this.action = PLPaint.ACTION_DEFAULT;
+			this.frame.defaultAction();
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Curseur");
@@ -401,7 +401,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 		if (this.btnColor == e.getSource())
 		{
 			Color col = JColorChooser.showDialog(null, "Choisissez une couleur", new Color(this.selectedColor));
-
+			System.out.println(this.action);
 			if (col != null) this.selectedColor = col.getRGB();
 			this.btnColor.setBackground(new Color(this.selectedColor));
 		}
@@ -448,9 +448,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			// Configuration du slider
 			this.slider.setMinimum(0);
 			this.slider.setMaximum(30);
-			this.slider.setValue(10);
 			this.slider.setMajorTickSpacing(5);
-			this.slider.setMinorTickSpacing( 1);
+			this.slider.setMinorTickSpacing(1);
+			this.slider.setValue(10);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -475,9 +475,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			this.sliderLabel.setText("Enlever le fond");
 			this.slider.setMinimum(0);
 			this.slider.setMaximum(100);
-			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(20);
 			this.slider.setMinorTickSpacing( 5);
+			this.slider.setValue(0);
 			
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -536,8 +536,7 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			
 			// On renseigne l'action effectuée
 			// On ecrit le mode du curseur dans le label
-			this.action = PLPaint.ACTION_DEFAULT;
-			this.frame.setLabelAction("Mode Curseur");
+			this.frame.defaultAction();
 		}
 
 		if (this.btnValider == e.getSource())
@@ -564,9 +563,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			// Configuration du slider
 			this.slider.setMinimum(-360);
 			this.slider.setMaximum(360);
-			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(20);
-			this.slider.setMinorTickSpacing( 10);
+			this.slider.setMinorTickSpacing(10);
+			this.slider.setValue(0);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -586,9 +585,9 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 			// Configuration du slider
 			this.slider.setMinimum(-200);
 			this.slider.setMaximum(200);
-			this.slider.setValue(0);
 			this.slider.setMajorTickSpacing(50);
-			this.slider.setMinorTickSpacing( 10);
+			this.slider.setMinorTickSpacing(10);
+			this.slider.setValue(0);
 
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
@@ -684,4 +683,41 @@ public class PanelControl extends JPanel implements ActionListener, MouseListene
 	public void mouseEntered(MouseEvent e) {}
 	public void mouseExited (MouseEvent e) {}
 	public void mousePressed(MouseEvent e) {}
+
+	public void stateChanged(ChangeEvent e)
+	{
+		if (!this.frame.hasSelection()) return;
+		
+		// Changer la valeur du cercle séléctionné
+		if (this.frame.getSelectedCircle() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessCircle(this.slider.getValue());
+
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateCircle(this.slider.getValue());
+		}
+
+		// Changer la valeur du rectangle séléctionné
+		if (this.frame.getSelectedRectangle() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessRect(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateRect(this.slider.getValue());
+		}
+
+		// Changer la valeur de l'image séléctionné
+		if (this.frame.getSelectedImage() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessImage(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_ROTATION)
+				this.frame.rotateImage(this.slider.getValue());
+		}
+
+		this.frame.repaintImagePanel();
+	}
 }

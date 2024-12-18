@@ -24,8 +24,9 @@ import metier.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.Stroke;
+import java.awt.Dimension;
 
-public class PanelImage extends JPanel implements MouseMotionListener, MouseListener, KeyListener
+public class PanelImage extends JPanel implements MouseMotionListener, MouseListener
 {
 	private PLPaint      frame;
 	private BufferedImage fullImage;
@@ -55,13 +56,12 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		/* Configurer du panel */
 		this.setBackground(PLPaint.COUL_NO_BG);
-		this.setFocusable(true);
+		this.setFocusable(false);
 		this.setLayout(null);
 
 		/* Ecouteur de la souris */
 		this.addMouseListener      (this);
 		this.addMouseMotionListener(this);
-		this.addKeyListener        (this);
 	}
 
 	/**
@@ -117,6 +117,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		if (this.fullImage != null)
 		{
+			this.disableSelection();
 			this.selectedRectangle = new Rectangle(0, 0, this.fullImage.getWidth(), this.fullImage.getHeight());
 			this.repaint();
 		}
@@ -264,6 +265,13 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.repaint();
 	}
 
+	
+    public Dimension getPreferredSize() 
+	{
+		if (this.fullImage != null) return new Dimension(this.fullImage.getWidth(), this.fullImage.getHeight());
+        return super.getPreferredSize(); // Dimensions de l'image
+    }
+
 	/* --------------------------------------------------------------------------------- */
 	/*                            METHODE ECOUTEUR SOURIS                                */
 	/* --------------------------------------------------------------------------------- */
@@ -288,17 +296,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		else
 		{
 			this.frame.defaultAction();
-			return;
-		}
-
-		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
-
-		// Action de la Pipette
-		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
-		{
-			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
-			this.frame.setAction(PLPaint.ACTION_DEFAULT);
-			this.frame.setLabelAction("Mode curseur");
 			return;
 		}
 
@@ -330,11 +327,23 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
+		this.frame.defaultAction();
+
+		System.out.println( "mousseClicked : x:" + currentCoord.x() + " y:" + currentCoord.y());
+
+		// Action de la Pipette
+		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
+		{
+			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
+			return;
+		}
+
 		// Action de la séléction d'une image
 		if (this.frame.getAction() == PLPaint.ACTION_DEFAULT)
 		{
 			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
-			this.frame.setLabelAction("Séléction Image");
+			if (this.selectedImage != null)
+				this.frame.setLabelAction("Séléction Image");
 		}
 	}
 
@@ -342,11 +351,10 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		java.awt.Image image = toolkit.getImage(fic);
-		Cursor c = toolkit.createCustomCursor(image , new java.awt.Point(this.getX(), this.getY()), "img");
+		Cursor c = toolkit.createCustomCursor(image , new java.awt.Point(0,0), "img");
 		this.setCursor(c);
 	}
 
-	@Override
 	public void mousePressed(MouseEvent e)
 	{
 		if (this.fullImage == null) return;
@@ -364,7 +372,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 	}
 
-	@Override
 	public void mouseReleased(MouseEvent e)
 	{
 		if (this.fullImage == null || this.startingCoord == null) return;
@@ -393,7 +400,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		this.startingCoord = null;
 	}
 
-	@Override
 	public void mouseDragged(MouseEvent e)
 	{
 		if (this.fullImage == null || this.startingCoord == null) return;
@@ -462,28 +468,4 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	public void mouseMoved  (MouseEvent e) {}
 	public void mouseEntered(MouseEvent e) {}
 	public void mouseExited (MouseEvent e) {}
-
-	/* --------------------------------------------------------------------------------- */
-	/*                              METHODE ECOUTEUR CLAVIER                             */
-	/* --------------------------------------------------------------------------------- */
-
-	public void keyPressed(KeyEvent e)
-	{
-		if (e.getKeyCode() == KeyEvent.VK_DELETE)
-			if (this.getSelectedImage() != null)
-			{
-				this.frame.removeImage(getSelectedImage());
-			}
-
-		if (e.isControlDown() && e.getKeyCode() == 'A')
-		{
-			this.selectScreen();
-		}
-
-		if (e.isControlDown() && e.getKeyCode() == 'Z') {}
-			// TODO this.frame.ctrlZ();
-	}
-
-	public void keyTyped   (KeyEvent e) {}
-	public void keyReleased(KeyEvent e) {}
 }
