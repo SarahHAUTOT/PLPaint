@@ -6,8 +6,11 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,7 +19,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 import java.awt.Cursor;
-import java.awt.KeyboardFocusManager;
 
 import metier.Circle;
 import metier.Image;
@@ -83,11 +85,18 @@ public class PLPaint extends JFrame implements KeyListener
 		this.setFocusable(true);
 
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		try 
+		{
+			URL resource = getClass().getResource("/ihm/icons/logo.png");
+			BufferedImage img = ImageIO.read(resource);
+			java.awt.Image icon = img.getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);
+			this.setTitle(title);
+			this.setIconImage(icon);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-		java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("./src/ihm/icons/logo.png");  
-		icon = icon.getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);  // Choisissez la taille appropriée ici
-		this.setTitle(title);
-		this.setIconImage(icon);
 
 		JPanel panelLbl = new JPanel();
 		panelLbl.setBackground(PLPaint.COUL_SECONDARY);

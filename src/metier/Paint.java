@@ -575,6 +575,8 @@ public class Paint
 	public void setLuminosite(Rectangle rect, int var) 
 	{
 		Image img = this.trim(rect);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
@@ -589,6 +591,8 @@ public class Paint
 	public void setLuminosite(Circle cerc, int var) 
 	{
 		Image img = this.trim(cerc);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
@@ -712,6 +716,8 @@ public class Paint
 		if (angle == 0 || angle == 360) return;
 
 		Image zoneImage = this.trim(rect);
+		if (zoneImage == null) return;
+
 		this.lstImages.add(zoneImage);
 		this.rotate(zoneImage, angle);
 	}
@@ -734,6 +740,8 @@ public class Paint
 		if (angle == 0 || angle == 360) return;
 
 		Image zoneImageObj = this.trim(cerc);
+		if (zoneImageObj == null) return;
+
 		this.lstImages.add(zoneImageObj);
 		rotate(zoneImageObj, angle);
 
@@ -796,6 +804,8 @@ public class Paint
 	public void flipVertical(Rectangle rect) 
 	{
 		Image img = this.trim(rect);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
@@ -803,6 +813,8 @@ public class Paint
 	public void flipVertical(Circle cerc) 
 	{
 		Image img = this.trim(cerc);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
@@ -848,6 +860,8 @@ public class Paint
 	public void flipHorizontal(Rectangle rect) 
 	{
 		Image img = this.trim(rect);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
@@ -863,6 +877,8 @@ public class Paint
 	public void flipHorizontal(Circle cerc) 
 	{
 		Image img = this.trim(cerc);
+		if (img == null) return;
+
 		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
@@ -964,6 +980,23 @@ public class Paint
 		BufferedImage zoneImage = img.getSubimage(xStart, yStart, xEnd - xStart, yEnd - yStart);
 		Image zoneImageObj = new Image(xStart, yStart, zoneImage);
 
+
+		boolean isTransparent = true;
+		for (int x = 0; x < zoneImage.getWidth(); x++) {
+			for (int y = 0; y < zoneImage.getHeight(); y++) 
+			{
+				int pixel = zoneImage.getRGB(x, y);
+				if (isTrans(pixel)) 
+				{ 
+					isTransparent = false;
+					break;
+				}
+			}
+			if (!isTransparent) break;
+		}
+
+		if (isTransparent) return null;
+
 		for (int x = xStart; x < xEnd; x++) 
 		{
 			for (int y = yStart; y < yEnd; y++) 
@@ -1037,6 +1070,22 @@ public class Paint
 				}
 			}
 		}
+
+		boolean isTransparent = true;
+		for (int x = 0; x < zoneImage.getWidth(); x++) {
+			for (int y = 0; y < zoneImage.getHeight(); y++) 
+			{
+				int pixel = zoneImage.getRGB(x, y);
+				if (isTrans(pixel)) 
+				{ 
+					isTransparent = false;
+					break;
+				}
+			}
+			if (!isTransparent) break;
+		}
+
+		if (isTransparent) return null;
 
 		return zoneImageObj;
 	}
