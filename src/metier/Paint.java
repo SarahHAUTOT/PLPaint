@@ -61,11 +61,7 @@ public class Paint
 	 */
 	public Paint()
 	{
-		this.lstImages = new ArrayList<>();
-		this.lstHistorique = new ArrayList<>();
-		
-		this.width  = Paint.DEFAULT_WIDTH ;
-		this.height = Paint.DEFAULT_HEIGHT;
+		this.reset();
 	}
 	
 
@@ -93,6 +89,20 @@ public class Paint
 		}
 
 		this.save();
+	}
+
+
+
+	/**
+	 * Reset la liste
+	 */
+	public void reset ()
+	{
+		this.lstImages = new ArrayList<>();
+		this.lstHistorique = new ArrayList<>();
+		
+		this.width  = Paint.DEFAULT_WIDTH ;
+		this.height = Paint.DEFAULT_HEIGHT;
 	}
 
 
