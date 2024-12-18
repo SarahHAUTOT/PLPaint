@@ -100,14 +100,14 @@ public class Paint
 	 * @param img
 	 * @param argb
 	 */
-	public void addImage(Image img, int argb)
+	public void addImage(Image img, int argb, int val)
 	{
 		BufferedImage biWithoutArgb = new BufferedImage(img.getImgWidth(), img.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage biWithArgb    = img.getImg();
 
 		for (int x = 0; x < img.getImgWidth(); x++)
 			for (int y = 0; y < img.getImgHeight(); y++)
-				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, 30))
+				if (!Paint.sameColor(biWithArgb.getRGB(x, y) & 0xFFFFFF, argb, val))
 					biWithoutArgb.setRGB(x, y, biWithArgb.getRGB(x, y));
 
 
@@ -596,6 +596,7 @@ public class Paint
 	public void setLuminosite(Rectangle rect, int var) 
 	{
 		Image img = this.rogner(rect);
+		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
 
@@ -609,6 +610,7 @@ public class Paint
 	public void setLuminosite(Circle cerc, int var) 
 	{
 		Image img = this.rogner(cerc);
+		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
 
@@ -732,6 +734,7 @@ public class Paint
 		if (angle == 0 || angle == 360) return;
 
 		Image zoneImage = this.rogner(rect);
+		this.lstImages.add(zoneImage);
 		this.rotate(zoneImage, angle);
 	}
 
@@ -753,6 +756,7 @@ public class Paint
 		if (angle == 0 || angle == 360) return;
 
 		Image zoneImageObj = this.rogner(cerc);
+		this.lstImages.add(zoneImageObj);
 		rotate(zoneImageObj, angle);
 
 		this.lstImages.add(zoneImageObj);
@@ -814,12 +818,14 @@ public class Paint
 	public void flipVertical(Rectangle rect) 
 	{
 		Image img = this.rogner(rect);
+		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
 
 	public void flipVertical(Circle cerc) 
 	{
 		Image img = this.rogner(cerc);
+		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
 
@@ -864,6 +870,7 @@ public class Paint
 	public void flipHorizontal(Rectangle rect) 
 	{
 		Image img = this.rogner(rect);
+		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
 
@@ -878,6 +885,7 @@ public class Paint
 	public void flipHorizontal(Circle cerc) 
 	{
 		Image img = this.rogner(cerc);
+		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
 	
@@ -1003,7 +1011,6 @@ public class Paint
 			}
 		}
 
-		this.lstImages.add(zoneImageObj);
 		return zoneImageObj;
 	}
 
@@ -1053,7 +1060,6 @@ public class Paint
 			}
 		}
 
-		this.lstImages.add(zoneImageObj);
 		return zoneImageObj;
 	}
 
