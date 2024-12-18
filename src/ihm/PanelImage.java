@@ -8,9 +8,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.Toolkit;
 import java.awt.Cursor;
+
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -364,13 +368,21 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 	}
 
-	public void setCursor (String fic)
+	public void setCursor(String fic) 
 	{
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		java.awt.Image image = toolkit.getImage(fic);
-		Cursor c = toolkit.createCustomCursor(image , new java.awt.Point(0,0), "img");
-		this.setCursor(c);
+		try 
+		{
+			BufferedImage image = ImageIO.read(new File(fic));
+			
+			Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(image, new java.awt.Point(0, 30), "customCursor");
+			this.setCursor(c);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
 	}
+
 
 	public void mousePressed(MouseEvent e)
 	{

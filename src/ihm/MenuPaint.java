@@ -266,7 +266,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint (Color.BLACK);
+		graphics.setPaint (Color.WHITE);
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
@@ -281,10 +281,16 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		String fileName  = file.getName();
 
+
+		// Ajouter l'extension si il n'y ai pas
 		if (!fileName.endsWith(".png"))
 		{
-			JOptionPane.showMessageDialog(this, "Erreur : L'image enregistré doit être en .png");
-			this.downloadImage(file);
+			if (!file.getName().endsWith(".png"))
+			{
+				String newFileName = file.getName() + ".png";
+				file = new File(file.getParent(), newFileName);
+				file.renameTo(file);
+			}
 		}
 
 		if (file.exists() && !file.isDirectory())

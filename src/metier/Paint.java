@@ -355,7 +355,7 @@ public class Paint
 	 */
 	public Image getImageAt(int x, int y)
 	{
-		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+		for (int i = this.lstImages.size() - 1; i >= 1; i--)
 			if (imageIn(x, y, this.lstImages.get(i), true)) 
 				return this.lstImages.get(i);
 
@@ -463,6 +463,8 @@ public class Paint
 		ArrayDeque<Point> file = new ArrayDeque<>();
 		file.add(new Point(x, y));
 
+		int minX = x, minY = y, maxX = x, maxY = y;
+
 		while (!file.isEmpty()) 
 		{
 			Point p = file.removeFirst();
@@ -475,18 +477,10 @@ public class Paint
 				visited[px][py] = true;
 				pixels[px][py] = argb;
 
-				Image img = this.getImageAt(px, py);
-				if (img != null) 
-				{
-					BufferedImage subImg = img.getImg();
-					int localX = px - img.getX();
-					int localY = py - img.getY();
-
-					if (localX >= 0 && localX < subImg.getWidth() && localY >= 0 && localY < subImg.getHeight()) 
-					{
-						subImg.setRGB(localX, localY, argb);
-					}
-				}
+				minX = Math.min(minX, px);
+				minY = Math.min(minY, py);
+				maxX = Math.max(maxX, px);
+				maxY = Math.max(maxY, py);
 
 				file.add(new Point(px + 1, py));
 				file.add(new Point(px - 1, py));
@@ -494,6 +488,25 @@ public class Paint
 				file.add(new Point(px, py - 1));
 			}
 		}
+
+		int zoneWidth  = maxX - minX + 1;
+		int zoneHeight = maxY - minY + 1;
+
+		BufferedImage backgroundImg = new BufferedImage(zoneWidth, zoneHeight, BufferedImage.TYPE_INT_ARGB);
+
+		for (int i = minX; i <= maxX; i++) 
+		{
+			for (int j = minY; j <= maxY; j++) 
+			{
+				if (visited[i][j]) 
+				{
+					backgroundImg.setRGB(i - minX, j - minY, argb);
+				}
+			}
+		}
+
+		Image newBackgroundImage = new Image(minX, minY, backgroundImg); // Positionner l'image au bon endroit
+		this.lstImages.add(newBackgroundImage);
 
 		for (int i = 0; i < width; i++) 
 		{
@@ -507,8 +520,8 @@ public class Paint
 		}
 
 		this.save();
-
 	}
+
 
 
 	
