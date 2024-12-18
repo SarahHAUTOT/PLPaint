@@ -57,7 +57,8 @@ public class PLPaint extends JFrame implements KeyListener
 	public static final Color COUL_SECONDARY = Color.decode("#f5f5ff"); // Couleur secondaire de l'application
 	public static final Color COUL_NO_BG     = Color.decode("#BFBFBF"); // Couleur de fond par défault
 	
-	private PLPaint      parent;
+	private PLPaint parent;
+	private PLPaint children;
 
 	private Paint        metier;
 	private MenuPaint    menu;
@@ -69,6 +70,7 @@ public class PLPaint extends JFrame implements KeyListener
 	{
 		/* Création des composants */
 		this.parent       = parent;
+		this.children     = null;
 		this.panelControl = new PanelControl(this, parent != null);
 		this.panelImage   = new PanelImage  (this);
 		this.menu         = new MenuPaint   (this);
@@ -129,6 +131,7 @@ public class PLPaint extends JFrame implements KeyListener
 					return;
 			}
 		
+		if (this.children != null) this.children.dispose();
 		super.dispose();
 	}
 
@@ -143,6 +146,8 @@ public class PLPaint extends JFrame implements KeyListener
 		verticalScrollBar  .setBlockIncrement(100);   
 		horizontalScrollBar.setBlockIncrement(100); 
 	}
+
+	public void setChildren(PLPaint plpaint) { this.children = plpaint; }
 
 	public void setLabelAction(String str) { this.lblAction.setText(str); }
 	public void repaintImagePanel       () { this.setFullImage(this.getImage()); }
@@ -206,11 +211,7 @@ public class PLPaint extends JFrame implements KeyListener
 		System.out.println("oui");
 		if (e.getKeyCode() == KeyEvent.VK_DELETE)
 		{
-			System.out.println("delete");
-			if (this.getSelectedImage() != null)
-			{
-				this.removeImage(getSelectedImage());
-			}
+			this.removeImage();
 		}
 
 		if (e.isControlDown() && e.getKeyCode() == 'A')
@@ -307,11 +308,14 @@ public class PLPaint extends JFrame implements KeyListener
 		this.metier.addImage(img);
 	}
 
-	public void removeImage(Image img)
+	public void removeImage()
 	{
-		this.metier.removeImage(img);
-		this.disableSelection();
-		repaintImagePanel();
+		if (this.getSelectedImage() != null)
+		{
+			this.metier.removeImage(this.getSelectedImage());
+			this.disableSelection();
+			repaintImagePanel();
+		}
 	}
 
 	// Méthode de changement de luminosité
@@ -346,6 +350,8 @@ public class PLPaint extends JFrame implements KeyListener
 			this.getSelectedColor(),
 			distance
 		);
+
+		this.repaintImagePanel();
 	}
 
 	public void removeBgScreen(int argb, int distance)
@@ -355,6 +361,8 @@ public class PLPaint extends JFrame implements KeyListener
 			this.getSelectedColor(),
 			distance
 		);
+
+		this.repaintImagePanel();
 	}
 
 	// Methode Rogner
@@ -374,6 +382,7 @@ public class PLPaint extends JFrame implements KeyListener
 	public void flipHorizontalImage()
 	{
 		this.metier.flipHorizontal(this.getSelectedImage());
+		this.selectLastImage();
 	}
 
 	public void flipHorizontalRect()
@@ -392,6 +401,7 @@ public class PLPaint extends JFrame implements KeyListener
 	public void flipVerticalImage()
 	{
 		this.metier.flipVertical(this.getSelectedImage());
+		this.selectLastImage();
 	}
 
 	public void flipVerticalRect()
@@ -416,6 +426,7 @@ public class PLPaint extends JFrame implements KeyListener
 	public void rotateImage(int angle)
 	{
 		this.metier.rotate(this.getSelectedImage(), angle);
+		this.selectLastImage();
 	}
 
 	public void rotateRect(int angle)
