@@ -41,6 +41,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	private JMenuItem eyedropperItem;
 	private JMenuItem textItem;
 	private JMenuItem goBackItem;
+	private JMenuItem deleteImage;
 
 	public MenuPaint(PLPaint frame)
 	{
@@ -69,6 +70,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.eyedropperItem = new JMenuItem("Pipette");
 		this.textItem       = new JMenuItem("Text");
 		this.goBackItem     = new JMenuItem("Retour en arrière");
+		this.deleteImage    = new JMenuItem("Supprimer l'image");
 
 		// Ajout des items à leur menu respectif
 		fichierMenu.add(this.createItem);
@@ -85,7 +87,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		fichierOutils.add(this.bucketItem     );
 		fichierOutils.add(this.eyedropperItem );
 		fichierOutils.add(this.textItem       );
+		fichierMenu.addSeparator();
 		fichierOutils.add(this.goBackItem     );
+		fichierOutils.add(this.deleteImage    );
 
 		helpItem.add(this.aboutItem);
 
@@ -102,6 +106,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.eyedropperItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
 		this.textItem      .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
 		this.goBackItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK));
 
 		/* Positionnement des composants */
 		this.add(fichierMenu);
@@ -206,6 +211,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 
 		if (this.goBackItem     == e.getSource()) { this.frame.ctrlZ()                             ; return;}
+		if (this.deleteImage    == e.getSource()) { this.frame.removeImage()                       ; return;}
 		if (this.pencilItem     == e.getSource()) { this.frame.setAction(PLPaint.ACTION_PENCIL)    ; return;}
 		if (this.bucketItem     == e.getSource()) { this.frame.setAction(PLPaint.ACTION_BUCKET)    ; return;}
 		if (this.eyedropperItem == e.getSource()) { this.frame.setAction(PLPaint.ACTION_EYEDROPPER); return;}
@@ -257,7 +263,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint (Color.WHITE);
+		graphics.setPaint (Color.BLACK);
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
@@ -336,13 +342,14 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				// Creéation de la nouvelle fenêtre
 				// de l'application
 				PLPaint app = new PLPaint("Importer une nouvelle image", new Paint(), this.frame);
-				this.frame.setFocusable(false);
+				this.frame.setChildren(app);
 
 				// Remplissage de l'image de fond
 				BufferedImage biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
 				g2d.setColor(Color.WHITE);
 				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
+
 				app.setSize((int) (PLPaint.DEFAULT_WIDTH * 0.6), (int) (PLPaint.DEFAULT_HEIGHT * 0.6));
 				app.setFullImage(biImport);
 				app.addImage(new Image(0, 0, biBg));
