@@ -148,12 +148,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		BufferedImage bi = new BufferedImage(maxX - minX +1, maxY - minY +1, BufferedImage.TYPE_INT_ARGB);
 		
-		// Remplissage  de l'image
-		Graphics2D g2d = bi.createGraphics();
-		g2d.setPaint(Color.WHITE);
-		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-
 		// Couleur du trait du dessin
+		Graphics2D g2d = bi.createGraphics();
 		g2d.setPaint(new Color(this.frame.getSelectedColor()));
 		Stroke stroke = new BasicStroke(2f);
 		g2d.setStroke(stroke);
@@ -173,6 +169,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		Image pencilDrawing = new Image(minX, minY, bi);
 
 		this.frame.addImage(pencilDrawing);
+		this.frame.selectLastImage();
 		this.pencilPoints.clear();
 	}
 	
@@ -188,7 +185,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.selectedCircle != null)
 			this.outlineCircle(g, this.selectedCircle, Color.RED);
 		
-		if (this.selectedImage != null)
+			if (this.selectedImage != null)
 			this.outlineRect(g,
 				new Rectangle(
 					this.selectedImage.getX(),
@@ -198,6 +195,20 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 				),
 				Color.YELLOW
 			);
+		
+		
+		if (this.selectedImage != null)
+		{
+			this.outlineRect(g,
+				new Rectangle(
+					this.selectedImage.getX(),
+					this.selectedImage.getY(), 
+					this.selectedImage.getImgWidth () + this.selectedImage.getX(),
+					this.selectedImage.getImgHeight() + this.selectedImage.getY()
+				),
+				Color.YELLOW
+			);
+		}
 	}
 
 	/* --------------------------------------------------------------------------------- */

@@ -62,6 +62,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	
 	private JButton selectionRectangle;
 	private JButton selectionCircle;
+	private JButton deselection;
 
 	private JButton removeBg;
 	private JButton writeText;
@@ -106,6 +107,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	
 			this.selectionRectangle = new JButton(new ImageIcon("./src/ihm/icons/square.png"));
 			this.selectionCircle    = new JButton(new ImageIcon("./src/ihm/icons/circle.png"));
+			this.deselection        = new JButton(new ImageIcon("./src/ihm/icons/unselect.png"));
 
 			this.removeBg  = new JButton(new ImageIcon("./src/ihm/icons/rm-bg.png"));
 			this.writeText = new JButton(new ImageIcon("./src/ihm/icons/text.png"));
@@ -114,7 +116,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			this.eyedropper = new JButton("eyedropper");
+			this.eyedropper = new JButton("Pipette");
 			this.bucket     = new JButton("Peinture");
 	
 			this.brightness = new JButton("Eclaircir");
@@ -199,13 +201,15 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         this.panelButtons.add(panelOutils1F);
 
 		/* SELECTION */
-		JPanel panelSelection = new JPanel(new GridLayout(1,2,10,10));
+		JPanel panelSelection = new JPanel(new GridLayout(2,2,10,10));
 
 		panelSelection.add(this.selectionRectangle);
 		panelSelection.add(this.selectionCircle   );
+		panelSelection.add(this.deselection       );
 
 		this.styleButton(this.selectionRectangle);
 		this.styleButton(this.selectionCircle   );
+		this.styleButton(this.deselection       );
 
 		panelSelection.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
 
@@ -282,18 +286,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			}
 		});
 
-
-
 		this.btnValider.addActionListener(this);
-
 		this.panelOptionText.setVisible(false);
-
-
-
-
-
-
-
 
 		/* POSITIONNEMENT */
 		this.add(this.panelButtons);
@@ -330,6 +324,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		this.selectionRectangle.addActionListener(this);
 		this.selectionCircle   .addActionListener(this);
+		this.deselection       .addActionListener(this);
 
 		this.removeBg .addActionListener(this);
 		this.writeText.addActionListener(this);
@@ -352,9 +347,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
-
-
-
 
 	public void setAction       (int action) { this.action = action; }
 	public void setSelectedColor(int argb  )
@@ -529,6 +521,16 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.frame.setLabelAction("Mode Séléction Rectangle");
 		}
 
+		if (this.deselection == e.getSource())
+		{
+			// On désactive la séléction
+			this.frame.disableSelection();
+			
+			// On renseigne l'action effectuée
+			// On ecrit le mode du curseur dans le label
+			this.action = PLPaint.ACTION_DEFAULT;
+			this.frame.setLabelAction("Mode Curseur");
+		}
 
 		if (this.btnValider == e.getSource())
 		{
@@ -545,9 +547,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			this.frame.addText(font, size, bold, italic, this.biTexture, this.selectedColor);
 		}
-
-
-
 
 		if (!this.frame.hasSelection()) return;
 
