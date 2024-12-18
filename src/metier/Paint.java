@@ -931,7 +931,7 @@ public class Paint
 	 * @param police
 	 * @param size
 	 */
-	public void addText (String text, boolean bold, boolean italic, String police, int size, int argb)
+	public Image addText (String text, boolean bold, boolean italic, String police, int size, int argb, int x, int y)
 	{
 		BufferedImage bi = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 		
@@ -943,9 +943,12 @@ public class Paint
 
 		g2.setColor(new Color(argb));
 		g2.setFont(new Font(police ,style, size));
-		g2.drawString(text, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		g2.drawString(text, x, y);
 
-		this.addImage(new Image(0, 0, bi));
+		Image imgText = new Image(0, 0, bi);
+		this.addImage(imgText);
+
+		return imgText;
 	}	
 
 

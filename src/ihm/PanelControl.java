@@ -8,14 +8,25 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
@@ -23,8 +34,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class PanelControl extends JPanel implements ActionListener, ChangeListener
+public class PanelControl extends JPanel implements ActionListener, ChangeListener, MouseListener
 {
 	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
 	private PLPaint frame;
@@ -56,10 +68,17 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 	private JButton btnColor;
 
+	private JPanel             panelOptionText;
+	private JComboBox<String>  jcbFont;
+	private JComboBox<Integer> jcbSize;
+	private JCheckBox          cbBold;
+	private JCheckBox          cbItalic;
+	private JButton            btnChooseImage;
+	private BufferedImage      biTexture;
+	private JButton            btnValider;
+	private JButton            goBackText;
 
-	private JPanel            panelOptionText;
-	// private JComboBox<String> jcbFont;
-	// private JComboBox<int>    jcbSize;
+
 
 	public PanelControl(PLPaint frame)
 	{
@@ -111,7 +130,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.writeText = new JButton("Ecrire Texte");
 		}
 
-		this.goBack  = new JButton("<html>&#x21B2;</html>");
+		this.goBack     = new JButton("<html>&#x21B2;</html>");
+		this.goBackText = new JButton("<html>&#x21B2;</html>");
 
 		
 		this.sliderLabel = new JLabel();
@@ -212,9 +232,73 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		panelOutils2F.add(panelOutils2);
         this.panelButtons.add(panelOutils2F);
 
+
+		/* OPTION POUR LE TEXTE */
+
+		this.panelOptionText = new JPanel();
+		this.panelOptionText.setLayout(new BoxLayout(this.panelOptionText, BoxLayout.Y_AXIS));
+
+		this.panelOptionText.add(this.goBackText);
+
+		this.panelOptionText.add(new JLabel("Font:"));
+		this.jcbFont = new JComboBox<>(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+		this.panelOptionText.add(this.jcbFont);
+
+		this.panelOptionText.add(new JLabel("Size:"));
+		Integer[] sizes = {8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64};
+		this.jcbSize = new JComboBox<>(sizes);
+		this.jcbSize.setSelectedItem(12);
+		this.panelOptionText.add(this.jcbSize);
+
+		this.cbBold = new JCheckBox("Gras");
+		this.panelOptionText.add(this.cbBold);
+
+		this.cbItalic = new JCheckBox("Italic");
+		this.panelOptionText.add(this.cbItalic);
+
+		this.btnChooseImage = new JButton("Choisissez une image");
+		this.panelOptionText.add(this.btnChooseImage);
+
+		this.btnValider = new JButton("Ajouter");
+		this.panelOptionText.add(this.btnValider);
+
+		btnChooseImage.addActionListener(e -> {
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", "bmp", "gif"));
+			int returnValue = fileChooser.showOpenDialog(panelOptionText);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				try
+				{
+					File selectedFile = fileChooser.getSelectedFile();
+					this.biTexture = ImageIO.read(selectedFile); // Charge l'image en BufferedImage
+					this.btnChooseImage.setText("Fichier choisie");
+				}
+				catch (IOException ex)
+				{
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(panelOptionText, "Failed to load the image.", "Error", JOptionPane.ERROR_MESSAGE);
+					this.btnChooseImage.setText("Choisissez une image");
+				}
+			}
+		});
+
+
+
+		this.btnValider.addActionListener(this);
+
+		this.panelOptionText.setVisible(false);
+
+
+
+
+
+
+
+
 		/* POSITIONNEMENT */
 		this.add(this.panelButtons);
 		this.add(this.panelOption);
+		this.add(this.panelOptionText);
 
 		this.setBackground(PLPaint.COUL_SECONDARY);
 		this.panelButtons    .setBackground(PLPaint.COUL_SECONDARY);
@@ -230,7 +314,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 
 		/* Ecouteurs des boutons */
-		this.goBack.addActionListener(this);
+		this.goBack    .addActionListener(this);
+		this.goBackText.addActionListener(this);
 		this.btnColor  .addActionListener(this);
 
 		this.eyedropper.addActionListener(this);
@@ -249,7 +334,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.removeBg .addActionListener(this);
 		this.writeText.addActionListener(this);
 
-		this.slider.addChangeListener(this);
+		this.slider.addMouseListener(this);
 	}
 
 	private void styleButton(JButton button)
@@ -290,6 +375,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
+		this.frame.hideTextInput();
 		this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		
 		if (this.btnColor == e.getSource())
@@ -307,10 +393,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Crayon");
+			this.frame.setCursor("./src/ihm/icons/pencil.png");
 		}
 
 
-		if (this.goBack == e.getSource())
+		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
 		{
 			// On réinitiale l'action
 			this.frame.setAction(PLPaint.ACTION_DEFAULT);
@@ -320,6 +407,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// Affichage du panel d'actions
 			this.panelOption.setVisible(false);
+			this.panelOptionText.setVisible(false);
 			this.panelButtons.setVisible(true);
 			this.revalidate();
 			this.repaint();
@@ -408,9 +496,11 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.action = PLPaint.ACTION_WRITE_TEXT;
 			this.frame.setLabelAction("Mode Ecriture de texte");
 			
-			// TODO : Affichage du panel texte
 			this.sliderLabel.setText("Ecrire du texte");
-			// TODO : this.add(this.panelText);
+			
+			this.panelOptionText.setVisible(true);
+			this.panelButtons.setVisible(false);
+
 			this.revalidate();
 			this.repaint();
 
@@ -438,6 +528,21 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.action = PLPaint.ACTION_SELECT_RECTANGLE;
 			this.frame.setLabelAction("Mode Séléction Rectangle");
 		}
+
+
+		if (this.btnValider == e.getSource())
+		{
+			String  font = (String) (this.jcbFont.getSelectedItem());
+			int     size = (int)    (this.jcbSize.getSelectedItem());
+			
+			boolean bold   = this.cbBold  .isSelected();
+			boolean italic = this.cbItalic.isSelected();
+
+			this.frame.addText(font, size, bold, italic, this.biTexture, this.selectedColor);
+		}
+
+
+
 
 		if (!this.frame.hasSelection()) return;
 
@@ -507,7 +612,55 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 	@Override
 	public void stateChanged(ChangeEvent e)
-	{
+	{/*
+		if (!this.frame.hasSelection()) return;
+		
+		// Changer la valeur du cercle séléctionné
+		if (this.frame.getSelectedCircle() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessCircle(this.slider.getValue());
+
+			if (this.action == PLPaint.ACTION_ROTATION) {}
+				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+		}
+
+		// Changer la valeur du rectangle séléctionné
+		if (this.frame.getSelectedRectangle() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessRect(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_ROTATION) {}
+				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+		}
+
+		// Changer la valeur de l'image séléctionné
+		if (this.frame.getSelectedImage() != null)
+		{
+			if (this.action == PLPaint.ACTION_BRIGHTNESS)
+				this.frame.setBrightnessImage(this.slider.getValue());
+			
+			if (this.action == PLPaint.ACTION_ROTATION) {}
+				// this.frame.rotate(this.frame.getSelectedCircle(), this.slider.getValue());
+		}
+
+		this.frame.repaintImagePanel();*/
+	}
+
+	public void setTextOption () 
+	{ 
+
+	}
+
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	public void mousePressed(MouseEvent e) {
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		
 		if (!this.frame.hasSelection()) return;
 		
 		// Changer la valeur du cercle séléctionné
@@ -543,10 +696,10 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		this.frame.repaintImagePanel();
 	}
 
+	public void mouseEntered(MouseEvent e) {
+	}
 
-	public void setTextOption () 
-	{ 
-
+	public void mouseExited(MouseEvent e) {
 	}
 
 }

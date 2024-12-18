@@ -200,4 +200,27 @@ public class PLPaint extends JFrame
 
 
 	public void setTextOption () { this.panelControl.setTextOption(); }
+
+	public void hideTextInput()
+	{
+		this.panelImage.hideTextInput();
+	}
+
+	public void addText(String font, int size, boolean bold, boolean italic, BufferedImage texture, int rgb)
+	{
+		String text = this.panelImage.getText();
+
+		if (text != null)
+		{
+			java.awt.Point p = this.panelImage.getTextLocation();
+
+			Image img = this.metier.addText(text, bold, italic, font, size, rgb, (int) p.getX(), (int) p.getY());
+
+			if (texture != null)
+				this.metier.addTexture(texture, img);
+				
+			this.repaintImagePanel();
+		}
+
+	}
 }

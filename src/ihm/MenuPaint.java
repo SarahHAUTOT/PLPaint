@@ -197,7 +197,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint (Color.BLACK);
+		graphics.setPaint (Color.WHITE);
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
@@ -275,14 +275,22 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				if (this.frame.getFullImage().getWidth() < biImport.getWidth())
 				{
 					BufferedImage biBg = new BufferedImage(biImport.getWidth(), imgBg.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
-					(biBg.getGraphics()).setColor(Color.WHITE);
+					
+					// Remplissage  de l'image
+					Graphics2D graphics = biBg.createGraphics();
+					graphics.setPaint (Color.WHITE);
+					graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 					imgBg.setImg(biBg);
 				}
 
 				if (this.frame.getFullImage().getHeight() < biImport.getHeight())
 				{
 					BufferedImage biBg = new BufferedImage(imgBg.getImgWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
-					(biBg.getGraphics()).setColor(Color.WHITE);
+
+					// Remplissage  de l'image
+					Graphics2D graphics = biBg.createGraphics();
+					graphics.setPaint (Color.WHITE);
+					graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 					imgBg.setImg(biBg);
 				}
 

@@ -13,7 +13,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.awt.Toolkit;
 import java.awt.Cursor;
-
+import java.io.File;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -127,10 +128,52 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 		Stroke dashedStroke = new BasicStroke(3F, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 2F, dash, 6F);
 		g2d.fill(dashedStroke.createStrokedShape(ellpise2d));
+	}
 
-		System.out.println("XCenter : " + circle.xCenter());
-		System.out.println("YCenter : " + circle.yCenter());
-		System.out.println("Radius  : " + circle.radius ());
+	public void addPencilDrawing()
+	{
+		int minX, minY;
+		minX = minY = Integer.MAX_VALUE;
+
+		int maxX, maxY;
+		maxY = maxX = Integer.MIN_VALUE;
+
+		for (Point p : this.pencilPoints)
+		{
+			minX = (minX > p.x()) ? p.x(): minX;
+			minY = (minY > p.y()) ? p.y(): minY;
+			maxX = (maxX < p.x()) ? p.x(): maxX;
+			maxY = (maxY < p.y()) ? p.y(): maxY;
+		}
+
+		BufferedImage bi = new BufferedImage(maxX - minX +1, maxY - minY +1, BufferedImage.TYPE_INT_ARGB);
+		
+		// Remplissage  de l'image
+		Graphics2D g2d = bi.createGraphics();
+		g2d.setPaint(Color.WHITE);
+		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+
+		// Couleur du trait du dessin
+		g2d.setPaint(new Color(this.frame.getSelectedColor()));
+		Stroke stroke = new BasicStroke(2f);
+		g2d.setStroke(stroke);
+		
+		for (int i = 1; i < this.pencilPoints.size(); i++)
+		{
+			Point lastCoord = this.pencilPoints.get(i -1);
+			Point coord     = this.pencilPoints.get(i);
+			g2d.drawLine(
+				lastCoord.x() - minX,
+				lastCoord.y() - minY, 
+            	coord.x() - minX,
+				coord.y() - minY
+			);
+		}
+
+		Image pencilDrawing = new Image(minX, minY, bi);
+
+		this.frame.addImage(pencilDrawing);
+		this.pencilPoints.clear();
 	}
 	
 	@Override
@@ -179,7 +222,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 	@Override
 	public void mouseClicked(MouseEvent e)
-	{
+	{		
+		this.hideTextInput();
 		if (this.fullImage == null) return;
 		
 		// On remet à null tout les éléments séléctionnés
@@ -235,7 +279,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			if (this.txtSaisie != null) this.remove(this.txtSaisie);
 			
 			this.txtSaisie = new JTextField("Feur");
-			this.txtSaisie.setBounds(currentCoord.x(), currentCoord.y(), 150, 25);
+			this.txtSaisie.setBounds(currentCoord.x(), currentCoord.y() - 25, 150, 25);
 			this.setVisible(true);
 
 			this.add(this.txtSaisie);
@@ -262,7 +306,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.fullImage == null) return;
 		System.out.println( "moussePressed : x:" + e.getX() + " y:" + e.getY());
 
-		// Séléction en dehors de l'image lors du déplacement de l'image
+		// Séléction en dehors de l'image autorisé lors du déplacement d'une l'image
 		// Initialisation de la coordonée de départ
 		if ( this.selectedImage != null ||
 			(this.startingCoord == null && 
@@ -297,31 +341,8 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		// Création de l'image crée par le pinceau
 		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
 		{
-			int minX, minY;
-			minX = minY = Integer.MAX_VALUE;
-
-			int maxX, maxY;
-			maxY = maxX = Integer.MIN_VALUE;
-
-			for (Point p : this.pencilPoints)
-			{
-				minX = (minX > p.x()) ? p.x(): minX;
-				minY = (minY > p.y()) ? p.y(): minY;
-				maxX = (maxX < p.x()) ? p.x(): maxX;
-				maxY = (maxY < p.y()) ? p.y(): maxY;
-			}
-
-			BufferedImage bi = new BufferedImage(maxX - minX +1, maxY - minY +1, BufferedImage.TYPE_INT_ARGB);
-			for (Point p : this.pencilPoints)
-				bi.setRGB(maxX - p.x(), maxY - p.y(), this.frame.getSelectedColor());
-			
-			Image pencilDrawing = new Image(minX, minY, bi);
-
-			System.out.println(bi);
-			System.out.println("x=" + pencilDrawing.getX() + " y=" + pencilDrawing.getY());
-			this.frame.addImage(pencilDrawing);
-			this.pencilPoints.clear();
-
+			this.pencilPoints.add(new Point(x,y));
+			this.addPencilDrawing();
 			this.frame.repaintImagePanel();
 		}
 
@@ -332,7 +353,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	@Override
 	public void mouseDragged(MouseEvent e)
 	{
-		if (this.fullImage == null) return;
+		if (this.fullImage == null || this.startingCoord == null) return;
 		
 		// Initialisation de la coordonée au clic maintenu
 		// Elle est limitée à la taille du panel
@@ -395,15 +416,34 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		repaint(); // Rafraichir pour voir la séléction graphique du rectangle
 	}
 
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	public void hideTextInput()
+	{
+		if (this.txtSaisie != null) this.remove(this.txtSaisie);
+		this.revalidate();
+	}
+
+	public String getText()
+	{
+		if (this.txtSaisie != null) return this.txtSaisie.getText();
+
+		return null;
+	}
+
+	public java.awt.Point getTextLocation()
+	{
+		if (this.txtSaisie != null) return this.txtSaisie.getLocation();
+		return null;
+	}
+
 	public void waiting()
 	{
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e1) { e1.printStackTrace(); }
 	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {}
