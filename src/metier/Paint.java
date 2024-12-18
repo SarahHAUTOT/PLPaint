@@ -108,7 +108,6 @@ public class Paint
 		for (int x = 0; x < img.getImgWidth(); x++) {
 			for (int y = 0; y < img.getImgHeight(); y++) {
 				int pixelColor = biWithArgb.getRGB(x, y);
-				int alpha = (pixelColor >> 24) & 0xFF; 
 				int colorWithoutAlpha = pixelColor & 0xFFFFFF;
 	
 				if (!Paint.sameColor(colorWithoutAlpha, argb, val)) 
