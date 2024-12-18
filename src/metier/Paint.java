@@ -595,7 +595,7 @@ public class Paint
 	 */
 	public void setLuminosite(Rectangle rect, int var) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
@@ -609,7 +609,7 @@ public class Paint
 	 */
 	public void setLuminosite(Circle cerc, int var) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
 	}
@@ -733,7 +733,7 @@ public class Paint
 	{
 		if (angle == 0 || angle == 360) return;
 
-		Image zoneImage = this.rogner(rect);
+		Image zoneImage = this.trim(rect);
 		this.lstImages.add(zoneImage);
 		this.rotate(zoneImage, angle);
 	}
@@ -755,7 +755,7 @@ public class Paint
 
 		if (angle == 0 || angle == 360) return;
 
-		Image zoneImageObj = this.rogner(cerc);
+		Image zoneImageObj = this.trim(cerc);
 		this.lstImages.add(zoneImageObj);
 		rotate(zoneImageObj, angle);
 
@@ -817,14 +817,14 @@ public class Paint
 	*/
 	public void flipVertical(Rectangle rect) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
 		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
 
 	public void flipVertical(Circle cerc) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
 		this.lstImages.add(img);
 		this.flipVertical(img);
 	}
@@ -869,7 +869,7 @@ public class Paint
 	 */
 	public void flipHorizontal(Rectangle rect) 
 	{
-		Image img = this.rogner(rect);
+		Image img = this.trim(rect);
 		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
@@ -884,7 +884,7 @@ public class Paint
 	 */
 	public void flipHorizontal(Circle cerc) 
 	{
-		Image img = this.rogner(cerc);
+		Image img = this.trim(cerc);
 		this.lstImages.add(img);
 		this.flipHorizontal(img);
 	}
@@ -968,10 +968,10 @@ public class Paint
 
 
 	/* --------------------------------------------------------------------------------------------------- */
-	/*                                            METHODE ROGNER                                           */
+	/*                                            METHODE trim                                           */
 	/* --------------------------------------------------------------------------------------------------- */
 
-	public Image rogner (Rectangle rect)
+	public Image trim (Rectangle rect)
 	{
 
 		int xStart = rect.x();
@@ -1015,7 +1015,7 @@ public class Paint
 	}
 
 
-	public Image rogner (Circle cerc)
+	public Image trim (Circle cerc)
 	{
 
 		int xCentre = cerc.xCenter();
