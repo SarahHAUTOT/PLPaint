@@ -986,7 +986,7 @@ public class Paint
 			for (int y = 0; y < zoneImage.getHeight(); y++) 
 			{
 				int pixel = zoneImage.getRGB(x, y);
-				if (isTrans(pixel)) 
+				if (!isTrans(pixel)) 
 				{ 
 					isTransparent = false;
 					break;
@@ -1076,7 +1076,7 @@ public class Paint
 			for (int y = 0; y < zoneImage.getHeight(); y++) 
 			{
 				int pixel = zoneImage.getRGB(x, y);
-				if (isTrans(pixel)) 
+				if (!isTrans(pixel)) 
 				{ 
 					isTransparent = false;
 					break;
