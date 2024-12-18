@@ -2,6 +2,7 @@ package metier;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -270,7 +271,7 @@ public class Paint
 	 */
 	public Image getClickedImage(int x, int y)
 	{
-		for (int i = this.lstImages.size() - 1; i >= 0; i--)
+		for (int i = this.lstImages.size() - 1; i >= 1; i--)
 			if (imageIn(x, y, this.lstImages.get(i), true)) 
 				return this.lstImages.get(i);
 
@@ -746,82 +747,14 @@ public class Paint
 	*/
 	public void flipVertical(Rectangle rect) 
 	{
-		int xStart = rect.x();
-		int yStart = rect.y();
-		int xEnd = rect.xEnd();
-		int yEnd = rect.yEnd();
-
-		for (int x = xStart; x < xStart + (xEnd - xStart) / 2; x++) 
-		{
-			for (int y = yStart; y < yEnd; y++) 
-			{
-				Image img = getClickedImage(x, y);
-				Image imgMirror = getClickedImage(xEnd - (x - xStart) - 1, y);
-
-				if (img != null && imgMirror != null) 
-				{
-					BufferedImage bi = img.getImg();
-					BufferedImage biMirror = imgMirror.getImg();
-
-					int localX1 = x - img.getX();
-					int localX2 = xEnd - (x - xStart) - 1 - imgMirror.getX();
-					int localY1 = y - img.getY();
-					int localY2 = y - imgMirror.getY();
-
-					if (localX1 >= 0 && localX1 < bi.getWidth() &&
-						localX2 >= 0 && localX2 < biMirror.getWidth() &&
-						localY1 >= 0 && localY1 < bi.getHeight() &&
-						localY2 >= 0 && localY2 < biMirror.getHeight()) 
-					{
-						int temp = bi.getRGB(localX1, localY1);
-						bi.setRGB(localX1, localY1, biMirror.getRGB(localX2, localY2));
-						biMirror.setRGB(localX2, localY2, temp);
-					}
-				}
-			}
-		}
+		Image img = this.rogner(rect);
+		this.flipVertical(img);
 	}
 
 	public void flipVertical(Circle cerc) 
 	{
-		int xCenter = cerc.xCenter();
-		int yCenter = cerc.yCenter();
-		int radius = cerc.radius();
-
-		for (int x = xCenter - radius; x < xCenter; x++) 
-		{
-			for (int y = yCenter - radius; y <= yCenter + radius; y++) 
-			{
-				if (Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
-				{
-					int mirrorX = xCenter + (xCenter - x);
-
-					Image img = getClickedImage(x, y);
-					Image imgMirror = getClickedImage(mirrorX, y);
-
-					if (img != null && imgMirror != null) 
-					{
-						BufferedImage bi = img.getImg();
-						BufferedImage biMirror = imgMirror.getImg();
-
-						int localX1 = x - img.getX();
-						int localX2 = mirrorX - imgMirror.getX();
-						int localY1 = y - img.getY();
-						int localY2 = y - imgMirror.getY();
-
-						if (localX1 >= 0 && localX1 < bi.getWidth() &&
-							localX2 >= 0 && localX2 < biMirror.getWidth() &&
-							localY1 >= 0 && localY1 < bi.getHeight() &&
-							localY2 >= 0 && localY2 < biMirror.getHeight()) 
-						{
-							int temp = bi.getRGB(localX1, localY1);
-							bi.setRGB(localX1, localY1, biMirror.getRGB(localX2, localY2));
-							biMirror.setRGB(localX2, localY2, temp);
-						}
-					}
-				}
-			}
-		}
+		Image img = this.rogner(cerc);
+		this.flipVertical(img);
 	}
 
 	
@@ -861,39 +794,10 @@ public class Paint
 	 */
 	public void flipHorizontal(Rectangle rect) 
 	{
-		int xStart = rect.x();
-		int yStart = rect.y();
-		int xEnd = rect.xEnd();
-		int yEnd = rect.yEnd();
-	
-		for (int x = xStart; x < xEnd; x++) 
-		{
-			for (int y = yStart; y < yStart + (yEnd - yStart) / 2; y++) 
-			{
-				Image img = getClickedImage(x, y);
-				Image imgMirror = getClickedImage(x, yEnd - (y - yStart) - 1);
-	
-				if (img != null && imgMirror != null) 
-				{
-					BufferedImage bi = img.getImg();
-					BufferedImage biMirror = imgMirror.getImg();
-	
-					int localX = x - img.getX();
-					int localY1 = y - img.getY();
-					int localY2 = yEnd - (y - yStart) - 1 - imgMirror.getY();
-	
-					if (localX >= 0 && localX < bi.getWidth() &&
-						localY1 >= 0 && localY1 < bi.getHeight() &&
-						localY2 >= 0 && localY2 < biMirror.getHeight()) 
-					{
-						int temp = bi.getRGB(localX, localY1);
-						bi.setRGB(localX, localY1, biMirror.getRGB(localX, localY2));
-						biMirror.setRGB(localX, localY2, temp);
-					}
-				}
-			}
-		}
+		Image img = this.rogner(rect);
+		this.flipHorizontal(img);
 	}
+
 	
 
 	/**
@@ -904,41 +808,10 @@ public class Paint
 	 */
 	public void flipHorizontal(Circle cerc) 
 	{
-		int xCenter = cerc.xCenter();
-		int yCenter = cerc.yCenter();
-		int radius = cerc.radius();
-	
-		for (int x = xCenter - radius; x <= xCenter + radius; x++) 
-		{
-			for (int y = yCenter - radius; y < yCenter; y++) 
-			{
-				if (Math.sqrt(Math.pow(x - xCenter, 2) + Math.pow(y - yCenter, 2)) <= radius) 
-				{
-					Image img = getClickedImage(x, y);
-					Image imgMirror = getClickedImage(x, yCenter + (yCenter - y));
-	
-					if (img != null && imgMirror != null) 
-					{
-						BufferedImage bi = img.getImg();
-						BufferedImage biMirror = imgMirror.getImg();
-	
-						int localX = x - img.getX();
-						int localY1 = y - img.getY();
-						int localY2 = yCenter + (yCenter - y) - imgMirror.getY();
-	
-						if (localX >= 0 && localX < bi.getWidth() &&
-							localY1 >= 0 && localY1 < bi.getHeight() &&
-							localY2 >= 0 && localY2 < biMirror.getHeight()) 
-						{
-							int temp = bi.getRGB(localX, localY1);
-							bi.setRGB(localX, localY1, biMirror.getRGB(localX, localY2));
-							biMirror.setRGB(localX, localY2, temp);
-						}
-					}
-				}
-			}
-		}
+		Image img = this.rogner(cerc);
+		this.flipHorizontal(img);
 	}
+	
 	
 
 
@@ -956,25 +829,38 @@ public class Paint
 	 * @param police
 	 * @param size
 	 */
-	public Image addText (String text, boolean bold, boolean italic, String police, int size, int argb, int x, int y)
+	
+	 public Image addText(String text, boolean bold, boolean italic, String police, int size, int argb, int x, int y)
 	{
-		BufferedImage bi = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-		
-		Graphics2D g2 = bi.createGraphics();
-		
 		int style = Font.PLAIN;
-		if (bold  ) style = style | Font.BOLD;
-		if (italic) style = style | Font.ITALIC;
-
-		g2.setColor(new Color(argb));
-		g2.setFont(new Font(police ,style, size));
-		g2.drawString(text, x, y);
-
-		Image imgText = new Image(0, 0, bi);
+		if (bold) style |= Font.BOLD;
+		if (italic) style |= Font.ITALIC;
+		
+		Font font = new Font(police, style, size);
+		
+		BufferedImage dummyImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = dummyImage.createGraphics();
+		g2d.setFont(font);
+		FontMetrics metrics = g2d.getFontMetrics();
+		
+		int textWidth  = metrics.stringWidth(text);
+		int textHeight = metrics.getHeight();
+		
+		BufferedImage bi = new BufferedImage(textWidth, textHeight, BufferedImage.TYPE_INT_ARGB);
+		
+		g2d = bi.createGraphics();
+		g2d.setColor(new Color(argb));
+		g2d.setFont(font);
+		g2d.drawString(text, 0, metrics.getAscent()); 
+		
+		g2d.dispose();
+		
+		Image imgText = new Image(x, y, bi);
 		this.addImage(imgText);
-
+		
 		return imgText;
-	}	
+	}
+
 
 
 
