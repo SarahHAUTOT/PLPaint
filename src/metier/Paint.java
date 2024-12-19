@@ -153,7 +153,7 @@ public class Paint
 				{
 					int coul = imgEntre.getRGB(x, y);
 	
-					if ((coul >> 24) != 0x00) {
+					if (!isTrans(coul)) {
 						int xDest = x + xStart;
 						int yDest = y + yStart;
 	
@@ -476,6 +476,7 @@ public class Paint
 
 		int minX = x, minY = y, maxX = x, maxY = y;
 
+		boolean aServie = false;
 		while (!file.isEmpty()) 
 		{
 			Point p = file.removeFirst();
@@ -497,43 +498,45 @@ public class Paint
 				file.add(new Point(px - 1, py));
 				file.add(new Point(px, py + 1));
 				file.add(new Point(px, py - 1));
-			}
-		}
 
-		int zoneWidth  = maxX - minX + 1;
-		int zoneHeight = maxY - minY + 1;
-
-		BufferedImage backgroundImg = new BufferedImage(zoneWidth, zoneHeight, BufferedImage.TYPE_INT_ARGB);
-
-		boolean aServie = false;
-
-		for (int i = minX; i <= maxX; i++) 
-		{
-			for (int j = minY; j <= maxY; j++) 
-			{
-				if (visited[i][j]) 
+				// Si il y a une image a ce point la, on changer la couleur a ce pixel
+				Image img = this.getImageAt(px, py);
+				if (img != null) 
 				{
-					backgroundImg.setRGB(i - minX, j - minY, argb);
+					BufferedImage biImg = img.getImg();
+					biImg.setRGB(px - img.getX(), py - img.getY(), argb);
+					visited[px][py] = false;
+				} else {
 					aServie = true;
 				}
 			}
 		}
 
+
+		
+
 		if (aServie)
 		{
-			Image newBackgroundImage = new Image(minX, minY, backgroundImg); 
-			this.lstImages.add(1,newBackgroundImage);
-		}
+			int zoneWidth  = maxX - minX + 1;
+			int zoneHeight = maxY - minY + 1;
 
-		for (int i = 0; i < width; i++) 
-		{
-			for (int j = 0; j < height; j++) 
+			BufferedImage backgroundImg = new BufferedImage(zoneWidth, zoneHeight, BufferedImage.TYPE_INT_ARGB);
+
+
+			for (int i = minX; i <= maxX; i++) 
 			{
-				if (visited[i][j]) 
+				for (int j = minY; j <= maxY; j++) 
 				{
-					bi.setRGB(i, j, argb);
+					if (visited[i][j]) 
+					{
+						backgroundImg.setRGB(i - minX, j - minY, argb);
+						aServie = true;
+					}
 				}
 			}
+
+			Image newBackgroundImage = new Image(minX, minY, backgroundImg); 
+			this.lstImages.add(1,newBackgroundImage);
 		}
 
 		this.save();

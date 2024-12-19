@@ -89,7 +89,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 
 		this.goBackItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
 
 		/* Positionnement des composants */
 		this.add(fichierMenu);

@@ -331,6 +331,8 @@ public class PLPaint extends JFrame implements KeyListener
 			this.metier.removeImage(this.getSelectedImage());
 			this.disableSelection();
 			this.repaintImagePanel();
+
+			this.save();
 		}
 	}
 
