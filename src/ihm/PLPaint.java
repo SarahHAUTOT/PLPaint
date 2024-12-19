@@ -161,7 +161,7 @@ public class PLPaint extends JFrame
 
 	public void addImgToParent()
 	{
-		BufferedImage biImport = this.getFullImage();
+		BufferedImage biImport = this.metier.getImageWithoutBackground();
 		
 		// Vérifier la taille de l'image de fond du parent
 		/*
@@ -191,8 +191,9 @@ public class PLPaint extends JFrame
 		}
 		 */
 
-
+		System.out.println(biImport.getWidth() + " : " + biImport.getHeight());
 		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
+
 		this.parent.selectLastImage();			
 		this.parent.repaintImagePanel();
 		this.parent.setVisible(true);
