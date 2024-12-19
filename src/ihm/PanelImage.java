@@ -366,16 +366,21 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		try 
 		{
-			BufferedImage image = ImageIO.read(new File(fic));
+			System.out.println(fic);
+			// Chargement de l'image comme ressource
+			BufferedImage image = ImageIO.read(getClass().getResource(fic));
 			
+			// Création d'un curseur personnalisé
 			Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(image, new java.awt.Point(0, 30), "customCursor");
 			this.setCursor(c);
 		} 
-		catch (IOException e) 
+		catch (IOException | NullPointerException e) 
 		{
 			e.printStackTrace();
+			System.out.println("Impossible de charger le fichier : " + fic);
 		}
 	}
+
 
 
 	public void mousePressed(MouseEvent e)

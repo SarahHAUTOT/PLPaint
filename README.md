@@ -1,18 +1,12 @@
-## Getting Started
+# LANCER LE PROJET
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+**Application : .jar**
+Notre programme est disponible et utilisable depuis n'importe quel dossier grace a son .jar.
 
-## Folder Structure
+**Compilation et execution manuel**
+Depuis le dossier racine du projet,executer la commande suivante :
+`javac @compile.list -d ./bin/`
 
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Puis, positionne vous dans le dossier bin et executer le avec :
+`cd bin`
+`java Controller`
