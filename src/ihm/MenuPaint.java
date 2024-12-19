@@ -217,9 +217,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				g2d.setColor(Color.WHITE);
 				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
 
-				this.frame.setFullImage(biImport);
 				this.frame.addImage(new Image(0, 0, biBg));
 				this.frame.addImage(new Image(0, 0, biImport));
+				this.frame.setFullImage(biImport);
 			}
 			else
 			{
@@ -247,8 +247,8 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage
-		this.frame.setFullImage(biBg);
 		this.frame.addImage(new Image(0, 0, biBg));
+		this.frame.setFullImage(biBg);
 	}
 
 	private void downloadImage(File baseDirectory)
@@ -337,9 +337,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 				g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
 
 				app.setSize((int) (PLPaint.DEFAULT_WIDTH * 0.6), (int) (PLPaint.DEFAULT_HEIGHT * 0.6));
-				app.setFullImage(biImport);
 				app.addImage(new Image(0, 0, biBg));
 				app.addImage(new Image(0, 0, biImport));
+				app.setFullImage(biImport);
 			}
 			else
 			{

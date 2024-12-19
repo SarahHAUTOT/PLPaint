@@ -191,7 +191,6 @@ public class PLPaint extends JFrame
 		}
 		 */
 
-		System.out.println(biImport.getWidth() + " : " + biImport.getHeight());
 		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
 
 		this.parent.selectLastImage();			
