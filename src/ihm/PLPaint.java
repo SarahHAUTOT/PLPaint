@@ -288,6 +288,7 @@ public class PLPaint extends JFrame implements KeyListener
 	public void ctrlZ()
 	{
 		this.metier.goBack();
+		this.panelImage.disableSelection();
 		try {
 			wait(500);
 			
@@ -301,6 +302,7 @@ public class PLPaint extends JFrame implements KeyListener
 	public void reset()
 	{
 		this.metier.reset();
+		this.panelImage.disableSelection();
 	}
 
 	public Image getClickedImage(int x, int y)
@@ -325,10 +327,15 @@ public class PLPaint extends JFrame implements KeyListener
 
 	public void removeImage()
 	{
-		if (this.getSelectedImage() != null)
+		Image img = this.getSelectedImage();
+
+		if (img == null & this.getSelectedRectangle() != null) img = this.metier.trim(this.getSelectedRectangle());
+		if (img == null & this.getSelectedCircle   () != null) img = this.metier.trim(this.getSelectedCircle   ());
+
+		if (img != null)
 		{
 			System.out.println("oui oui ça supprime que dalle");
-			this.metier.removeImage(this.getSelectedImage());
+			this.metier.removeImage(img);
 			this.disableSelection();
 			this.repaintImagePanel();
 
@@ -405,6 +412,12 @@ public class PLPaint extends JFrame implements KeyListener
 		this.addImage(img);
 		this.selectLastImage();
 	}
+
+	public void selectScreen() 
+	{
+		this.panelImage.selectScreen();
+	}
+
 
 	// Methode retourner (horizontal)
 	public void flipHorizontalImage()

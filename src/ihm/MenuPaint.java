@@ -38,6 +38,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 	private JMenuItem goBackItem;
 	private JMenuItem deleteImage;
+	private JMenuItem selectAll;
 
 	public MenuPaint(PLPaint frame)
 	{
@@ -63,6 +64,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		// Retour
 		this.goBackItem     = new JMenuItem("Retour en arrière");
 		this.deleteImage    = new JMenuItem("Supprimer l'image");
+		this.selectAll      = new JMenuItem("Tous selectionner");
 
 		// Ajout des items à leur menu respectif
 		fichierMenu.add(this.createItem);
@@ -77,6 +79,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		fichierOutils.add(this.goBackItem     );
 		fichierOutils.add(this.deleteImage    );
+		fichierOutils.add(this.selectAll      );
 
 		helpItem.add(this.aboutItem);
 
@@ -90,6 +93,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 		this.goBackItem    .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 		this.deleteImage   .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
+		this.selectAll     .setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
 
 		/* Positionnement des composants */
 		this.add(fichierMenu);
@@ -110,8 +114,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 
 		
-		this.deleteImage   .addActionListener(this);
-		this.goBackItem    .addActionListener(this);
+		this.deleteImage.addActionListener(this);
+		this.goBackItem .addActionListener(this);
+		this.selectAll  .addActionListener(this);
 	}
 
 	@Override
@@ -188,8 +193,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		}
 
 
-		if (this.goBackItem     == e.getSource()) { this.frame.ctrlZ()      ; return;}
-		if (this.deleteImage    == e.getSource()) { this.frame.removeImage(); return;}
+		if (this.goBackItem     == e.getSource()) { this.frame.ctrlZ()       ; return;}
+		if (this.deleteImage    == e.getSource()) { this.frame.removeImage() ; return;}
+		if (this.selectAll      == e.getSource()) { this.frame.selectScreen(); return;}
 	}
 
 	private void openImage()
@@ -239,7 +245,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint (new Color(this.frame.getSelectedColor()));
+		graphics.setPaint (new Color(Color.WHITE.getRGB()));
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage

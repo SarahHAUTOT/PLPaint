@@ -36,7 +36,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class PanelControl extends JPanel implements ActionListener, ChangeListener
 {
-	private static final int DEFAULT_COLOR = Color.WHITE.getRGB();
+	private static final int DEFAULT_COLOR = Color.BLACK.getRGB();
 	private PLPaint frame;
 	private int     action;
 
@@ -434,7 +434,9 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.panelButtons.setVisible(true);
 			this.revalidate();
 			this.repaint();
-			this.frame.save();
+			
+			if (this.frame.getAction() != PLPaint.ACTION_BUCKET)
+				this.frame.save();
 		}
 		
 		if (this.btnColor == e.getSource())
