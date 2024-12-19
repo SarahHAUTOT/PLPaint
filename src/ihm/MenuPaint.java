@@ -198,6 +198,9 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 	private void openImage()
 	{
+		// Reset de la liste d'images
+		this.frame.reset();
+		
 		File file = this.useFileChooser("Sélectionnez une image", null);
 		if (file == null) return;
 		
@@ -231,6 +234,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 
 	private void createImage()
 	{
+		// Reset de la liste d'images
 		this.frame.reset();
 
 		// Creation d'une nouvelle image
