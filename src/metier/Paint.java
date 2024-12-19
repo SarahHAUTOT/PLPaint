@@ -25,9 +25,9 @@ public class Paint
 	/* --------------------------------------------------- */
 
 	/** Largeur par défauts. */
-	public static final int DEFAULT_WIDTH  = 300;
+	public static final int DEFAULT_WIDTH  = 1000;
 	/** Hauteyr par défauts. */
-	public static final int DEFAULT_HEIGHT = 300;
+	public static final int DEFAULT_HEIGHT = 600;
 
 
 	
@@ -86,6 +86,7 @@ public class Paint
 
 			if ( h > this.height) this.height = h;
 			if ( w > this.width ) this.width  = w;
+			if ( h == this.height || w == this.width) this.resizeBackground();
 		}
 
 		this.save();
@@ -114,21 +115,37 @@ public class Paint
 	{
 		this.lstImages.remove(img);
 
-		// Max height
-		if (img.getImgHeight() >= this.height)
-			for (Image image : lstImages)
-				if (!image.equals(img) && image.getImgHeight() >= this.height)
-				{
-					this.height = img.getImgHeight();	
-				}
+		this.height = 0;
+		this.width  = 0;
+	
+		// On prend pa le fond
+		for (int i = 1; i < this.lstImages.size(); i++) 
+		{
+			Image image = this.lstImages.get(i);
 
-		// Max width
-		if (img.getImgWidth() >= this.width)
-			for (Image image : lstImages)
-				if (!image.equals(img) && image.getImgWidth() >= this.width)
-				{
-					this.width = img.getImgWidth();				
-				}
+			if (image.getImgHeight() > this.height)
+				this.height = image.getImgHeight();
+			if (image.getImgWidth() > this.width)
+				this.width = image.getImgWidth();
+		}
+
+		if (this.height == 0) this.height = DEFAULT_HEIGHT;
+		if (this.width  == 0) this.width  = DEFAULT_WIDTH;
+
+		this.resizeBackground();
+	}
+	
+
+
+	public void resizeBackground()
+	{
+		BufferedImage biBg = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
+				
+		Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
+
+		this.lstImages.get(0).setImg(biBg);
 	}
 
 
@@ -260,10 +277,7 @@ public class Paint
                 if (sameColor(pixel, color, val))
                     result.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
                 else 
-				{
-					// System.out.println("Coul diff");
                     result.setRGB(x, y, pixel);
-				}
             }
         }
 
@@ -413,27 +427,22 @@ public class Paint
 			historique.add(new Image(image));
 		}
 		
-		System.out.println("JAI SAUVEGARDE " + historique.size() + " informations");
 		this.lstHistorique.add(historique);
 	}
 
 	public boolean goBack()
 	{
-		System.out.println("Historique avant retour : " + this.lstHistorique.size());
 		int lastInd = this.lstHistorique.size() - 1;
 	
 		if (lastInd <= 0) {
-			System.out.println("Impossible de revenir en arrière. Historique insuffisant.");
 			return false;
 		}
 	
 		ArrayList<Image> previousState = this.lstHistorique.get(lastInd - 1);
-		System.out.println("État précédent : " + previousState);
 	
 		this.lstImages = new ArrayList<>(previousState);
 		this.lstHistorique.remove(lastInd);
 	
-		System.out.println("Historique après retour : " + this.lstHistorique.size());
 		return true;
 	}
 	

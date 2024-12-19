@@ -26,7 +26,7 @@ import metier.Paint;
 import metier.Rectangle;
 
 
-public class PLPaint extends JFrame implements KeyListener
+public class PLPaint extends JFrame
 {
 	// Mappage des différentes actions disponibles par l'utilisateur
 	public static final int ACTION_DEFAULT = 0;
@@ -115,9 +115,6 @@ public class PLPaint extends JFrame implements KeyListener
 		this.add(panelLbl, BorderLayout.SOUTH);
 
 		/* Ecouteur du clavier */
-		// this.             addKeyListener(this);
-		// this.panelImage.  addKeyListener(this);
-		// this.panelControl.addKeyListener(this);
 
 		this.setVisible(true);
 	}
@@ -216,26 +213,6 @@ public class PLPaint extends JFrame implements KeyListener
 	/*                              METHODE ECOUTEUR CLAVIER                             */
 	/* --------------------------------------------------------------------------------- */
 
-	public void keyPressed(KeyEvent e)
-	{
-		System.out.println("oui");
-		if (e.getKeyCode() == KeyEvent.VK_DELETE)
-		{
-			this.removeImage();
-		}
-
-		if (e.isControlDown() && e.getKeyCode() == 'A')
-		{
-			System.out.println("ctrl a");
-			this.panelImage.selectScreen();
-		}
-
-		if (e.isControlDown() && e.getKeyCode() == 'Z')
-		{
-			System.out.println("ctrl z");
-			this.ctrlZ();
-		}
-	}
 
 	public void keyTyped   (KeyEvent e) {}
 	public void keyReleased(KeyEvent e) {}
@@ -334,7 +311,6 @@ public class PLPaint extends JFrame implements KeyListener
 
 		if (img != null)
 		{
-			System.out.println("oui oui ça supprime que dalle");
 			this.metier.removeImage(img);
 			this.disableSelection();
 			this.repaintImagePanel();

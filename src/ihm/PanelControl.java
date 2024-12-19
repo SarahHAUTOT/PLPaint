@@ -374,7 +374,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 	{
         URL resource = getClass().getResource(resourcePath);
         if (resource == null) {
-            System.err.println("Resource not found: " + resourcePath);
             return new JButton("Missing Icon");
         }
         return new JButton(new ImageIcon(resource));
@@ -442,7 +441,6 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		if (this.btnColor == e.getSource())
 		{
 			Color col = JColorChooser.showDialog(null, "Choisissez une couleur", new Color(this.selectedColor));
-			System.out.println(this.action);
 			if (col != null) this.selectedColor = col.getRGB();
 			this.btnColor.setBackground(new Color(this.selectedColor));
 		}
@@ -532,6 +530,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// On ecrit le mode du curseur dans le label
 			this.action = PLPaint.ACTION_SELECT_CIRCLE;
 			this.frame.setLabelAction("Mode Séléction Cercle");
+			
+			this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 
 		if (this.selectionRectangle == e.getSource())
@@ -543,6 +543,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// On ecrit le mode du curseur dans le label
 			this.action = PLPaint.ACTION_SELECT_RECTANGLE;
 			this.frame.setLabelAction("Mode Séléction Rectangle");
+			this.frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
 		}
 
 		if (this.deselection == e.getSource())

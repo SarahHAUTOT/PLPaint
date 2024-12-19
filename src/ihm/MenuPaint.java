@@ -122,8 +122,6 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		System.out.println("Menu a capté");
-
 		int response;
 		if (this.createItem == e.getSource())
 		{
@@ -236,11 +234,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.frame.reset();
 
 		// Creation d'une nouvelle image
-		BufferedImage biBg = new BufferedImage(
-			(int) (this.frame.getWidth() - this.frame.getWidthPanelControl() * 1.5),
-			(int) (this.frame.getHeight() * 0.80),
-			BufferedImage.TYPE_INT_ARGB
-		);
+		BufferedImage biBg = new BufferedImage(Paint.DEFAULT_WIDTH, Paint.DEFAULT_HEIGHT,BufferedImage.TYPE_INT_ARGB);
 
 		Graphics2D graphics = biBg.createGraphics();
 
