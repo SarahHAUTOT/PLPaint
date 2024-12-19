@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 import java.awt.Cursor;
+import java.awt.Graphics2D;
 
 import metier.Circle;
 import metier.Image;
@@ -128,8 +130,7 @@ public class PLPaint extends JFrame
 			{
 				int response = JOptionPane.showConfirmDialog(
 					this,
-					"Êtes-vous sûr de vouloir quitter ?\n" +
-					"Toutes vos modifiactions d'images ne seront pas enregistrées", 
+					"Êtes-vous sûr de vouloir quitter ?",
 					"Quitter l'application",
 					JOptionPane.YES_NO_OPTION
 				);
@@ -141,6 +142,8 @@ public class PLPaint extends JFrame
 		if (this.children != null) this.children.dispose();
 		super.dispose();
 	}
+
+	public boolean isChildren() { return this.parent != null; }
 
 	private void configureScrollPaneSensitivity(JScrollPane scrollPane)
 	{
@@ -227,6 +230,12 @@ public class PLPaint extends JFrame
 		int lengthLst = this.getImages().size();
 		this.disableSelection();
 		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
+
+		try {
+			ImageIO.write(this.getImages().get(lengthLst -1).getImg(), "png", new java.io.File("test.png"));
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	public void setFullImage(BufferedImage bi)
@@ -266,16 +275,35 @@ public class PLPaint extends JFrame
 	{
 		this.metier.goBack();
 		this.panelImage.disableSelection();
-		try {
-			wait(500);
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		if (this.getImages().size() == 1) this.setFullImage(null);
 		this.repaintImagePanel();
 	}
 
 	// Gestion des images
+	public void setBackgroundImage(BufferedImage biImport)
+	{
+		// Remplissage de l'image de fond
+		BufferedImage biBg;
+		if (biImport != null)
+			biBg = new BufferedImage(biImport.getWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		else
+			biBg = new BufferedImage(Paint.DEFAULT_WIDTH, Paint.DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, biBg.getWidth(), biBg.getHeight());
+
+		this.addImage(new Image(0, 0, biBg));
+		
+		if (biImport != null)
+		{
+			this.addImage(new Image(0, 0, biImport));
+			this.setFullImage(biImport);
+		}
+
+		this.repaintImagePanel();
+	}
+
 	public void reset()
 	{
 		this.metier.reset();
@@ -312,7 +340,9 @@ public class PLPaint extends JFrame
 		if (img != null)
 		{
 			this.metier.removeImage(img);
-			this.disableSelection();
+			if (this.getImages().size() == 1) this.setFullImage(null);
+			
+			this.panelControl.showUtilsPanel();
 			this.repaintImagePanel();
 
 			this.save();
@@ -333,7 +363,11 @@ public class PLPaint extends JFrame
 
 	public void setBrightnessCircle(int value)
 	{
-		this.metier.setLuminosite(this.getSelectedCircle(), value);
+		Circle circ = this.getSelectedCircle();
+		this.disableSelection();
+
+		Image img = this.metier.trim(circ);
+		this.addImage(img);
 		this.selectLastImage();
 	}
 
@@ -389,6 +423,30 @@ public class PLPaint extends JFrame
 		this.selectLastImage();
 	}
 
+	public void getTrimmedRect()
+	{
+		Image img = this.metier.trim(this.getSelectedRectangle());
+		this.disableSelection();
+		this.defaultAction();
+		if (img == null) return;
+
+		this.reset();
+		this.setBackgroundImage(img.getImg());
+		this.selectLastImage();
+	}
+
+	public void getTrimmedCircle()
+	{
+		Image img = this.metier.trim(this.getSelectedCircle());
+		this.disableSelection();
+		this.defaultAction();
+		if (img == null) return;
+
+		this.reset();
+		this.setBackgroundImage(img.getImg());
+		this.selectLastImage();
+	}
+
 	public void selectScreen() 
 	{
 		this.panelImage.selectScreen();
@@ -430,7 +488,11 @@ public class PLPaint extends JFrame
 	// Methode rotation
 	public void rotateCircle(int angle)
 	{
-		this.metier.rotate(this.getSelectedCircle(), angle);
+		Circle circ = this.getSelectedCircle();
+		this.disableSelection();
+
+		Image img = this.metier.trim(circ);
+		this.addImage(img);
 		this.selectLastImage();
 	}
 

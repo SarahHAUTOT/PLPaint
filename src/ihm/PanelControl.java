@@ -262,21 +262,23 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		}
 		else
 		{
-			JPanel panelImport = new JPanel(new GridLayout(1,2,10,10));
+			JPanel panelOutils2 = new JPanel(new GridLayout(2,2,10,10));
+
+			panelOutils2.add(this.addToParent);
+			panelOutils2.add(this.removeBg  );
+			panelOutils2.add(this.trim       );
+
 			this.styleButton(this.addToParent);
-			this.styleButton(this.removeBg);
-
-			panelImport.add(this.addToParent);
-			panelImport.add(this.removeBg   );
-
-			panelImport.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
-			JPanel panelImportF = new JPanel();
-			panelImportF.add(panelImport);
+			this.styleButton(this.removeBg  );
+			this.styleButton(this.trim       );
 			
-			this.panelButtons.add(panelImportF);
+			panelOutils2.setBorder(BorderFactory.createCompoundBorder(topBorder, margin));
+			JPanel panelOutils2F = new JPanel();
+			panelOutils2F.add(panelOutils2);
+			this.panelButtons.add(panelOutils2F);
 
-			panelImportF.setBackground(PLPaint.BASE_COLOR);
-			panelImport .setBackground(PLPaint.BASE_COLOR);
+			panelOutils2F.setBackground(PLPaint.BASE_COLOR);
+			panelOutils2 .setBackground(PLPaint.BASE_COLOR);
 		}
 
 		/* OPTION POUR LE TEXTE */
@@ -395,6 +397,29 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
+	public void showUtilsPanel()
+	{
+		// On désactive la séléction
+		this.frame.disableSelection();
+		this.biTexture = null;
+		
+		// On réinitiale l'action
+		this.frame.defaultAction();
+
+		// On ecrit le mode du curseur dans le label
+		this.frame.setLabelAction("Mode Curseur");
+
+		// Affichage du panel d'actions
+		this.panelOption.setVisible(false);
+		this.panelOptionText.setVisible(false);
+		this.panelButtons.setVisible(true);
+		this.revalidate();
+		this.repaint();
+		
+		if (this.frame.getAction() != PLPaint.ACTION_BUCKET)
+			this.frame.save();
+	}
+
 	public void setAction       (int action) { this.action = action; }
 	public void setSelectedColor(int argb  )
 	{
@@ -418,24 +443,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		if (this.goBack == e.getSource() || this.goBackText == e.getSource())
 		{
-			// On désactive la séléction
-			this.frame.disableSelection();
-			
-			// On réinitiale l'action
-			this.frame.defaultAction();
-
-			// On ecrit le mode du curseur dans le label
-			this.frame.setLabelAction("Mode Curseur");
-
-			// Affichage du panel d'actions
-			this.panelOption.setVisible(false);
-			this.panelOptionText.setVisible(false);
-			this.panelButtons.setVisible(true);
-			this.revalidate();
-			this.repaint();
-			
-			if (this.frame.getAction() != PLPaint.ACTION_BUCKET)
-				this.frame.save();
+			this.showUtilsPanel();
 		}
 		
 		if (this.btnColor == e.getSource())
@@ -599,11 +607,22 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.action = PLPaint.ACTION_TRIM_SURFACE;
 			this.frame.setLabelAction("Mode Rogner");
 
-			if (this.frame.getSelectedRectangle() != null)
-				this.frame.trimRect();
+			if (this.frame.isChildren())
+			{
+				if (this.frame.getSelectedRectangle() != null)
+					this.frame.getTrimmedRect();
 
-			if (this.frame.getSelectedCircle() != null)
-				this.frame.trimCircle();
+				if (this.frame.getSelectedCircle() != null)
+					this.frame.getTrimmedCircle();
+			}
+			else
+			{
+				if (this.frame.getSelectedRectangle() != null)
+					this.frame.trimRect();
+
+				if (this.frame.getSelectedCircle() != null)
+					this.frame.trimCircle();
+			}
 		}
 
 		if (this.rotation == e.getSource())
@@ -646,6 +665,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			// Affichage du panel slider
 			this.panelOption .setVisible(true);
 			this.panelButtons.setVisible(false);
+
 			this.revalidate();
 			this.repaint();
 		}

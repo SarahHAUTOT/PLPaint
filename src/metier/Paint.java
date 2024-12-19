@@ -88,14 +88,8 @@ public class Paint
 
 			this.lstImages.add(img);
 			
-			int h = img.getImg().getHeight(); 
-			int w = img.getImg().getWidth(); 
-
-			if ( h > this.height) this.height = h;
-			if ( w > this.width ) this.width  = w;
-
 			// Si on a changé la hauteur/largeur
-			if ( w == this.width && h == this.height) 
+			if ( img.getImgOgWidth() > this.width || img.getImgHeight() > this.height) 
 				this.resizeBackground();
 
 			this.save();
@@ -125,31 +119,23 @@ public class Paint
 	public void removeImage(Image img)
 	{
 		this.lstImages.remove(img);
-
-		this.height = 0;
-		this.width  = 0;
-	
-		// On prend pa le fond
-		for (int i = 1; i < this.lstImages.size(); i++) 
-		{
-			Image image = this.lstImages.get(i);
-
-			if (image.getImgHeight() > this.height)
-				this.height = image.getImgHeight();
-			if (image.getImgWidth() > this.width)
-				this.width = image.getImgWidth();
-		}
-
-		if (this.height == 0) this.height = this.lstImages.get(0).getImgHeight();
-		if (this.width  == 0) this.width  = this.lstImages.get(0).getImgWidth();
-
-		this.resizeBackground();
 	}
 	
 
 
 	public void resizeBackground()
 	{
+		int height = 0;
+		int width  = 0;
+		for (Image img : this.lstImages)
+		{
+			if (img.getImgHeight() > height) height = img.getImgHeight();
+			if (img.getImgWidth () > width ) width  = img.getImgWidth ();
+		}
+
+		this.height = height;
+		this.width  = width ;
+
 		BufferedImage biBg = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
 				
 		Graphics2D g2d = (Graphics2D) (biBg.getGraphics());
@@ -453,6 +439,8 @@ public class Paint
 	
 		this.lstImages = new ArrayList<>(previousState);
 		this.lstHistorique.remove(lastInd);
+
+		this.resizeBackground();
 	
 		return true;
 	}
@@ -636,13 +624,15 @@ public class Paint
 	 * @param yEnd
 	 * @param var
 	 */
-	public void setLuminosite(Rectangle rect, int var) 
+	public Image setLuminosite(Rectangle rect, int var) 
 	{
 		Image img = this.trim(rect);
-		if (img == null) return;
+		if (img == null) return null;
 
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
+
+		return img;
 	}
 
 	/**
@@ -652,13 +642,15 @@ public class Paint
 	 * @param radius
 	 * @param var
 	 */
-	public void setLuminosite(Circle cerc, int var) 
+	public Image setLuminosite(Circle cerc, int var) 
 	{
 		Image img = this.trim(cerc);
-		if (img == null) return;
+		if (img == null) return null;
 
 		this.lstImages.add(img);
 		this.setLuminosite(img, var);
+
+		return img;
 	}
 
 	
@@ -704,7 +696,7 @@ public class Paint
 	 */
 	public void rotate(Image image, int angle) 
 	{
-		if (angle == 0 || angle == 360) 
+		if (angle == 0 || angle == 360 || angle == -360) 
 		{
 			image.setImg(image.getImgOg());
 			return;

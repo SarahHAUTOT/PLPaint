@@ -280,7 +280,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 
 	@Override
 	public void mouseClicked(MouseEvent e)
-	{		
+	{
 		this.hideTextInput();
 		if (this.fullImage == null) return;
 		
@@ -338,6 +338,9 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		if (this.frame.getAction() == PLPaint.ACTION_EYEDROPPER)
 		{
 			this.frame.setSelectedColor(this.fullImage.getRGB(currentCoord.x(), currentCoord.y()));
+			if (this.frame.isChildren())
+				this.frame.selectLastImage();
+			
 			this.frame.defaultAction();
 			return;
 		}
@@ -352,10 +355,12 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		}
 
 		// Action de rognage, pinceau, et retourner
-		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE  ||
-			this.frame.getAction() == PLPaint.ACTION_PENCIL        ||
-			this.frame.getAction() == PLPaint.ACTION_VERTICAL_FLIP ||
-			this.frame.getAction() == PLPaint.ACTION_HORIZONTAL_FLIP)
+		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE    ||
+			this.frame.getAction() == PLPaint.ACTION_PENCIL          ||
+			this.frame.getAction() == PLPaint.ACTION_VERTICAL_FLIP   ||
+			this.frame.getAction() == PLPaint.ACTION_HORIZONTAL_FLIP ||
+			this.frame.getAction() == PLPaint.ACTION_SELECT_CIRCLE   ||
+			this.frame.getAction() == PLPaint.ACTION_SELECT_RECTANGLE)
 		{
 			this.frame.defaultAction();
 			return;
@@ -366,7 +371,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		try 
 		{
-			System.out.println(fic);
 			// Chargement de l'image comme ressource
 			BufferedImage image = ImageIO.read(getClass().getResource(fic));
 			
@@ -377,7 +381,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		catch (IOException | NullPointerException e) 
 		{
 			e.printStackTrace();
-			System.out.println("Impossible de charger le fichier : " + fic);
 		}
 	}
 
@@ -454,7 +457,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			this.disableSelection();
 		}
 
-		if (this.selectedImage != null)
+		if (!this.frame.isChildren() && this.selectedImage != null)
 		{
 			this.selectedImage.setX(x - this.selectedImage.getImgWidth () /2);
 			this.selectedImage.setY(y - this.selectedImage.getImgHeight() /2);
