@@ -244,7 +244,7 @@ public class Paint
 	 */
     public void removeBackground(Image image, int color, int val) 
 	{
-		BufferedImage bi = image.getImg();
+		BufferedImage bi = image.getImgOg();
 
         int width  = bi.getWidth();
         int height = bi.getHeight();
@@ -255,16 +255,27 @@ public class Paint
 		{
             for (int y = 0; y < height; y++) 
 			{
-                int pixel = bi.getRGB(x, y) & 0xFFFFFF;
+                int pixel = bi.getRGB(x, y) ;
 
                 if (sameColor(pixel, color, val))
                     result.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
                 else 
+				{
+					// System.out.println("Coul diff");
                     result.setRGB(x, y, pixel);
+				}
             }
         }
 
         image.setImg(result);
+
+		try {
+			
+			ImageIO.write(bi,"png",new File ("image.png") );
+			ImageIO.write(result,"png",new File ("fond.png") );
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
 
 
@@ -494,6 +505,8 @@ public class Paint
 
 		BufferedImage backgroundImg = new BufferedImage(zoneWidth, zoneHeight, BufferedImage.TYPE_INT_ARGB);
 
+		boolean aServie = false;
+
 		for (int i = minX; i <= maxX; i++) 
 		{
 			for (int j = minY; j <= maxY; j++) 
@@ -501,12 +514,16 @@ public class Paint
 				if (visited[i][j]) 
 				{
 					backgroundImg.setRGB(i - minX, j - minY, argb);
+					aServie = true;
 				}
 			}
 		}
 
-		Image newBackgroundImage = new Image(minX, minY, backgroundImg); // Positionner l'image au bon endroit
-		this.lstImages.add(newBackgroundImage);
+		if (aServie)
+		{
+			Image newBackgroundImage = new Image(minX, minY, backgroundImg); 
+			this.lstImages.add(1,newBackgroundImage);
+		}
 
 		for (int i = 0; i < width; i++) 
 		{
