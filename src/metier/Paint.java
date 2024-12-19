@@ -79,6 +79,13 @@ public class Paint
 	{
 		if (img != null)
 		{
+			// Taille par défauts
+			if (this.lstImages.isEmpty())
+			{
+				this.height = img.getImgHeight();
+				this.width  = img.getImgWidth();
+			}
+
 			this.lstImages.add(img);
 			
 			int h = img.getImg().getHeight(); 
@@ -86,10 +93,14 @@ public class Paint
 
 			if ( h > this.height) this.height = h;
 			if ( w > this.width ) this.width  = w;
-			if ( h == this.height || w == this.width) this.resizeBackground();
+
+			// Si on a changé la hauteur/largeur
+			if ( w == this.width && h == this.height) 
+				this.resizeBackground();
+
+			this.save();
 		}
 
-		this.save();
 	}
 
 
@@ -129,8 +140,8 @@ public class Paint
 				this.width = image.getImgWidth();
 		}
 
-		if (this.height == 0) this.height = DEFAULT_HEIGHT;
-		if (this.width  == 0) this.width  = DEFAULT_WIDTH;
+		if (this.height == 0) this.height = this.lstImages.get(0).getImgHeight();
+		if (this.width  == 0) this.width  = this.lstImages.get(0).getImgWidth();
 
 		this.resizeBackground();
 	}
