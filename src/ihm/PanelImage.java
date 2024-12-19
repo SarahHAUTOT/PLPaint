@@ -325,7 +325,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		{
 			if (this.textInput != null) this.remove(this.textInput);
 			
-			this.textInput = new JTextField("Feur");
+			this.textInput = new JTextField("");
 			this.textInput.setBounds(currentCoord.x(), currentCoord.y() - 25, 150, 25);
 			this.setVisible(true);
 
