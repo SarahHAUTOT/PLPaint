@@ -114,7 +114,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		this.add(helpItem);
 
 		/* Configuration du panel */
-		this.setBackground(PLPaint.COUL_PRIMARY);
+		this.setBackground(PLPaint.SECONDARY_COLOR);
 		this.setLayout(null);
 
 		/* Ecouteurs d'actions */
@@ -138,8 +138,6 @@ public class MenuPaint extends JMenuBar implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		// Désélection
-		this.frame.disableSelection();
 		System.out.println("Menu a capté");
 
 		int response;
@@ -266,7 +264,7 @@ public class MenuPaint extends JMenuBar implements ActionListener
 		Graphics2D graphics = biBg.createGraphics();
 
 		// Remplissage  de l'image
-		graphics.setPaint (Color.BLACK);
+		graphics.setPaint (new Color(this.frame.getSelectedColor()));
 		graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
 
 		// Affectation de l'image au panelImage

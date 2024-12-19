@@ -36,7 +36,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class PanelControl extends JPanel implements ActionListener, ChangeListener
 {
-	private static final int DEFAULT_COLOR = Color.BLUE.getRGB();
+	private static final int DEFAULT_COLOR = Color.WHITE.getRGB();
 	private PLPaint frame;
 	private int     action;
 
@@ -145,7 +145,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
 
-		this.slider.setBackground(PLPaint.COUL_SECONDARY);
+		this.slider.setBackground(PLPaint.BASE_COLOR);
 
 		// Création du panel option
 		this.panelOption = new JPanel();
@@ -155,10 +155,10 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		JPanel panel = new JPanel();
 
 		/* Changement de fond des comopsants */
-		this             .setBackground(PLPaint.COUL_SECONDARY);
-		panel            .setBackground(PLPaint.COUL_SECONDARY);
-		this.panelButtons.setBackground(PLPaint.COUL_SECONDARY);
-		this.panelOption .setBackground(PLPaint.COUL_SECONDARY);
+		this             .setBackground(PLPaint.BASE_COLOR);
+		panel            .setBackground(PLPaint.BASE_COLOR);
+		this.panelButtons.setBackground(PLPaint.BASE_COLOR);
+		this.panelOption .setBackground(PLPaint.BASE_COLOR);
 		this.panelButtons.setPreferredSize(new Dimension(200, 300));
 		this.panelOption .setPreferredSize(new Dimension(200, 300));
 
@@ -176,12 +176,13 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 		/* COLOR PICKER */
 		this.btnColor      = new JButton();
 		this.selectedColor = PanelControl.DEFAULT_COLOR;
+		this.btnColor.setBorder(BorderFactory.createLineBorder(PLPaint.PRIMARY_COLOR, 3));
 		this.btnColor.setBackground(new Color(this.selectedColor));
 
 		this.panelButtons.add(this.btnColor);
 
 		/* OUTILS 1 */
-		MatteBorder topBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK);
+		MatteBorder topBorder = BorderFactory.createMatteBorder(1, 0, 0, 0, PLPaint.PRIMARY_COLOR);
 		EmptyBorder margin = new EmptyBorder(20, 20, 0, 20);
 
 		if (!isChildren)
@@ -204,8 +205,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			panelOutils1F.add(panelOutils1);
 			this.panelButtons.add(panelOutils1F);
 
-			panelOutils1F.setBackground(PLPaint.COUL_SECONDARY);
-			panelOutils1 .setBackground(PLPaint.COUL_SECONDARY);
+			panelOutils1F.setBackground(PLPaint.BASE_COLOR);
+			panelOutils1 .setBackground(PLPaint.BASE_COLOR);
 		}
 
 		/* SELECTION */
@@ -256,8 +257,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			panelOutils2F.add(panelOutils2);
 			this.panelButtons.add(panelOutils2F);
 
-			panelOutils2F.setBackground(PLPaint.COUL_SECONDARY);
-			panelOutils2 .setBackground(PLPaint.COUL_SECONDARY);
+			panelOutils2F.setBackground(PLPaint.BASE_COLOR);
+			panelOutils2 .setBackground(PLPaint.BASE_COLOR);
 		}
 		else
 		{
@@ -274,8 +275,8 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			
 			this.panelButtons.add(panelImportF);
 
-			panelImportF.setBackground(PLPaint.COUL_SECONDARY);
-			panelImport .setBackground(PLPaint.COUL_SECONDARY);
+			panelImportF.setBackground(PLPaint.BASE_COLOR);
+			panelImport .setBackground(PLPaint.BASE_COLOR);
 		}
 
 		/* OPTION POUR LE TEXTE */
@@ -332,15 +333,15 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 		/* POSITIONNEMENT */
 
-		panelSelectionF.setBackground(PLPaint.COUL_SECONDARY);
-		panelSelection .setBackground(PLPaint.COUL_SECONDARY);
+		panelSelectionF.setBackground(PLPaint.BASE_COLOR);
+		panelSelection .setBackground(PLPaint.BASE_COLOR);
 
 		this.add(this.panelButtons);
 		this.add(this.panelOption);
 		this.add(this.panelOptionText);
 
-		this.setBackground(PLPaint.COUL_SECONDARY);
-		this.panelButtons    .setBackground(PLPaint.COUL_SECONDARY);
+		this.setBackground(PLPaint.BASE_COLOR);
+		this.panelButtons    .setBackground(PLPaint.BASE_COLOR);
 
 		/* Ecouteurs des boutons */
 		this.goBack    .addActionListener(this);

@@ -55,8 +55,9 @@ public class PLPaint extends JFrame implements KeyListener
 	public static final int DEFAULT_WIDTH  = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth () * 0.8);
 	public static final int DEFAULT_HEIGHT = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.85);
 	
-	public static final Color COUL_PRIMARY   = Color.decode("#dedbff"); // Couleur primaire de l'application
-	public static final Color COUL_SECONDARY = Color.decode("#f5f5ff"); // Couleur secondaire de l'application
+	public static final Color PRIMARY_COLOR   = Color.decode("#9289f2"); // Couleur secondaire de l'application
+	public static final Color SECONDARY_COLOR = Color.decode("#ddd6fc"); // Couleur secondaire de l'application
+	public static final Color BASE_COLOR     = Color.decode("#f5f5ff"); // Couleur de base de l'application
 	public static final Color COUL_NO_BG     = Color.decode("#BFBFBF"); // Couleur de fond par défault
 	
 	private PLPaint parent;
@@ -99,7 +100,7 @@ public class PLPaint extends JFrame implements KeyListener
 
 
 		JPanel panelLbl = new JPanel();
-		panelLbl.setBackground(PLPaint.COUL_SECONDARY);
+		panelLbl.setBackground(PLPaint.BASE_COLOR);
 		panelLbl.add(this.lblAction);
 
 		/* Positionnement des composants */
@@ -407,38 +408,32 @@ public class PLPaint extends JFrame implements KeyListener
 	public void flipHorizontalImage()
 	{
 		this.metier.flipHorizontal(this.getSelectedImage());
-		this.selectLastImage();
 	}
 
 	public void flipHorizontalRect()
 	{
 		this.metier.flipHorizontal(this.getSelectedRectangle());
-		this.selectLastImage();
 	}
 
 	public void flipHorizontalCircle()
 	{
 		this.metier.flipHorizontal(this.getSelectedCircle());
-		this.selectLastImage();
 	}
 
 	// Methode retourner (vertical)
 	public void flipVerticalImage()
 	{
 		this.metier.flipVertical(this.getSelectedImage());
-		this.selectLastImage();
 	}
 
 	public void flipVerticalRect()
 	{
 		this.metier.flipVertical(this.getSelectedRectangle());
-		this.selectLastImage();
 	}
 
 	public void flipVerticalCircle()
 	{
 		this.metier.flipVertical(this.getSelectedCircle());
-		this.selectLastImage();
 	}
 
 	// Methode rotation

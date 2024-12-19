@@ -340,20 +340,6 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			return;
 		}
 
-		// Action de rognage
-		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE)
-		{
-			this.frame.defaultAction();
-			return;
-		}
-
-		// Action du pinceau
-		if (this.frame.getAction() == PLPaint.ACTION_PENCIL)
-		{
-			this.frame.defaultAction();
-			return;
-		}
-
 		// Action de la séléction d'une image
 		if (this.frame.getAction() == PLPaint.ACTION_DEFAULT)
 		{
@@ -361,6 +347,16 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 			this.selectedImage = this.frame.getClickedImage(currentCoord.x(), currentCoord.y());
 			if (this.selectedImage != null)
 				this.frame.setLabelAction("Séléction Image");
+		}
+
+		// Action de rognage, pinceau, et retourner
+		if (this.frame.getAction() == PLPaint.ACTION_TRIM_SURFACE  ||
+			this.frame.getAction() == PLPaint.ACTION_PENCIL        ||
+			this.frame.getAction() == PLPaint.ACTION_VERTICAL_FLIP ||
+			this.frame.getAction() == PLPaint.ACTION_HORIZONTAL_FLIP)
+		{
+			this.frame.defaultAction();
+			return;
 		}
 	}
 
