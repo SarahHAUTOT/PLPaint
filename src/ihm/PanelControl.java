@@ -452,7 +452,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 
 			// On ecrit le mode du curseur dans le label
 			this.frame.setLabelAction("Mode Crayon");
-			this.frame.setCursor("./src/ihm/icons/pencil.png");
+			this.frame.setCursor("/ihm/icons/pencil.png");
 		}
 
 		if (this.addToParent == e.getSource())
@@ -470,7 +470,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.action = PLPaint.ACTION_EYEDROPPER;
 			this.frame.setLabelAction("Mode Pipette");
 
-			this.frame.setCursor("./src/ihm/icons/eyedropper.png");
+			this.frame.setCursor("/ihm/icons/eyedropper.png");
 		}
 
 		if (this.bucket == e.getSource())
@@ -497,7 +497,7 @@ public class PanelControl extends JPanel implements ActionListener, ChangeListen
 			this.revalidate();
 			this.repaint();
 
-			this.frame.setCursor("./src/ihm/icons/bucket.png");
+			this.frame.setCursor("/ihm/icons/bucket.png");
 		}
 
 		if (this.writeText == e.getSource())

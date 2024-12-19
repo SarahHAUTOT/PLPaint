@@ -325,7 +325,7 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 		{
 			if (this.textInput != null) this.remove(this.textInput);
 			
-			this.textInput = new JTextField("Feur");
+			this.textInput = new JTextField("");
 			this.textInput.setBounds(currentCoord.x(), currentCoord.y() - 25, 150, 25);
 			this.setVisible(true);
 
@@ -366,16 +366,21 @@ public class PanelImage extends JPanel implements MouseMotionListener, MouseList
 	{
 		try 
 		{
-			BufferedImage image = ImageIO.read(new File(fic));
+			System.out.println(fic);
+			// Chargement de l'image comme ressource
+			BufferedImage image = ImageIO.read(getClass().getResource(fic));
 			
+			// Création d'un curseur personnalisé
 			Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(image, new java.awt.Point(0, 30), "customCursor");
 			this.setCursor(c);
 		} 
-		catch (IOException e) 
+		catch (IOException | NullPointerException e) 
 		{
 			e.printStackTrace();
+			System.out.println("Impossible de charger le fichier : " + fic);
 		}
 	}
+
 
 
 	public void mousePressed(MouseEvent e)
