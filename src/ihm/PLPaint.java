@@ -166,35 +166,7 @@ public class PLPaint extends JFrame
 	{
 		BufferedImage biImport = this.metier.getImageWithoutBackground();
 		
-		// Vérifier la taille de l'image de fond du parent
-		/*
-		// Changement de l'image de fond
-		// Si l'image importée est plus grande
-		Image imgBg = this.frame.getImages().get(0);
-		if (this.frame.getFullImage().getWidth() < biImport.getWidth())
-		{
-			biBg = new BufferedImage(biImport.getWidth(), imgBg.getImgHeight(), BufferedImage.TYPE_INT_ARGB);
-			
-			// Remplissage  de l'image
-			Graphics2D graphics = biBg.createGraphics();
-			graphics.setPaint (Color.WHITE);
-			graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
-			imgBg.setImg(biBg);
-		}
-
-		if (this.frame.getFullImage().getHeight() < biImport.getHeight())
-		{
-			biBg = new BufferedImage(imgBg.getImgWidth(), biImport.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-			// Remplissage  de l'image
-			Graphics2D graphics = biBg.createGraphics();
-			graphics.setPaint (Color.WHITE);
-			graphics.fillRect (0, 0, biBg.getWidth(), biBg.getHeight());
-			imgBg.setImg(biBg);
-		}
-		 */
-
-		this.parent.addImage(new Image(0, 0, biImport)); // TODO Prendre les coordonées courante du panelImage
+		this.parent.addImage(new Image(0, 0, biImport));
 
 		this.parent.selectLastImage();			
 		this.parent.repaintImagePanel();
@@ -230,12 +202,6 @@ public class PLPaint extends JFrame
 		int lengthLst = this.getImages().size();
 		this.disableSelection();
 		this.panelImage.setSelectedImage(this.getImages().get(lengthLst -1));
-
-		try {
-			ImageIO.write(this.getImages().get(lengthLst -1).getImg(), "png", new java.io.File("test.png"));
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
 	}
 
 	public void setFullImage(BufferedImage bi)

@@ -1148,36 +1148,6 @@ public class Paint
 		return zoneImageObj;
 	}
 
-
-
-	/* --------------------------------------------------------------------------------------------------- */
-	/*                                              MAIN DE TEST                                           */
-	/* --------------------------------------------------------------------------------------------------- */
-
-
-	public static void main(String[] args) {
-		Paint p = new Paint();
-
-		try {
-			Image img = new Image(0,0, ImageIO.read(new File("src/metier/test.png")));
-			p.addImage(img);
-
-			p.removeBackground(img, img.getImg().getRGB(0, 0), 20);
-			// p.bucket(0,0,Color.RED.getRGB(), 30);
-
-			// p.flipVertical(50,50,500,350);
-			// p.setLuminosite(0,0,600,300,-50);
-			// p.setLuminosite(img, 50);
-			// p.setLuminosite(img, -50);
-			// p.setLuminosite(img, -50);
-
-			ImageIO.write(p.getImage(),"png",new File ("fin.png") );
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Retourne la liste des images
 	 * @return
